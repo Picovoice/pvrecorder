@@ -32,7 +32,11 @@ typedef struct pv_recorder pv_recorder_t;
  * @param[out] object Audio Recorder object to initialize.
  * @return Status Code. PV_STATUS_INVALID_ARGUMENT, or PV_STATUS_OUT_OF_MEMORY on failure.
  */
-PV_API pv_status_t pv_recorder_init(int32_t device_index, int32_t frame_length, void (*callback)(const int16_t *), pv_recorder_t **object);
+PV_API pv_status_t pv_recorder_init(
+        int32_t device_index,
+        int32_t frame_length,
+        void (*callback)(const int16_t *),
+        pv_recorder_t **object);
 
 /**
  * Destructor.

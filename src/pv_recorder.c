@@ -69,8 +69,11 @@ static void pv_recorder_ma_callback(ma_device *device, void *output, const void 
     }
 }
 
-pv_status_t pv_recorder_init(int32_t device_index, int32_t frame_length, void (*callback)(const int16_t *),
-                             pv_recorder_t **object) {
+pv_status_t pv_recorder_init(
+        int32_t device_index,
+        int32_t frame_length,
+        void (*callback)(const int16_t *),
+        pv_recorder_t **object) {
     if (frame_length <= 0) {
         return PV_STATUS_INVALID_ARGUMENT;
     }
