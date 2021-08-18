@@ -44,7 +44,7 @@ void pv_recorder_delete(pv_recorder_t *object);
 /**
  * Gets the input audio devices currently available.
  *
- * @param[out] device_count The number of audio devices.
+ * @param[out] count The number of audio devices.
  * @param[out] devices An array containing names of audio devices.
  * @return Status Code. Returns PV_STATUS_OUT_OF_MEMORY or PV_STATUS_INVALID_ARGUMENT on failure.
  */
