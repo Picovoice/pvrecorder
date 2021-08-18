@@ -69,7 +69,8 @@ static void pv_recorder_ma_callback(ma_device *device, void *output, const void 
     }
 }
 
-pv_status_t pv_recorder_init( int32_t device_index, int32_t frame_length, void (*callback)(const int16_t *), pv_recorder_t **object) {
+pv_status_t pv_recorder_init(int32_t device_index, int32_t frame_length, void (*callback)(const int16_t *),
+                             pv_recorder_t **object) {
     if (frame_length <= 0) {
         return PV_STATUS_INVALID_ARGUMENT;
     }
@@ -104,7 +105,7 @@ pv_status_t pv_recorder_init( int32_t device_index, int32_t frame_length, void (
         return PV_STATUS_INVALID_ARGUMENT;
     }
 
-    o->frame_buffer = malloc(frame_length * sizeof (int16_t));
+    o->frame_buffer = malloc(frame_length * sizeof(int16_t));
     if (!o->frame_buffer) {
         pv_recorder_delete(o);
         return PV_STATUS_OUT_OF_MEMORY;
