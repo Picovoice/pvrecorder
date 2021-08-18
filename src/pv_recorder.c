@@ -37,9 +37,6 @@ const char pv_recorder_invalid_state_message[] = "pv_recorder invalid state";
 const char pv_recorder_out_of_memory_message[] = "pv_recorder failed to allocate memory";
 const char pv_recorder_invalid_args_message[] = "pv_recorder received incorrect params";
 
-static const char **device_refs;
-static int32_t device_count;
-
 static void pv_recorder_ma_callback(ma_device *device, void *output, const void *input, ma_uint32 frame_count) {
     (void) output;
 
@@ -144,66 +141,6 @@ void pv_recorder_delete(pv_recorder_t *object) {
     }
 }
 
-pv_status_t pv_recorder_get_audio_devices(int32_t *count, const char ***devices) {
-    if (!count) {
-        return PV_STATUS_INVALID_ARGUMENT;
-    }
-    if (!devices) {
-        return PV_STATUS_INVALID_ARGUMENT;
-    }
-
-    ma_context context;
-    ma_result result = ma_context_init(NULL, 0, NULL, &context);
-    if (result != MA_SUCCESS) {
-        return PV_STATUS_OUT_OF_MEMORY;
-    }
-
-    ma_device_info *capture_info;
-    ma_uint32 capture_count;
-    result = ma_context_get_devices(&context, NULL, NULL, &capture_info, &capture_count);
-    if (result != MA_SUCCESS) {
-        ma_context_uninit(&context);
-        return PV_STATUS_OUT_OF_MEMORY;
-    }
-
-    pv_recorder_free_device_list();
-    device_refs = malloc(capture_count * sizeof(char *));
-    if (!device_refs) {
-        ma_context_uninit(&context);
-        return PV_STATUS_OUT_OF_MEMORY;
-    }
-
-    for (int32_t i = 0; i < capture_count; ++i) {
-        device_refs[i] = strdup(capture_info[i].name);
-        if (device_refs[i] == NULL) {
-            for (int32_t j = i - 1; j >= 0; --j) {
-                free((void *) device_refs[j]);
-            }
-            ma_context_uninit(&context);
-            return PV_STATUS_OUT_OF_MEMORY;
-        }
-    }
-
-    ma_context_uninit(&context);
-    device_count = (int32_t) capture_count;
-
-    *count = device_count;
-    *devices = device_refs;
-
-    return PV_STATUS_SUCCESS;
-}
-
-void pv_recorder_free_device_list() {
-    if (device_refs && (device_count > 0)) {
-        for (int32_t i = 0; i < device_count; ++i) {
-            free((void *) device_refs[i]);
-        }
-        free(device_refs);
-        device_refs = NULL;
-        device_count = 0;
-    }
-}
-
 pv_status_t pv_recorder_start(pv_recorder_t *object) {
     if (!object) {
         return PV_STATUS_INVALID_ARGUMENT;
@@ -242,5 +179,61 @@ const char *pv_status_to_string(pv_status_t status) {
     }
     if (status == PV_STATUS_INVALID_ARGUMENT) {
         return pv_recorder_invalid_args_message;
+    }
+}
+
+pv_status_t pv_recorder_get_audio_devices(int32_t *count, char ***devices) {
+    if (!count) {
+        return PV_STATUS_INVALID_ARGUMENT;
+    }
+    if (!devices) {
+        return PV_STATUS_INVALID_ARGUMENT;
+    }
+
+    ma_context context;
+    ma_result result = ma_context_init(NULL, 0, NULL, &context);
+    if (result != MA_SUCCESS) {
+        return PV_STATUS_OUT_OF_MEMORY;
+    }
+
+    ma_device_info *capture_info;
+    ma_uint32 capture_count;
+    result = ma_context_get_devices(&context, NULL, NULL, &capture_info, &capture_count);
+    if (result != MA_SUCCESS) {
+        ma_context_uninit(&context);
+        return PV_STATUS_OUT_OF_MEMORY;
+    }
+
+    char **d = calloc(capture_count, sizeof(char *));
+    if (!d) {
+        ma_context_uninit(&context);
+        return PV_STATUS_OUT_OF_MEMORY;
+    }
+
+    for (int32_t i = 0; i < capture_count; ++i) {
+        d[i] = strdup(capture_info[i].name);
+        if (d[i] == NULL) {
+            for (int32_t j = i - 1; j >= 0; --j) {
+                free(d[j]);
+            }
+            ma_context_uninit(&context);
+            return PV_STATUS_OUT_OF_MEMORY;
+        }
+    }
+
+    ma_context_uninit(&context);
+
+    *count = (int32_t) capture_count;
+    *devices = d;
+
+    return PV_STATUS_SUCCESS;
+}
+
+void pv_recorder_free_device_list(int32_t count, char **devices) {
+    if (devices && (count > 0)) {
+        for (int32_t i = 0; i < count; ++i) {
+            free(devices[i]);
+        }
+        free(devices);
     }
 }

@@ -21,11 +21,3 @@ endif()
 install(TARGETS pv_recorder
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
-include_directories("${PROJECT_SOURCE_DIR}/../porcupine/include")
-
-add_executable(
-        mic
-        mic.c)
-
-target_link_libraries(mic ${CMAKE_CURRENT_SOURCE_DIR}/libpv_recorder.a pthread m dl)

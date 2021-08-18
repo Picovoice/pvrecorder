@@ -32,28 +32,14 @@ typedef struct pv_recorder pv_recorder_t;
  * @param[out] object Audio Recorder object to initialize.
  * @return Status Code. PV_STATUS_INVALID_ARGUMENT, or PV_STATUS_OUT_OF_MEMORY on failure.
  */
-pv_status_t pv_recorder_init(int32_t device_index, int32_t frame_length, void (*callback)(const int16_t *), pv_recorder_t **object);
+PV_API pv_status_t pv_recorder_init(int32_t device_index, int32_t frame_length, void (*callback)(const int16_t *), pv_recorder_t **object);
 
 /**
  * Destructor.
  *
  * @param object PV_Recorder object.
  */
-void pv_recorder_delete(pv_recorder_t *object);
-
-/**
- * Gets the input audio devices currently available.
- *
- * @param[out] count The number of audio devices.
- * @param[out] devices An array containing names of audio devices.
- * @return Status Code. Returns PV_STATUS_OUT_OF_MEMORY or PV_STATUS_INVALID_ARGUMENT on failure.
- */
-pv_status_t pv_recorder_get_audio_devices(int32_t *count, const char ***devices);
-
-/**
- * Frees the device list initialized by pv_recorder_get_audio_devices.
- */
-void pv_recorder_free_device_list();
+PV_API void pv_recorder_delete(pv_recorder_t *object);
 
 /**
  * Starts recording audio.
@@ -61,7 +47,7 @@ void pv_recorder_free_device_list();
  * @param object PV_Recorder object.
  * @returnStatus Status Code. Returns PV_STATUS_INVALID_ARGUMENT or PV_STATUS_INVALID_STATE on failure.
  */
-pv_status_t pv_recorder_start(pv_recorder_t *object);
+PV_API pv_status_t pv_recorder_start(pv_recorder_t *object);
 
 /**
  * Stops recording audio.
@@ -69,6 +55,26 @@ pv_status_t pv_recorder_start(pv_recorder_t *object);
  * @param object PV_Recorder object.
  * @return Status Code. Returns PV_STATUS_INVALID_ARGUMENT or PV_STATUS_INVALID_STATE on failure.
  */
-pv_status_t pv_recorder_stop(pv_recorder_t *object);
+PV_API pv_status_t pv_recorder_stop(pv_recorder_t *object);
+
+/**
+ * Gets the input audio devices currently available. Each device name has a separate pointer, so the
+ * caller must free each item in the output array individually and free the output array itself.
+ * The utility function pv_recorder_free_device_list is provided to free the device list.
+ *
+ * @param[out] count The number of audio devices.
+ * @param[out] devices The output array containing the list of audio devices.
+ * @return Status Code. Returns PV_STATUS_OUT_OF_MEMORY or PV_STATUS_INVALID_ARGUMENT on failure.
+ */
+PV_API pv_status_t pv_recorder_get_audio_devices(int32_t *count, char ***devices);
+
+/**
+ * Frees the device list initialized by pv_recorder_get_audio_devices. The function does not do
+ * any checks, providing correct count and pointer is up to the caller.
+ *
+ * @param count The number of audio devices.
+ * @param devices The array containing the list of audio devices.
+ */
+PV_API void pv_recorder_free_device_list(int32_t count, char **devices);
 
 #endif //PV_RECORDER_H
