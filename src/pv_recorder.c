@@ -24,18 +24,13 @@
 #include "pv_recorder.h"
 
 struct pv_recorder {
-    ma_context context;
+    ma_context *context;
     ma_device device;
     int32_t frame_length;
     int32_t buffer_filled;
     int16_t *frame_buffer;
     void (*pcm_callback)(const int16_t *);
 };
-
-const char pv_recorder_success_message[] = "pv_recorder success";
-const char pv_recorder_invalid_state_message[] = "pv_recorder invalid state";
-const char pv_recorder_out_of_memory_message[] = "pv_recorder failed to allocate memory";
-const char pv_recorder_invalid_args_message[] = "pv_recorder received incorrect params";
 
 static void pv_recorder_ma_callback(ma_device *device, void *output, const void *input, ma_uint32 frame_count) {
     (void) output;
@@ -83,6 +78,9 @@ pv_status_t pv_recorder_init(
     if (!object) {
         return PV_STATUS_INVALID_ARGUMENT;
     }
+    if (device_index < PV_RECORDER_DEFAULT_INDEX) {
+        return PV_STATUS_INVALID_ARGUMENT;
+    }
 
     *object = NULL;
 
@@ -91,45 +89,65 @@ pv_status_t pv_recorder_init(
         return PV_STATUS_OUT_OF_MEMORY;
     }
 
-    ma_result result = ma_context_init(NULL, 0, NULL, &o->context);
-    if (result != MA_SUCCESS) {
-        return PV_STATUS_OUT_OF_MEMORY;
-    }
-
-    ma_device_info *capture_info;
-    ma_uint32 count;
-    result = ma_context_get_devices(&o->context, NULL, NULL, &capture_info, &count);
+    o->context = calloc(1, sizeof(ma_context));
+    ma_result result = ma_context_init(NULL, 0, NULL, o->context);
     if (result != MA_SUCCESS) {
         pv_recorder_delete(o);
-        return PV_STATUS_OUT_OF_MEMORY;
+        if ((result == MA_NO_BACKEND) || (result == MA_FAILED_TO_INIT_BACKEND)) {
+            return PV_STATUS_BACKEND_ERROR;
+        } else if (result == MA_OUT_OF_MEMORY) {
+            return PV_STATUS_OUT_OF_MEMORY;
+        } else {
+            return PV_STATUS_INVALID_STATE;
+        }
     }
-    if (device_index < 0 || device_index >= count) {
-        pv_recorder_delete(o);
-        return PV_STATUS_INVALID_ARGUMENT;
-    }
-
-    o->frame_buffer = malloc(frame_length * sizeof(int16_t));
-    if (!o->frame_buffer) {
-        pv_recorder_delete(o);
-        return PV_STATUS_OUT_OF_MEMORY;
-    }
-    o->frame_length = frame_length;
-    o->pcm_callback = callback;
 
     ma_device_config device_config;
     device_config = ma_device_config_init(ma_device_type_capture);
     device_config.capture.format = ma_format_s16;
     device_config.capture.channels = 1;
-    device_config.capture.pDeviceID = &capture_info[device_index].id;
     device_config.sampleRate = ma_standard_sample_rate_16000;
     device_config.dataCallback = pv_recorder_ma_callback;
     device_config.pUserData = o;
 
-    result = ma_device_init(NULL, &device_config, &o->device);
+    if (device_index != PV_RECORDER_DEFAULT_INDEX) {
+        ma_device_info *capture_info = NULL;
+        ma_uint32 count = 0;
+        result = ma_context_get_devices(o->context, NULL, NULL, &capture_info, &count);
+        if (result != MA_SUCCESS) {
+            pv_recorder_delete(o);
+            if (result == MA_OUT_OF_MEMORY) {
+                return PV_STATUS_OUT_OF_MEMORY;
+            } else {
+                return PV_STATUS_INVALID_STATE;
+            }
+        }
+        if (device_index >= count) {
+            pv_recorder_delete(o);
+            return PV_STATUS_INVALID_ARGUMENT;
+        }
+        device_config.capture.pDeviceID = &capture_info[device_index].id;
+    }
+
+    result = ma_device_init(o->context, &device_config, &(o->device));
     if (result != MA_SUCCESS) {
+        pv_recorder_delete(o);
+        if (result == MA_DEVICE_ALREADY_INITIALIZED) {
+            return PV_STATUS_DEVICE_INITIALIZED;
+        } else if (result == MA_OUT_OF_MEMORY) {
+            return PV_STATUS_OUT_OF_MEMORY;
+        } else {
+            return PV_STATUS_INVALID_STATE;
+        }
+    }
+
+    o->frame_buffer = malloc(frame_length * sizeof(int16_t));
+    if (!(o->frame_buffer)) {
         pv_recorder_delete(o);
         return PV_STATUS_OUT_OF_MEMORY;
     }
+    o->frame_length = frame_length;
+    o->pcm_callback = callback;
 
     *object = o;
 
@@ -138,8 +156,10 @@ pv_status_t pv_recorder_init(
 
 void pv_recorder_delete(pv_recorder_t *object) {
     if (object) {
-        ma_device_uninit(&object->device);
-        ma_context_uninit(&object->context);
+        ma_device_uninit(&(object->device));
+        ma_context_uninit(object->context);
+        free(object->context);
+        object->context = NULL;
         free(object->frame_buffer);
         free(object);
     }
@@ -150,9 +170,13 @@ pv_status_t pv_recorder_start(pv_recorder_t *object) {
         return PV_STATUS_INVALID_ARGUMENT;
     }
 
-    ma_result result = ma_device_start(&object->device);
+    ma_result result = ma_device_start(&(object->device));
     if (result != MA_SUCCESS) {
-        return PV_STATUS_INVALID_STATE;
+        if (result == MA_DEVICE_NOT_INITIALIZED) {
+            return PV_STATUS_DEVICE_NOT_INITIALIZED;
+        } else {
+            return PV_STATUS_INVALID_STATE;
+        }
     }
 
     return PV_STATUS_SUCCESS;
@@ -163,27 +187,34 @@ pv_status_t pv_recorder_stop(pv_recorder_t *object) {
         return PV_STATUS_INVALID_ARGUMENT;
     }
 
-    ma_result result = ma_device_stop(&object->device);
+    ma_result result = ma_device_stop(&(object->device));
     if (result != MA_SUCCESS) {
-        return PV_STATUS_INVALID_STATE;
+        if (result == MA_DEVICE_NOT_INITIALIZED) {
+            return PV_STATUS_DEVICE_NOT_INITIALIZED;
+        } else {
+            return PV_STATUS_INVALID_STATE;
+        }
     }
 
     return PV_STATUS_SUCCESS;
 }
 
 const char *pv_status_to_string(pv_status_t status) {
-    if (status == PV_STATUS_SUCCESS) {
-        return pv_recorder_success_message;
+    static const char *const STRINGS[] = {
+            "SUCCESS",
+            "OUT_OF_MEMORY",
+            "INVALID_ARGUMENT",
+            "INVALID_STATE",
+            "BACKEND_ERROR",
+            "DEVICE_INITIALIZED",
+            "DEVICE_NOT_INITIALIZED"};
+
+    int32_t size = sizeof(STRINGS)/sizeof(STRINGS[0]);
+    if (status < PV_STATUS_SUCCESS || status >= (PV_STATUS_SUCCESS + size)) {
+        return NULL;
     }
-    if (status == PV_STATUS_INVALID_STATE) {
-        return pv_recorder_invalid_state_message;
-    }
-    if (status == PV_STATUS_OUT_OF_MEMORY) {
-        return pv_recorder_out_of_memory_message;
-    }
-    if (status == PV_STATUS_INVALID_ARGUMENT) {
-        return pv_recorder_invalid_args_message;
-    }
+
+    return STRINGS[status - PV_STATUS_SUCCESS];
 }
 
 pv_status_t pv_recorder_get_audio_devices(int32_t *count, char ***devices) {
@@ -197,7 +228,13 @@ pv_status_t pv_recorder_get_audio_devices(int32_t *count, char ***devices) {
     ma_context context;
     ma_result result = ma_context_init(NULL, 0, NULL, &context);
     if (result != MA_SUCCESS) {
-        return PV_STATUS_OUT_OF_MEMORY;
+        if ((result == MA_NO_BACKEND) || (result == MA_FAILED_TO_INIT_BACKEND)) {
+            return PV_STATUS_BACKEND_ERROR;
+        } else if (result == MA_OUT_OF_MEMORY) {
+            return PV_STATUS_OUT_OF_MEMORY;
+        } else {
+            return PV_STATUS_INVALID_STATE;
+        }
     }
 
     ma_device_info *capture_info;
@@ -205,7 +242,11 @@ pv_status_t pv_recorder_get_audio_devices(int32_t *count, char ***devices) {
     result = ma_context_get_devices(&context, NULL, NULL, &capture_info, &capture_count);
     if (result != MA_SUCCESS) {
         ma_context_uninit(&context);
-        return PV_STATUS_OUT_OF_MEMORY;
+        if (result == MA_OUT_OF_MEMORY) {
+            return PV_STATUS_OUT_OF_MEMORY;
+        } else {
+            return PV_STATUS_INVALID_STATE;
+        }
     }
 
     char **d = calloc(capture_count, sizeof(char *));
@@ -214,12 +255,13 @@ pv_status_t pv_recorder_get_audio_devices(int32_t *count, char ***devices) {
         return PV_STATUS_OUT_OF_MEMORY;
     }
 
-    for (int32_t i = 0; i < capture_count; ++i) {
+    for (int32_t i = 0; i < (int32_t) capture_count; i++) {
         d[i] = strdup(capture_info[i].name);
-        if (d[i] == NULL) {
-            for (int32_t j = i - 1; j >= 0; --j) {
+        if (!d[i]) {
+            for (int32_t j = i - 1; j >= 0; j--) {
                 free(d[j]);
             }
+            free(d);
             ma_context_uninit(&context);
             return PV_STATUS_OUT_OF_MEMORY;
         }
@@ -235,7 +277,7 @@ pv_status_t pv_recorder_get_audio_devices(int32_t *count, char ***devices) {
 
 void pv_recorder_free_device_list(int32_t count, char **devices) {
     if (devices && (count > 0)) {
-        for (int32_t i = 0; i < count; ++i) {
+        for (int32_t i = 0; i < count; i++) {
             free(devices[i]);
         }
         free(devices);

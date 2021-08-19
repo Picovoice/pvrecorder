@@ -17,6 +17,8 @@
 
 #include "picovoice.h"
 
+#define PV_RECORDER_DEFAULT_INDEX (-1)
+
 /**
  * Forward declaration of PV_Recorder object. It contains everything related to recording
  * audio, and audio frame information.
@@ -26,7 +28,7 @@ typedef struct pv_recorder pv_recorder_t;
 /**
  * Constructor for Picovoice Audio Recorder.
  *
- * @param device_index The index of the audio device to use.
+ * @param device_index The index of the audio device to use. A value of (-1) will resort to default device.
  * @param frame_length The length of the audio frame buffer to fill.
  * @param callback Callback to run after audio frame is filled with frame_length.
  * @param[out] object Audio Recorder object to initialize.

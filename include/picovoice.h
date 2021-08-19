@@ -1,5 +1,5 @@
 /*
-    Copyright 2018-2020 Picovoice Inc.
+    Copyright 2021 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -32,11 +32,11 @@ PV_API int pv_sample_rate(void);
 typedef enum {
     PV_STATUS_SUCCESS = 0,
     PV_STATUS_OUT_OF_MEMORY,
-    PV_STATUS_IO_ERROR,
     PV_STATUS_INVALID_ARGUMENT,
-    PV_STATUS_STOP_ITERATION,
-    PV_STATUS_KEY_ERROR,
     PV_STATUS_INVALID_STATE,
+    PV_STATUS_BACKEND_ERROR,
+    PV_STATUS_DEVICE_INITIALIZED,
+    PV_STATUS_DEVICE_NOT_INITIALIZED,
 } pv_status_t;
 
 /**
