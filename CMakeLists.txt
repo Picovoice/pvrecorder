@@ -20,3 +20,13 @@ if(DEFINED OUTPUT_DIR)
                 "${CMAKE_SOURCE_DIR}/${OUTPUT_DIR}/$<TARGET_FILE_NAME:pv_recorder>"
             COMMENT "Copying to output directory.")
 endif()
+
+add_executable(demo EXCLUDE_FROM_ALL example/demo.c )
+
+target_include_directories(demo PUBLIC include)
+
+if (NOT WIN32)
+    target_link_libraries(demo pv_recorder pthread dl m)
+else()
+    target_link_libraries(demo pv_recorder)
+endif()
