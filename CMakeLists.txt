@@ -13,6 +13,10 @@ set_target_properties(pv_recorder PROPERTIES
 target_include_directories(pv_recorder PUBLIC include)
 target_include_directories(pv_recorder PRIVATE src/miniaudio)
 
-install(TARGETS pv_recorder
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+if(DEFINED OUTPUT_DIR)
+    add_custom_command(TARGET pv_recorder POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+                $<TARGET_FILE:pv_recorder>
+                "${CMAKE_SOURCE_DIR}/${OUTPUT_DIR}/$<TARGET_FILE_NAME:pv_recorder>"
+            COMMENT "Copying to output directory.")
+endif()

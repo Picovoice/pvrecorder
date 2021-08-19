@@ -17,7 +17,7 @@
 
 #define PV_API __attribute__((visibility ("default")))
 
-#define PV_RECORDER_DEFAULT_INDEX (-1)
+#define PV_RECORDER_DEFAULT_DEVICE_INDEX (-1)
 
 /**
  * Forward declaration of PV_Recorder object. It contains everything related to recording
@@ -34,8 +34,9 @@ typedef enum {
     PV_RECORDER_STATUS_INVALID_ARGUMENT,
     PV_RECORDER_STATUS_INVALID_STATE,
     PV_RECORDER_STATUS_BACKEND_ERROR,
-    PV_RECORDER_STATUS_DEVICE_INITIALIZED,
+    PV_RECORDER_STATUS_DEVICE_ALREADY_INITIALIZED,
     PV_RECORDER_STATUS_DEVICE_NOT_INITIALIZED,
+    PV_RECORDER_STATUS_RUNTIME_ERROR
 } pv_recorder_status_t;
 
 /**

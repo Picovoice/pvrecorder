@@ -69,6 +69,9 @@ PV_API pv_recorder_status_t pv_recorder_init(
         int32_t frame_length,
         void (*callback)(const int16_t *),
         pv_recorder_t **object) {
+    if (device_index < PV_RECORDER_DEFAULT_DEVICE_INDEX) {
+        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
+    }
     if (frame_length <= 0) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
@@ -76,9 +79,6 @@ PV_API pv_recorder_status_t pv_recorder_init(
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
     if (!object) {
-        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
-    }
-    if (device_index < PV_RECORDER_DEFAULT_INDEX) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
 
@@ -97,7 +97,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
         } else if (result == MA_OUT_OF_MEMORY) {
             return PV_RECORDER_STATUS_OUT_OF_MEMORY;
         } else {
-            return PV_RECORDER_STATUS_INVALID_STATE;
+            return PV_RECORDER_STATUS_RUNTIME_ERROR;
         }
     }
 
@@ -109,7 +109,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
     device_config.dataCallback = pv_recorder_ma_callback;
     device_config.pUserData = o;
 
-    if (device_index != PV_RECORDER_DEFAULT_INDEX) {
+    if (device_index != PV_RECORDER_DEFAULT_DEVICE_INDEX) {
         ma_device_info *capture_info = NULL;
         ma_uint32 count = 0;
         result = ma_context_get_devices(&(o->context), NULL, NULL, &capture_info, &count);
@@ -118,7 +118,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
             if (result == MA_OUT_OF_MEMORY) {
                 return PV_RECORDER_STATUS_OUT_OF_MEMORY;
             } else {
-                return PV_RECORDER_STATUS_INVALID_STATE;
+                return PV_RECORDER_STATUS_RUNTIME_ERROR;
             }
         }
         if (device_index >= count) {
@@ -132,11 +132,11 @@ PV_API pv_recorder_status_t pv_recorder_init(
     if (result != MA_SUCCESS) {
         pv_recorder_delete(o);
         if (result == MA_DEVICE_ALREADY_INITIALIZED) {
-            return PV_RECORDER_STATUS_DEVICE_INITIALIZED;
+            return PV_RECORDER_STATUS_DEVICE_ALREADY_INITIALIZED;
         } else if (result == MA_OUT_OF_MEMORY) {
             return PV_RECORDER_STATUS_OUT_OF_MEMORY;
         } else {
-            return PV_RECORDER_STATUS_INVALID_STATE;
+            return PV_RECORDER_STATUS_RUNTIME_ERROR;
         }
     }
 
