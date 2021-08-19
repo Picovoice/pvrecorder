@@ -45,7 +45,8 @@ typedef enum {
  * @param frame_length The length of the audio frame buffer to fill.
  * @param callback Callback to run after audio frame is filled with frame_length.
  * @param[out] object Audio Recorder object to initialize.
- * @return Status Code. PV_STATUS_INVALID_ARGUMENT, or PV_STATUS_OUT_OF_MEMORY on failure.
+ * @return Status Code. PV_STATUS_INVALID_ARGUMENT, PV_RECORDER_STATUS_BACKEND_ERROR,
+ * PV_RECORDER_STATUS_DEVICE_INITIALIZED or PV_STATUS_OUT_OF_MEMORY on failure.
  */
 PV_API pv_recorder_status_t pv_recorder_init(
         int32_t device_index,
@@ -61,10 +62,10 @@ PV_API pv_recorder_status_t pv_recorder_init(
 PV_API void pv_recorder_delete(pv_recorder_t *object);
 
 /**
- * Starts recording audio.
+ * Starts recording audio. Processes the callback given in the constructor.
  *
  * @param object PV_Recorder object.
- * @returnStatus Status Code. Returns PV_STATUS_INVALID_ARGUMENT or PV_STATUS_INVALID_STATE on failure.
+ * @returnStatus Status Code. Returns PV_STATUS_INVALID_ARGUMENT, PV_RECORDER_STATUS_DEVICE_NOT_INITIALIZED or PV_STATUS_INVALID_STATE on failure.
  */
 PV_API pv_recorder_status_t pv_recorder_start(pv_recorder_t *object);
 
@@ -72,7 +73,7 @@ PV_API pv_recorder_status_t pv_recorder_start(pv_recorder_t *object);
  * Stops recording audio.
  *
  * @param object PV_Recorder object.
- * @return Status Code. Returns PV_STATUS_INVALID_ARGUMENT or PV_STATUS_INVALID_STATE on failure.
+ * @return Status Code. Returns PV_STATUS_INVALID_ARGUMENT, PV_RECORDER_STATUS_DEVICE_NOT_INITIALIZED or PV_STATUS_INVALID_STATE on failure.
  */
 PV_API pv_recorder_status_t pv_recorder_stop(pv_recorder_t *object);
 
@@ -83,7 +84,7 @@ PV_API pv_recorder_status_t pv_recorder_stop(pv_recorder_t *object);
  *
  * @param[out] count The number of audio devices.
  * @param[out] devices The output array containing the list of audio devices.
- * @return Status Code. Returns PV_STATUS_OUT_OF_MEMORY or PV_STATUS_INVALID_ARGUMENT on failure.
+ * @return Status Code. Returns PV_STATUS_OUT_OF_MEMORY, PV_RECORDER_STATUS_BACKEND_ERROR or PV_STATUS_INVALID_ARGUMENT on failure.
  */
 PV_API pv_recorder_status_t pv_recorder_get_audio_devices(int32_t *count, char ***devices);
 
