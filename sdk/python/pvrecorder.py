@@ -10,6 +10,7 @@
 #
 
 import os
+import platform
 import subprocess
 from ctypes import *
 from enum import Enum
@@ -157,10 +158,12 @@ class PVRecorder(object):
     def _lib_path():
         """A helper function to get the library path."""
 
-        command = subprocess.run(
-            os.path.join(os.path.dirname(__file__), "scripts", "platform.sh"),
-            text=True,
-            capture_output=True)
+        if platform.system() == "Windows":
+            script_path = os.path.join(os.path.dirname(__file__), "scripts", "platform.bat")
+        else:
+            script_path = os.path.join(os.path.dirname(__file__), "scripts", "platform.sh")
+
+        command = subprocess.run(script_path, text=True, capture_output=True)
 
         if command.returncode != 0:
             raise RuntimeError("Current system is not supported.")
