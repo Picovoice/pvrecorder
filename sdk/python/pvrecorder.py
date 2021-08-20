@@ -163,11 +163,11 @@ class PVRecorder(object):
         else:
             script_path = os.path.join(os.path.dirname(__file__), "scripts", "platform.sh")
 
-        command = subprocess.run(script_path, text=True, capture_output=True)
+        command = subprocess.run(script_path, stdout=subprocess.PIPE)
 
         if command.returncode != 0:
             raise RuntimeError("Current system is not supported.")
-        os_name, cpu = str(command.stdout).split(" ")
+        os_name, cpu = str(command.stdout.decode("utf-8")).split(" ")
 
         if os_name == "windows":
             extension = "dll"
