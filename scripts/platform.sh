@@ -16,7 +16,7 @@ case $kernel in
     kernel="linux"
     case $arch in
       "x86_64") ;;
-      "arm*" | "aarch64")
+      "arm"* | "aarch64")
         arch_info=''
         if [[ $arch == "aarch64" ]]; then
           arch_info=-$arch
