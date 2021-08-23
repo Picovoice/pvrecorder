@@ -192,14 +192,17 @@ func callbackHandler(pcm *C.int16_t, userData unsafe.Pointer) {
 }
 
 func extractLib() string {
+	var command string
 	var scriptPath string
 	if runtime.GOOS == "windows" {
+		command = "cmd"
 		scriptPath = path.Join("embedded", "scripts", "platform.bat")
 	} else {
+		command = "bash"
 		scriptPath = path.Join("embedded", "scripts", "platform.sh")
 	}
 
-	cmd := exec.Command(scriptPath)
+	cmd := exec.Command(command, scriptPath)
 	stdout, err := cmd.Output()
 	
 	if err != nil {
