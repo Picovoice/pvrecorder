@@ -23,7 +23,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"reflect"
 	"runtime"
@@ -192,17 +191,15 @@ func callbackHandler(pcm *C.int16_t, userData unsafe.Pointer) {
 }
 
 func extractLib() string {
-	var command string
 	var scriptPath string
 	if runtime.GOOS == "windows" {
-		command = "cmd"
-		scriptPath = path.Join("embedded", "scripts", "platform.bat")
+		scriptPath = filepath.Join("embedded", "scripts", "platform.bat")
 	} else {
-		command = "bash"
-		scriptPath = path.Join("embedded", "scripts", "platform.sh")
+		scriptPath = filepath.Join("embedded", "scripts", "platform.sh")
 	}
 
-	cmd := exec.Command(command, scriptPath)
+	script := extractFile(scriptPath, extractionDir)
+	cmd := exec.Command(script)
 	stdout, err := cmd.Output()
 	
 	if err != nil {
