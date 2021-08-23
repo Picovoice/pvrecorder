@@ -68,7 +68,7 @@ import (
 var (
 	lib = C.dlopen(C.CString(libName), C.RTLD_NOW)
 
-	pv_recorder_init_ptr 				= C.dlsym(lib, C.CString("pv_recorder_init"))
+	pv_recorder_init_ptr 				= C.dlsym(lib, C.CString("pv_recorder_init_with_data"))
 	pv_recorder_delete_ptr 				= C.dlsym(lib, C.CString("pv_recorder_delete"))
 	pv_recorder_start_ptr 				= C.dlsym(lib, C.CString("pv_recorder_start"))
 	pv_recorder_stop_ptr 				= C.dlsym(lib, C.CString("pv_recorder_stop"))
