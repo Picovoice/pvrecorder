@@ -56,6 +56,24 @@ PV_API pv_recorder_status_t pv_recorder_init(
         pv_recorder_t **object);
 
 /**
+ * Constructor for Picovoice Audio Recorder with extra user data required by the callback.
+ *
+ * @param device_index The index of the audio device to use. A value of (-1) will resort to default device.
+ * @param frame_length The length of the audio frame buffer to fill.
+ * @param callback Callback to run after audio frame is filled with frame_length.
+ * @param user_data The pointer to extra data to be used by callback.
+ * @param[out] object Audio Recorder object to initialize.
+ * @return Status Code. PV_STATUS_INVALID_ARGUMENT, PV_RECORDER_STATUS_BACKEND_ERROR,
+ * PV_RECORDER_STATUS_DEVICE_INITIALIZED or PV_STATUS_OUT_OF_MEMORY on failure.
+ */
+PV_API pv_recorder_status_t pv_recorder_init_with_data(
+        int32_t device_index,
+        int32_t frame_length,
+        void (*callback)(const int16_t *, void *),
+        void *user_data,
+        pv_recorder_t **object);
+
+/**
  * Destructor.
  *
  * @param object PV_Recorder object.

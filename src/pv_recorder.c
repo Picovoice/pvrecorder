@@ -29,7 +29,9 @@ struct pv_recorder {
     int32_t frame_length;
     int32_t buffer_filled;
     int16_t *frame_buffer;
+    void *user_data;
     void (*pcm_callback)(const int16_t *);
+    void (*pcm_callback_with_data)(const int16_t *, void *);
 };
 
 static void pv_recorder_ma_callback(ma_device *device, void *output, const void *input, ma_uint32 frame_count) {
@@ -56,7 +58,11 @@ static void pv_recorder_ma_callback(ma_device *device, void *output, const void 
             processed_frames += frames_to_read;
             object->buffer_filled += frames_to_read;
         } else {
-            object->pcm_callback(object->frame_buffer);
+            if (object->user_data == NULL) {
+                object->pcm_callback(object->frame_buffer);
+            } else {
+                object->pcm_callback_with_data(object->frame_buffer, object->user_data);
+            }
 
             buffer_ptr = object->frame_buffer;
             object->buffer_filled = 0;
@@ -64,18 +70,14 @@ static void pv_recorder_ma_callback(ma_device *device, void *output, const void 
     }
 }
 
-PV_API pv_recorder_status_t pv_recorder_init(
+static pv_recorder_status_t pv_recorder_init_common(
         int32_t device_index,
         int32_t frame_length,
-        void (*callback)(const int16_t *),
         pv_recorder_t **object) {
     if (device_index < PV_RECORDER_DEFAULT_DEVICE_INDEX) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
     if (frame_length <= 0) {
-        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
-    }
-    if (!callback) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
     if (!object) {
@@ -146,11 +148,51 @@ PV_API pv_recorder_status_t pv_recorder_init(
         return PV_RECORDER_STATUS_OUT_OF_MEMORY;
     }
     o->frame_length = frame_length;
-    o->pcm_callback = callback;
 
     *object = o;
 
     return PV_RECORDER_STATUS_SUCCESS;
+}
+
+PV_API pv_recorder_status_t pv_recorder_init(
+        int32_t device_index,
+        int32_t frame_length,
+        void (*callback)(const int16_t *),
+        pv_recorder_t **object) {
+    if (!callback) {
+        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
+    }
+    pv_recorder_status_t status = pv_recorder_init_common(
+            device_index,
+            frame_length,
+            object);
+    if (status == PV_RECORDER_STATUS_SUCCESS) {
+        (*object)->pcm_callback = callback;
+    }
+    return status;
+}
+
+PV_API pv_recorder_status_t pv_recorder_init_with_data(
+        int32_t device_index,
+        int32_t frame_length,
+        void (*callback)(const int16_t *, void *),
+        void *user_data,
+        pv_recorder_t **object) {
+    if (!callback) {
+        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
+    }
+    if (!user_data) {
+        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
+    }
+    pv_recorder_status_t status = pv_recorder_init_common(
+            device_index,
+            frame_length,
+            object);
+    if (status == PV_RECORDER_STATUS_SUCCESS) {
+        (*object)->pcm_callback_with_data = callback;
+        (*object)->user_data = user_data;
+    }
+    return status;
 }
 
 PV_API void pv_recorder_delete(pv_recorder_t *object) {

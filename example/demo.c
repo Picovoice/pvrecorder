@@ -20,6 +20,18 @@ static void pv_recorder_callback(const int16_t *pcm) {
     (void) pcm;
 }
 
+struct extra_data {
+    int a;
+};
+
+static void pv_recorder_callback_with_data(const int16_t *pcm, void *user_data) {
+    // use user data
+    struct extra_data *data = (struct extra_data *) user_data;
+    (void) data;
+    // do something with pcm
+    (void) pcm;
+}
+
 int main() {
     char **devices;
     int32_t count;
@@ -68,12 +80,28 @@ int main() {
         exit(-1);
     }
 
+    fprintf(stdout, "Deleting pv_recorder...\n");
+    pv_recorder_delete(recorder);
+
+    struct extra_data data = {1};
+
+    fprintf(stdout, "Initializing with data...\n");
+    status = pv_recorder_init_with_data(-1, 512, pv_recorder_callback_with_data, &data, &recorder);
+    if (status != PV_RECORDER_STATUS_SUCCESS) {
+        fprintf(stdout, "Failed to initialize device with %s.\n", pv_recorder_status_to_string(status));
+        exit(-1);
+    }
+
     fprintf(stdout, "Start recording...\n");
     status = pv_recorder_start(recorder);
     if (status != PV_RECORDER_STATUS_SUCCESS) {
         fprintf(stdout, "Failed to start device with %s.\n", pv_recorder_status_to_string(status));
         exit(-1);
     }
+
+    fprintf(stdout, "Sleeping for 1 second...\n");
+
+    sleep(1);
 
     fprintf(stdout, "Deleting pv_recorder...\n");
     pv_recorder_delete(recorder);
