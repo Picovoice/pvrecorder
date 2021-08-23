@@ -17,12 +17,14 @@ package pvrecorder
 #cgo LDFLAGS: -lpthread -ldl -lm
 #include <dlfcn.h>
 #include <stdlib.h>
-#include <stdint.h> 
+#include <stdint.h>
 
-typedef int32_t (*pv_recorder_init_func)(int32_t, int32_t, void (*)(int16_t *))
+extern void callbackHandler(int16_t *pcm, void *userData);
 
-int32_t pv_recorder_init_wrapper(void *f, int32_t device_index, int32_t frame_length, void(*callback)(int16_t *)) {
-	return ((pv_recorder_init_func) f)(device_index, frame_length, callback);
+typedef int32_t (*pv_recorder_init_func)(int32_t, int32_t, void (*)(int16_t *, void *), void *, void **);
+
+int32_t pv_recorder_init_wrapper(void *f, int32_t device_index, int32_t frame_length, void *user_data, void **object) {
+	return ((pv_recorder_init_func) f)(device_index, frame_length, callbackHandler, user_data, object);
 }
 
 typedef void (*pv_recorder_delete_func)(void *);
@@ -33,30 +35,26 @@ void pv_recorder_delete_wrapper(void *f, void *object) {
 
 typedef int32_t (*pv_recorder_start_func)(void *);
 
-void pv_recorder_start_wrapper(void *f, void *object) {
-	return ((ov_recorder_start_func) f)(object);
+int32_t pv_recorder_start_wrapper(void *f, void *object) {
+	return ((pv_recorder_start_func) f)(object);
 }
 
 typedef int32_t (*pv_recorder_stop_func)(void *);
 
-void pv_recorder_stop_wrapper(void *f, void *object) {
-	return ((ov_recorder_stop_func) f)(object);
+int32_t pv_recorder_stop_wrapper(void *f, void *object) {
+	return ((pv_recorder_stop_func) f)(object);
 }
 
 typedef int32_t (*pv_recorder_get_audio_devices_func)(int32_t *, char ***);
 
-void pv_recorder_get_audio_devices_wrapper(void *f, int32_t *count, char ***devices) {
-	return ((pv_recorder_get_audio_devices_func) f)(object, count, devices);
+int32_t pv_recorder_get_audio_devices_wrapper(void *f, int32_t *count, char ***devices) {
+	return ((pv_recorder_get_audio_devices_func) f)(count, devices);
 }
 
-typedef void (*pv_recorder_free_device_list)(int32_t, char**);
+typedef void (*pv_recorder_free_device_list_func)(int32_t, char**);
 
-void pv_recorder_get_free_device_list(void *f, int32_t count, char **devices) {
-	return ((pv_recorder_free_device_list) f)(object, count, devices);
-}
-
-void *pv_recorder_callback_wrapper(void *callback) {
-	return 
+void pv_recorder_free_device_list_wrapper(void *f, int32_t count, char **devices) {
+	return ((pv_recorder_free_device_list_func) f)(count, devices);
 }
 
 */
@@ -66,28 +64,65 @@ import (
 	"unsafe"
 )
 
+// private vars
 var (
-	lib = C.dlopen(C.CString(getLibPath()), C.RTLD_NOW)
+	lib = C.dlopen(C.CString(libName), C.RTLD_NOW)
 
-	pv_recorder_init_ptr = C.dlsym(lib, C.CString("pv_recorder_init"))
-	pv_recorder_delete_ptr = C.dlsym(lib, C.CString("pv_recorder_delete"))
-	pv_recorder_start_ptr = C.dlsym(lib, C.CString("pv_recorder_start"))
-	pv_recorder_stop_ptr = C.dlsym(lib, C.CString("pv_recorder_stop"))
-	pv_recorder_get_audio_devices_ptr = C.dlsym(lib, C.CString("pv_recorder_get_audio_devices"))
-	pv_recorder_free_device_list_ptr = C.dlsym(lib, C.CString("pv_recorder_free_device_list"))
+	pv_recorder_init_ptr 				= C.dlsym(lib, C.CString("pv_recorder_init"))
+	pv_recorder_delete_ptr 				= C.dlsym(lib, C.CString("pv_recorder_delete"))
+	pv_recorder_start_ptr 				= C.dlsym(lib, C.CString("pv_recorder_start"))
+	pv_recorder_stop_ptr 				= C.dlsym(lib, C.CString("pv_recorder_stop"))
+	pv_recorder_get_audio_devices_ptr 	= C.dlsym(lib, C.CString("pv_recorder_get_audio_devices"))
+	pv_recorder_free_device_list_ptr 	= C.dlsym(lib, C.CString("pv_recorder_free_device_list"))
 )
 
-func (nr nativePVRecorderType) nativeInit(pvrecorder *PVRecorder) (status PVRecorderStatus) {
+func (np nativePVRecorderType) nativeInit(pvrecorder *PVRecorder) PVRecorderStatus {
 	var (
-		deviceIndex = pvrecorder.deviceIndex
-		frameLength = pvrecorder.frameLength
-		callback = pvrecorder.callback
+		deviceIndex = pvrecorder.DeviceIndex
+		frameLength = pvrecorder.FrameLength
+		userData 	= pvrecorder.userData
+		ptrC 		= make([]unsafe.Pointer, 1)
 	)
-
-	var ret = C.pv_recorder_init_wrapper(pv_recorder_init_ptr, 
-		(C.int32_t) deviceIndex, 
-		(C.int32_t) frameLength,
-		() callback)
 	
+	var ret = C.pv_recorder_init_wrapper(pv_recorder_init_ptr,
+		(C.int32_t)(deviceIndex),
+		(C.int32_t)(frameLength),
+		(unsafe.Pointer)(userData),
+		&ptrC[0])
 
+	pvrecorder.handle = uintptr(ptrC[0])
+	return PVRecorderStatus(ret)
+}
+
+func (nativePVRecorderType) nativeDelete(pvrecorder *PVRecorder) {
+	C.pv_recorder_delete_wrapper(pv_recorder_delete_ptr,
+		unsafe.Pointer(pvrecorder.handle))
+}
+
+func (nativePVRecorderType) nativeStart(pvrecorder *PVRecorder) PVRecorderStatus {
+	var ret = C.pv_recorder_start_wrapper(pv_recorder_start_ptr,
+		unsafe.Pointer(pvrecorder.handle))
+
+	return PVRecorderStatus(ret)
+}
+
+func (nativePVRecorderType) nativeStop(pvrecorder *PVRecorder) PVRecorderStatus {
+	var ret = C.pv_recorder_stop_wrapper(pv_recorder_stop_ptr,
+		unsafe.Pointer(pvrecorder.handle))
+	
+	return PVRecorderStatus(ret)
+}
+
+func nativeGetAudioDevices(count *int, devices ***C.char) PVRecorderStatus {
+	var ret = C.pv_recorder_get_audio_devices_wrapper(pv_recorder_get_audio_devices_ptr,
+		(*C.int32_t)(unsafe.Pointer(count)),
+		(***C.char)(unsafe.Pointer(devices)))
+
+	return PVRecorderStatus(ret)
+}
+
+func nativeFreeDeviceList(count int, devices **C.char) {
+	C.pv_recorder_free_device_list_wrapper(pv_recorder_free_device_list_ptr,
+		(C.int32_t)(count),
+		(**C.char)(unsafe.Pointer(devices)))
 }
