@@ -11,22 +11,33 @@
 
 package pvrecorder
 
+/*
+#include <stdint.h>
+#include <stdlib.h>
+*/
+import "C"
 import (
-	"C"
+	"embed"
+	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
+	"reflect"
 	"runtime"
+	"strings"
+	"unsafe"
 )
-import "strings"
 
-//export callback_wrapper
-func callback_wrapper(callback func (*int16)) {
-	
-}
+//go:embed embedded
+var embeddedFS embed.FS
 
+// PVRecorderStatus type
 type PVRecorderStatus int
 
+// PVRecorder status return codes from C library
 const (
 	SUCCESS						PVRecorderStatus = 0
 	OUT_OF_MEMORY 				PVRecorderStatus = 1
@@ -38,11 +49,50 @@ const (
 	RUNTIME_ERROR 				PVRecorderStatus = 7
 )
 
+func pvRecorderStatusToString(status PVRecorderStatus) string {
+	switch status {
+	case SUCCESS:
+		return "SUCCESS"
+	case OUT_OF_MEMORY:
+		return "OUT_OF_MEMORY"
+	case INVALID_ARGUMENT:
+		return "INVALID_ARGUMENT"
+	case INVALID_STATE:
+		return "INVALID_STATE"
+	case BACKEND_ERROR:
+		return "BACKEND_ERROR"
+	case DEVICE_ALREADY_INITIALIZED:
+		return "DEVICE_ALREADY_INITIALIZED"
+	case DEVICE_NOT_INITIALIZED:
+		return "DEVICE_NOT_INITIALIZED"
+	case RUNTIME_ERROR:
+		return "RUNTIME_ERROR"
+	default:
+		return fmt.Sprintf("Unknown error code: %d", status)
+	}
+}
+
+// PVRecorder struct
 type PVRecorder struct {
+	// handle for pvrecorder instance in C.
 	handle uintptr
-	deviceIndex int32
-	frameLength int32
-	callback func (*int16)
+
+	// Extra userData to be used in the callback.
+	userData *userDataType
+
+	// Index of audio device to start recording.
+	DeviceIndex int
+
+	// FrameLength of the audio buffer. Callback uses this amount of frames each iteration.
+	FrameLength int
+
+	// Callback to process the audio frames each iteration.
+	Callback func ([]int16)
+}
+
+type userDataType struct {
+	callback func([]int16)
+	frameLength int
 }
 
 type nativePVRecorderInterface interface {
@@ -54,12 +104,99 @@ type nativePVRecorderInterface interface {
 
 type nativePVRecorderType struct {}
 
-func getLibPath() string {
+// private vars
+var (
+	extractionDir = filepath.Join(os.TempDir(), "pvrecorder")
+	libName = extractLib()
+	nativePVRecorder = nativePVRecorderType{}
+)
+
+// Init function for PVRecorder
+func (pvrecorder *PVRecorder) Init() error {
+	pvrecorder.userData = &userDataType{
+		callback: pvrecorder.Callback,
+		frameLength: pvrecorder.FrameLength,
+	}
+
+	ret := nativePVRecorder.nativeInit(pvrecorder)
+	if ret != SUCCESS {
+		return fmt.Errorf("PVRecorder Init failed with: %s", pvRecorderStatusToString(ret))
+	}
+
+	return nil
+}
+
+// Delete function releases resources acquired by PVRecorder
+func (pvrecorder *PVRecorder) Delete() {
+	nativePVRecorder.nativeDelete(pvrecorder)
+}
+
+// Start function starts recording audio.
+func (pvrecorder *PVRecorder) Start() error {
+	ret := nativePVRecorder.nativeStart(pvrecorder)
+	if ret != SUCCESS {
+		return fmt.Errorf("PVRecorder Start failed with: %s", pvRecorderStatusToString(ret))
+	}
+
+	return nil
+}
+
+// Stop function stops recording audio.
+func (pvrecorder *PVRecorder) Stop() error {
+	ret := nativePVRecorder.nativeStop(pvrecorder)
+	if ret != SUCCESS {
+		return fmt.Errorf("PVRecorder Stop failed with: %s", pvRecorderStatusToString(ret))
+	}
+
+	return nil
+}
+
+// GetAudioDevices function gets the currently available input audio devices.
+func GetAudioDevices() ([]string, error) {
+	var count int
+	var devices **C.char
+
+	if ret := nativeGetAudioDevices(&count, &devices); ret != SUCCESS {
+		return nil, fmt.Errorf("PVRecorder GetAudioDevices failed with: %s", pvRecorderStatusToString(ret))
+	}
+	defer nativeFreeDeviceList(count, devices)
+
+	var deviceSlice []*C.char
+	sh := (*reflect.SliceHeader)(unsafe.Pointer(&deviceSlice))
+	sh.Data = uintptr(unsafe.Pointer(devices))
+	sh.Cap = count
+	sh.Len = count
+
+	deviceNames := make([]string, count)
+	for i := 0; i < count; i++ {
+		deviceNames[i] = C.GoString(deviceSlice[i])
+	}
+
+	return deviceNames, nil
+}
+
+//export callbackHandler
+func callbackHandler(pcm *C.int16_t, userData unsafe.Pointer) {
+	if userData != nil {
+		req := (*userDataType)(userData)
+
+		var pcmSlice []int16
+
+		sh := (*reflect.SliceHeader)(unsafe.Pointer(&pcmSlice))
+		sh.Data = uintptr(unsafe.Pointer(pcm))
+		sh.Len = req.frameLength
+		sh.Cap = req.frameLength
+
+		req.callback(pcmSlice)
+	}
+}
+
+func extractLib() string {
 	var scriptPath string
 	if runtime.GOOS == "windows" {
-		scriptPath = path.Join("scripts", "platform.bat")
+		scriptPath = path.Join("embedded", "scripts", "platform.bat")
 	} else {
-		scriptPath = path.Join("scripts", "platform.sh")
+		scriptPath = path.Join("embedded", "scripts", "platform.sh")
 	}
 
 	cmd := exec.Command(scriptPath)
@@ -69,20 +206,37 @@ func getLibPath() string {
 		log.Fatal("System is not supported.")
 	}
 
-	system_info := strings.Split(string(stdout), " ")
-	os_name := system_info[0]
-	cpu := system_info[1]
+	systemInfo := strings.Split(string(stdout), " ")
+	osName := systemInfo[0]
+	cpu := systemInfo[1]
 
-	lib_name := "libpv_recorder"
+	libFile := "libpv_recorder"
 	if runtime.GOOS == "windows" {
-		lib_name += ".dll"
+		libFile += ".dll"
 	} else if runtime.GOOS == "darwin" {
-		lib_name += ".dylib"
+		libFile += ".dylib"
 	} else if runtime.GOOS == "linux" {
-		lib_name += ".so"
+		libFile += ".so"
 	} else {
 		log.Fatalf("OS: %s is not supported.", runtime.GOOS)
 	}
 
-	return path.Join("lib", os_name, cpu, lib_name)
+	srcPath := filepath.Join("embedded", "lib", osName, cpu, libFile)
+
+	return extractFile(srcPath, extractionDir)
+}
+
+func extractFile(srcFile string, dstDir string) string {
+	bytes, readErr := embeddedFS.ReadFile(srcFile)
+	if readErr != nil {
+		log.Fatalf("%v", readErr)
+	}
+
+	extractedFilepath := filepath.Join(dstDir, srcFile)
+	os.MkdirAll(filepath.Dir(extractedFilepath), 0777)
+	writeErr := ioutil.WriteFile(extractedFilepath, bytes, 0777)
+	if writeErr != nil {
+		log.Fatalf("%v", writeErr)
+	}
+	return extractedFilepath
 }
