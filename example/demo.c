@@ -12,27 +12,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include "pv_recorder.h"
 
-static void pv_recorder_callback(const int16_t *pcm) {
-    // do something with pcm
-    (void) pcm;
-}
+static volatile bool is_interrupted = false;
 
-struct extra_data {
-    int a;
-};
-
-static void pv_recorder_callback_with_data(const int16_t *pcm, void *user_data) {
-    // use user data
-    struct extra_data *data = (struct extra_data *) user_data;
-    (void) data;
-    // do something with pcm
-    (void) pcm;
+void interrupt_handler(int _) {
+    (void) _;
+    is_interrupted = true;
 }
 
 int main() {
+    signal(SIGINT, interrupt_handler);
+
     char **devices;
     int32_t count;
 
@@ -56,7 +49,7 @@ int main() {
     fprintf(stdout, "Initializing pv_recorder...\n");
 
     pv_recorder_t *recorder;
-    status = pv_recorder_init(-1, 512, pv_recorder_callback, &recorder);
+    status = pv_recorder_init(-1, 4096, &recorder);
     if (status != PV_RECORDER_STATUS_SUCCESS) {
         fprintf(stdout, "Failed to initialize device with %s.\n", pv_recorder_status_to_string(status));
         exit(-1);
@@ -69,9 +62,15 @@ int main() {
         exit(-1);
     }
 
-    fprintf(stdout, "Sleeping for 1 second...\n");
-
-    sleep(1);
+    int16_t *pcm = malloc(512 * sizeof(int16_t));
+    int32_t length = 512;
+    while (!is_interrupted) {
+        status = pv_recorder_read(recorder, pcm, &length);
+        if (status != PV_RECORDER_STATUS_SUCCESS) {
+            fprintf(stdout, "Failed to read with %s.\n", pv_recorder_status_to_string(status));
+            exit(-1);
+        }
+    }
 
     fprintf(stdout, "Stop recording...\n");
     status = pv_recorder_stop(recorder);
@@ -79,29 +78,6 @@ int main() {
         fprintf(stdout, "Failed to start device with %s.\n", pv_recorder_status_to_string(status));
         exit(-1);
     }
-
-    fprintf(stdout, "Deleting pv_recorder...\n");
-    pv_recorder_delete(recorder);
-
-    struct extra_data data = {1};
-
-    fprintf(stdout, "Initializing with data...\n");
-    status = pv_recorder_init_with_data(-1, 512, pv_recorder_callback_with_data, &data, &recorder);
-    if (status != PV_RECORDER_STATUS_SUCCESS) {
-        fprintf(stdout, "Failed to initialize device with %s.\n", pv_recorder_status_to_string(status));
-        exit(-1);
-    }
-
-    fprintf(stdout, "Start recording...\n");
-    status = pv_recorder_start(recorder);
-    if (status != PV_RECORDER_STATUS_SUCCESS) {
-        fprintf(stdout, "Failed to start device with %s.\n", pv_recorder_status_to_string(status));
-        exit(-1);
-    }
-
-    fprintf(stdout, "Sleeping for 1 second...\n");
-
-    sleep(1);
 
     fprintf(stdout, "Deleting pv_recorder...\n");
     pv_recorder_delete(recorder);
