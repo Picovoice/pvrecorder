@@ -134,7 +134,7 @@ PV_API pv_recorder_status_t pv_recorder_init(int32_t device_index, int32_t buffe
             sizeof(int16_t),
             &(o->buffer));
 
-    if (status != PV_RECORDER_STATUS_SUCCESS) {
+    if (status != PV_CIRCULAR_BUFFER_STATUS_SUCCESS) {
         pv_recorder_delete(o);
         return PV_RECORDER_STATUS_OUT_OF_MEMORY;
     }

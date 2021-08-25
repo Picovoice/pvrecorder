@@ -16,7 +16,7 @@
 #include <stdint.h>
 
 /**
- * Forward declaration of PV_circular_buffer object. It deals with asynchronous calls, handles reading and writing to a buffer.
+ * Forward declaration of PV_circular_buffer object. It handles reading and writing to a buffer.
  */
 typedef struct pv_circular_buffer pv_circular_buffer_t;
 
