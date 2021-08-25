@@ -25,20 +25,36 @@
 #include "pv_recorder.h"
 
 #define READ_RETRY_COUNT (100)
-#define READ_SLEEP_MICRO_SECONDS (10)
+#define READ_SLEEP_MILLI_SECONDS (10)
 
 struct pv_recorder {
     ma_context context;
     ma_device device;
     pv_circular_buffer_t *buffer;
     bool is_started;
+    pthread_mutex_t mutex;
 };
+
+ma_encoder_config encoderConfig;
+ma_encoder encoder;
+
+static void sleep_ms(int32_t milliseconds) {
+    struct timespec ts;
+    ts.tv_sec = milliseconds / 1000;
+    ts.tv_nsec = (milliseconds % 1000) * 1000000;
+    nanosleep(&ts, NULL);
+}
 
 static void pv_recorder_ma_callback(ma_device *device, void *output, const void *input, ma_uint32 frame_count) {
     (void) output;
 
+    ma_encoder_write_pcm_frames(&encoder, input, frame_count);
+
     pv_recorder_t *object = (pv_recorder_t *) device->pUserData;
+
+    pthread_mutex_lock(&object->mutex);
     pv_circular_buffer_write(object->buffer, input, (int32_t) frame_count);
+    pthread_mutex_unlock(&object->mutex);
 }
 
 PV_API pv_recorder_status_t pv_recorder_init(int32_t device_index, int32_t buffer_capacity, pv_recorder_t **object) {
@@ -110,8 +126,6 @@ PV_API pv_recorder_status_t pv_recorder_init(int32_t device_index, int32_t buffe
     pv_circular_buffer_status_t status = pv_circular_buffer_init(
             buffer_capacity,
             sizeof(int16_t),
-            READ_RETRY_COUNT,
-            READ_SLEEP_MICRO_SECONDS,
             &(o->buffer));
 
     if (status != PV_RECORDER_STATUS_SUCCESS) {
@@ -120,6 +134,13 @@ PV_API pv_recorder_status_t pv_recorder_init(int32_t device_index, int32_t buffe
     }
 
     *object = o;
+
+    encoderConfig = ma_encoder_config_init(ma_resource_format_wav, ma_format_s16, 1, 16000);
+
+    if (ma_encoder_init_file("temp.wav", &encoderConfig, &encoder) != MA_SUCCESS) {
+        printf("Failed to initialize output file.\n");
+        return -1;
+    }
 
     return PV_RECORDER_STATUS_SUCCESS;
 }
@@ -186,12 +207,29 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
         return PV_RECORDER_STATUS_INVALID_STATE;
     }
 
-    pv_circular_buffer_status_t status = pv_circular_buffer_read(object->buffer, pcm, length);
-    if (status == PV_CIRCULAR_BUFFER_STATUS_READ_TIMEOUT) {
-        return PV_RECORDER_STATUS_IO_ERROR;
-    }
+    int16_t *read_ptr = pcm;
+    int32_t processed = 0;
+    int32_t remaining = *length;
+    for (int32_t i = 0; i < READ_RETRY_COUNT; i++) {
 
-    return PV_RECORDER_STATUS_SUCCESS;
+        pthread_mutex_lock(&object->mutex);
+
+        pv_circular_buffer_status_t status = pv_circular_buffer_read(object->buffer, read_ptr, &remaining);
+        if (status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS) {
+            pthread_mutex_unlock(&object->mutex);
+            return PV_RECORDER_STATUS_SUCCESS;
+        }
+
+        pthread_mutex_unlock(&object->mutex);
+        sleep_ms(READ_SLEEP_MILLI_SECONDS);
+
+        read_ptr += remaining;
+        processed += remaining;
+        remaining = *length - processed;
+    }
+    *length = processed;
+
+    return PV_RECORDER_STATUS_IO_ERROR;
 }
 
 PV_API pv_recorder_status_t pv_recorder_get_audio_devices(int32_t *count, char ***devices) {

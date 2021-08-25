@@ -9,8 +9,6 @@
     specific language governing permissions and limitations under the License.
 */
 
-#include <pthread.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -24,27 +22,16 @@ struct pv_circular_buffer {
     int32_t elem_size;
     void *read_ptr;
     void *write_ptr;
-    int32_t read_tries;
-    int32_t read_sleep_useconds;
-    pthread_mutex_t mutex;
 };
 
 pv_circular_buffer_status_t pv_circular_buffer_init(
         int32_t capacity,
         int32_t elem_size,
-        int32_t read_tries,
-        int32_t read_sleep_micro_seconds,
         pv_circular_buffer_t **object) {
     if (capacity <= 0) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
     if (elem_size <= 0) {
-        return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
-    }
-    if (read_tries <= 0) {
-        return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
-    }
-    if (read_sleep_micro_seconds <= 0) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
     if (!object) {
@@ -72,9 +59,6 @@ pv_circular_buffer_status_t pv_circular_buffer_init(
     o->read_ptr = o->buffer;
     o->write_ptr = o->buffer;
 
-    o->read_tries = read_tries;
-    o->read_sleep_useconds = read_sleep_micro_seconds * 1000;
-
     *object = o;
 
     return PV_CIRCULAR_BUFFER_STATUS_SUCCESS;
@@ -101,20 +85,18 @@ pv_circular_buffer_status_t pv_circular_buffer_read(pv_circular_buffer_t *object
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
 
+    if (object->count == 0) {
+        *length = 0;
+        return PV_CIRCULAR_BUFFER_STATUS_READ_EMPTY;
+    }
+
     void *buffer_ptr = buffer;
-    int32_t processed = 0, tries = 0;
-    while (processed < *length) {
-        pthread_mutex_lock(&object->mutex);
+    int32_t processed;
+    for (processed = 0; processed < *length; processed++) {
 
         if (object->count == 0) {
-            pthread_mutex_unlock(&object->mutex);
-            if (tries == object->read_tries) {
-                *length = processed;
-                return PV_CIRCULAR_BUFFER_STATUS_READ_TIMEOUT;
-            }
-            tries++;
-            usleep(object->read_sleep_useconds);
-            continue;
+            *length = processed;
+            return PV_CIRCULAR_BUFFER_STATUS_READ_INCOMPLETE;
         }
 
         memcpy(buffer_ptr, object->read_ptr, object->elem_size);
@@ -124,9 +106,6 @@ pv_circular_buffer_status_t pv_circular_buffer_read(pv_circular_buffer_t *object
             object->read_ptr = object->buffer;
         }
         object->count--;
-        processed++;
-
-        pthread_mutex_unlock(&object->mutex);
     }
 
     return PV_CIRCULAR_BUFFER_STATUS_SUCCESS;
@@ -146,8 +125,6 @@ pv_circular_buffer_status_t pv_circular_buffer_write(pv_circular_buffer_t *objec
     const void *buffer_ptr = buffer;
     pv_circular_buffer_status_t status = PV_CIRCULAR_BUFFER_STATUS_SUCCESS;
     for (int32_t i = 0; i < length; i++) {
-        pthread_mutex_lock(&object->mutex);
-
         if (object->count == object->capacity) {
             status = PV_CIRCULAR_BUFFER_STATUS_WRITE_OVERFLOW;
             object->count--;
@@ -160,8 +137,6 @@ pv_circular_buffer_status_t pv_circular_buffer_write(pv_circular_buffer_t *objec
             object->write_ptr = object->buffer;
         }
         object->count++;
-
-        pthread_mutex_unlock(&object->mutex);
     }
 
     return status;

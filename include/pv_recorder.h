@@ -77,12 +77,12 @@ PV_API pv_recorder_status_t pv_recorder_start(pv_recorder_t *object);
 PV_API pv_recorder_status_t pv_recorder_stop(pv_recorder_t *object);
 
 /**
- * Synchronous call to read frames. Copies ${length} amount of frames to ${pcm} array provided to input. If an error occurs,
- * the ${length} pointer is modified to actual number of frames copied.
+ * Synchronous call to read frames. Copies param ${length} amount of frames to param ${pcm} array provided to input.
  *
  * @param object PV_Recorder object.
- * @param pcm An array for the frames to be copied to.
- * @param length The amount of frames to be copied.
+ * @param pcm[out] An array for the frames to be copied to.
+ * @param length[in,out] The amount of frames to be copied. The value will be modified to the actual length copied if
+ * PV_RECORDER_IO_ERROR occurred.
  * @return Status Code. Returns PV_RECORDER_STATUS_INVALID_ARGUMENT, PV_RECORDER_INVALID_STATE or PV_RECORDER_IO_ERROR on failure.
  */
 PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm, int32_t *length);

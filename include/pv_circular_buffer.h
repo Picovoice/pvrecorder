@@ -27,7 +27,8 @@ typedef enum {
     PV_CIRCULAR_BUFFER_STATUS_SUCCESS = 0,
     PV_CIRCULAR_BUFFER_STATUS_OUT_OF_MEMORY,
     PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT,
-    PV_CIRCULAR_BUFFER_STATUS_READ_TIMEOUT,
+    PV_CIRCULAR_BUFFER_STATUS_READ_EMPTY,
+    PV_CIRCULAR_BUFFER_STATUS_READ_INCOMPLETE,
     PV_CIRCULAR_BUFFER_STATUS_WRITE_OVERFLOW,
 } pv_circular_buffer_status_t;
 
@@ -36,8 +37,6 @@ typedef enum {
  *
  * @param capacity Capacity of the buffer to read and write.
  * @param elem_size Size of each item in the buffer.
- * @param read_tries Number of tries to do before a read call fails.
- * @param read_sleep_micro_seconds Number in micro seconds to wait if there is no buffer items to be read.
  * @param object[out] Circular buffer object.
  * @return Status Code. Returns PV_CIRCULAR_BUFFER_STATUS_OUT_OF_MEMORY or PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT
  * on failure.
@@ -45,8 +44,6 @@ typedef enum {
 pv_circular_buffer_status_t pv_circular_buffer_init(
         int32_t capacity,
         int32_t elem_size,
-        int32_t read_tries,
-        int32_t read_sleep_micro_seconds,
         pv_circular_buffer_t **object);
 
 /**
@@ -64,7 +61,7 @@ void pv_circular_buffer_delete(pv_circular_buffer_t *object);
  * @param buffer[out] A pointer to copy the elements into.
  * @param length[in,out] The amount to copy to the buffer. Replaced to the actual amount of length copied if status
  * is not PV_CIRCULAR_BUFFER_STATUS_SUCCESS.
- * @return Status Code. Returns PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT or PV_CIRCULAR_BUFFER_STATUS_READ_TIMEOUT on failure.
+ * @return Status Code. Returns PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT or PV_CIRCULAR_BUFFER_STATUS_READ_EMPTY on failure.
  */
 pv_circular_buffer_status_t pv_circular_buffer_read(pv_circular_buffer_t *object, void *buffer, int32_t *length);
 
@@ -79,6 +76,11 @@ pv_circular_buffer_status_t pv_circular_buffer_read(pv_circular_buffer_t *object
  */
 pv_circular_buffer_status_t pv_circular_buffer_write(pv_circular_buffer_t *object, const void *buffer, int32_t length);
 
+/**
+ * Reset the buffer pointers to start.
+ *
+ * @param object Circular buffer object.
+ */
 void pv_circular_buffer_reset(pv_circular_buffer_t *object);
 
 /**
