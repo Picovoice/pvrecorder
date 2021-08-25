@@ -32,6 +32,7 @@ struct pv_recorder {
     ma_device device;
     pv_circular_buffer_t *buffer;
     bool is_started;
+    bool is_overflow;
     ma_mutex mutex;
 };
 
@@ -41,7 +42,10 @@ static void pv_recorder_ma_callback(ma_device *device, void *output, const void 
     pv_recorder_t *object = (pv_recorder_t *) device->pUserData;
 
     ma_mutex_lock(&object->mutex);
-    pv_circular_buffer_write(object->buffer, input, (int32_t) frame_count);
+    pv_circular_buffer_status_t status = pv_circular_buffer_write(object->buffer, input, (int32_t) frame_count);
+    if (status == PV_CIRCULAR_BUFFER_STATUS_WRITE_OVERFLOW) {
+        object->is_overflow = true;
+    }
     ma_mutex_unlock(&object->mutex);
 }
 
@@ -206,13 +210,17 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
     int32_t processed = 0;
     int32_t remaining = *length;
     for (int32_t i = 0; i < READ_RETRY_COUNT; i++) {
-
         ma_mutex_lock(&object->mutex);
 
         pv_circular_buffer_status_t status = pv_circular_buffer_read(object->buffer, read_ptr, &remaining);
         if (status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS) {
             ma_mutex_unlock(&object->mutex);
-            return PV_RECORDER_STATUS_SUCCESS;
+            if (object->is_overflow) {
+                object->is_overflow = false;
+                return PV_RECORDER_STATUS_BUFFER_OVERFLOW;
+            } else {
+                return PV_RECORDER_STATUS_SUCCESS;
+            }
         }
 
         ma_mutex_unlock(&object->mutex);
@@ -304,9 +312,10 @@ PV_API const char *pv_recorder_status_to_string(pv_recorder_status_t status) {
             "DEVICE_INITIALIZED",
             "DEVICE_NOT_INITIALIZED",
             "IO_ERROR",
+            "BUFFER_OVERFLOW",
             "RUNTIME_ERROR"};
 
-    int32_t size = sizeof(STRINGS)/sizeof(STRINGS[0]);
+    int32_t size = sizeof(STRINGS) / sizeof(STRINGS[0]);
     if (status < PV_RECORDER_STATUS_SUCCESS || status >= (PV_RECORDER_STATUS_SUCCESS + size)) {
         return NULL;
     }

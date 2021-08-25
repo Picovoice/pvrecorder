@@ -9,10 +9,10 @@
     specific language governing permissions and limitations under the License.
 */
 
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <signal.h>
 
 #include "pv_recorder.h"
 

@@ -37,6 +37,7 @@ typedef enum {
     PV_RECORDER_STATUS_DEVICE_ALREADY_INITIALIZED,
     PV_RECORDER_STATUS_DEVICE_NOT_INITIALIZED,
     PV_RECORDER_STATUS_IO_ERROR,
+    PV_RECORDER_STATUS_BUFFER_OVERFLOW,
     PV_RECORDER_STATUS_RUNTIME_ERROR
 } pv_recorder_status_t;
 
@@ -44,7 +45,8 @@ typedef enum {
  * Constructor for Picovoice Audio Recorder.
  *
  * @param device_index The index of the audio device to use. A value of (-1) will resort to default device.
- * @param buffer_capacity Size of buffer to store audio frames as audio comes in.
+ * @param buffer_capacity Size of buffer to store audio frames as audio frames are received. The ideal capacity is at
+ * least twice the amount of frame length the caller would need per iteration of the function pv_recorder_read.
  * @param[out] object Audio Recorder object to initialize.
  * @return Status Code. PV_RECORDER_STATUS_INVALID_ARGUMENT, PV_RECORDER_STATUS_BACKEND_ERROR,
  * PV_RECORDER_STATUS_DEVICE_INITIALIZED or PV_RECORDER_STATUS_OUT_OF_MEMORY on failure.
@@ -59,7 +61,7 @@ PV_API pv_recorder_status_t pv_recorder_init(int32_t device_index, int32_t buffe
 PV_API void pv_recorder_delete(pv_recorder_t *object);
 
 /**
- * Starts recording audio and processing audio frames, storing the frames into a circular buffer.
+ * Starts recording audio and processing audio frames.
  *
  * @param object PV_Recorder object.
  * @returnStatus Status Code. Returns PV_RECORDER_STATUS_INVALID_ARGUMENT, PV_RECORDER_STATUS_DEVICE_NOT_INITIALIZED
@@ -68,7 +70,7 @@ PV_API void pv_recorder_delete(pv_recorder_t *object);
 PV_API pv_recorder_status_t pv_recorder_start(pv_recorder_t *object);
 
 /**
- * Stops recording audio and resets the circular buffer.
+ * Stops recording audio.
  *
  * @param object PV_Recorder object.
  * @return Status Code. Returns PV_RECORDER_STATUS_INVALID_ARGUMENT, PV_RECORDER_STATUS_DEVICE_NOT_INITIALIZED
@@ -84,6 +86,8 @@ PV_API pv_recorder_status_t pv_recorder_stop(pv_recorder_t *object);
  * @param length[in,out] The amount of frames to be copied. The value will be modified to the actual length copied if
  * PV_RECORDER_IO_ERROR occurred.
  * @return Status Code. Returns PV_RECORDER_STATUS_INVALID_ARGUMENT, PV_RECORDER_INVALID_STATE or PV_RECORDER_IO_ERROR on failure.
+ * Returns PV_RECORDER_STATUS_BUFFER_OVERFLOW if audio frames aren't being read fast enough. This means old audio frames
+ * are being replaced by new audio frames.
  */
 PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm, int32_t *length);
 

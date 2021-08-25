@@ -21,14 +21,14 @@
 
 ## Compiling
 
-The variable `{BUILD_DIR}` will be used to select the directory to copy the shared object
-after a successful compilation.
+The variable `{OUTPUT_DIR}` will be used to select the directory to copy the shared object
+after a successful compilation. `{OUTPUT_DIR}` should be a directory **relative** to the root directory.
 
-Run the following commands to build and test (`{BUILD_DIR}` can be empty if you wish not to copy):
+Run the following commands to build and test (`{OUTPUT_DIR}` can be empty if you wish not to copy):
 
 ```console
 mkdir build && cd build
-cmake .. -DOUTPUT_DIR={BUILD_DIR}
+cmake .. -DOUTPUT_DIR={OUTPUT_DIR}
 cmake --build .
 ```
 

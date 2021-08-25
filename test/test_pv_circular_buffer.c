@@ -9,9 +9,9 @@
     specific language governing permissions and limitations under the License.
 */
 
-#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "pv_circular_buffer.h"
 
@@ -24,11 +24,11 @@
 
 static void test_pv_circular_buffer_once(void) {
     pv_circular_buffer_t *cb;
-    pv_circular_buffer_status_t status = pv_circular_buffer_init(128, sizeof(int16_t),&cb);
+    pv_circular_buffer_status_t status = pv_circular_buffer_init(128, sizeof(int16_t), &cb);
     CB_ASSERT(status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS, "Failed to initialize buffer.");
 
     int16_t in_buffer[] = {5, 7, -20, 35, 70};
-    int32_t in_size = sizeof(in_buffer)/sizeof(in_buffer[0]);
+    int32_t in_size = sizeof(in_buffer) / sizeof(in_buffer[0]);
 
     int32_t out_size = in_size;
     int16_t *out_buffer = malloc(out_size * sizeof(int16_t));
@@ -74,7 +74,7 @@ static void test_pv_circular_buffer_write_overflow(void) {
     CB_ASSERT(status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS, "Failed to initialize buffer.");
 
     int16_t in_buffer[] = {5, 7, -20, 35, 70, 100, 0, 1, -100};
-    int32_t in_size = sizeof(in_buffer)/sizeof(in_buffer[0]);
+    int32_t in_size = sizeof(in_buffer) / sizeof(in_buffer[0]);
 
     status = pv_circular_buffer_write(cb, in_buffer, in_size);
     CB_ASSERT(status == PV_CIRCULAR_BUFFER_STATUS_WRITE_OVERFLOW, "Expected write overflow.");

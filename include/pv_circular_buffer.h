@@ -36,14 +36,14 @@ typedef enum {
  * Constructor for PV_circular_buffer object.
  *
  * @param capacity Capacity of the buffer to read and write.
- * @param elem_size Size of each item in the buffer.
+ * @param element_size Size of each element in the buffer.
  * @param object[out] Circular buffer object.
  * @return Status Code. Returns PV_CIRCULAR_BUFFER_STATUS_OUT_OF_MEMORY or PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT
  * on failure.
  */
 pv_circular_buffer_status_t pv_circular_buffer_init(
         int32_t capacity,
-        int32_t elem_size,
+        int32_t element_size,
         pv_circular_buffer_t **object);
 
 /**
@@ -59,7 +59,7 @@ void pv_circular_buffer_delete(pv_circular_buffer_t *object);
  *
  * @param object Circular buffer object.
  * @param buffer[out] A pointer to copy the elements into.
- * @param length[in,out] The amount to copy to the buffer. Replaced to the actual amount of length copied if status
+ * @param length[in,out] The amount to copy to the buffer. Replaced with the actual amount of length copied if status
  * is not PV_CIRCULAR_BUFFER_STATUS_SUCCESS.
  * @return Status Code. Returns PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT or PV_CIRCULAR_BUFFER_STATUS_READ_EMPTY on failure.
  */

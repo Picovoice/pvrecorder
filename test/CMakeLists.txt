@@ -1,6 +1,6 @@
 enable_testing()
 
-add_executable(test_circular_buffer pv_circular_buffer_test.c ../src/pv_circular_buffer.c)
+add_executable(test_circular_buffer test_pv_circular_buffer.c ../src/pv_circular_buffer.c)
 
 target_include_directories(test_circular_buffer PUBLIC ../include)
 target_link_libraries(test_circular_buffer pthread)
