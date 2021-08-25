@@ -8,7 +8,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 #
-
+import logging
 import os
 import platform
 import subprocess
@@ -33,7 +33,9 @@ class PVRecorder(object):
         BACKEND_ERROR = 4
         DEVICE_ALREADY_INITIALIZED = 5
         DEVICE_NOT_INITIALIZED = 6
-        RUNTIME_ERROR = 7
+        IO_ERROR = 7
+        BUFFER_OVERFLOW = 8
+        RUNTIME_ERROR = 9
 
     _PVRECORDER_STATUS_TO_EXCEPTION = {
         PVRecorderStatuses.OUT_OF_MEMORY: MemoryError,
@@ -42,6 +44,7 @@ class PVRecorder(object):
         PVRecorderStatuses.BACKEND_ERROR: SystemError,
         PVRecorderStatuses.DEVICE_ALREADY_INITIALIZED: ValueError,
         PVRecorderStatuses.DEVICE_NOT_INITIALIZED: ValueError,
+        PVRecorderStatuses.IO_ERROR: IOError,
         PVRecorderStatuses.RUNTIME_ERROR: RuntimeError
     }
 
@@ -111,10 +114,14 @@ class PVRecorder(object):
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to stop device.")
 
     def read(self, frame_length):
+        """Reads audio frames and returns a list."""
+
         pcm = (c_int16 * frame_length)()
         length = c_int32(frame_length)
         status = self._read_func(self._handle, pcm, byref(length))
-        if status is not self.PVRecorderStatuses.SUCCESS:
+        if status is self.PVRecorderStatuses.BUFFER_OVERFLOW:
+            logging.warning("Some audio frames were lost.")
+        elif status is not self.PVRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to stop device.")
         return pcm[0:frame_length]
 
