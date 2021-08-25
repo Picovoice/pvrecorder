@@ -122,7 +122,7 @@ class PVRecorder(object):
         if status is self.PVRecorderStatuses.BUFFER_OVERFLOW:
             logging.warning("Some audio frames were lost.")
         elif status is not self.PVRecorderStatuses.SUCCESS:
-            raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to stop device.")
+            raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to read from device.")
         return pcm[0:frame_length]
 
     @staticmethod

@@ -209,7 +209,9 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
     int16_t *read_ptr = pcm;
     int32_t processed = 0;
     int32_t remaining = *length;
-    for (int32_t i = 0; i < READ_RETRY_COUNT; i++) {
+
+    int32_t retry = 0;
+    while (retry < READ_RETRY_COUNT) {
         ma_mutex_lock(&object->mutex);
 
         pv_circular_buffer_status_t status = pv_circular_buffer_read(object->buffer, read_ptr, &remaining);
@@ -229,6 +231,12 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
         read_ptr += remaining;
         processed += remaining;
         remaining = *length - processed;
+
+        if (status == PV_CIRCULAR_BUFFER_STATUS_READ_INCOMPLETE) {
+            retry = 0;
+        } else {
+            retry++;
+        }
     }
     *length = processed;
 
