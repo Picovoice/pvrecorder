@@ -9,14 +9,6 @@
     specific language governing permissions and limitations under the License.
 */
 
-#include <pthread.h>
-
-#if defined(_WIN32) || defined(_WIN64)
-
-#include <pthread_time.h>
-
-#endif
-
 #include <string.h>
 
 #pragma GCC diagnostic push
@@ -40,24 +32,17 @@ struct pv_recorder {
     ma_device device;
     pv_circular_buffer_t *buffer;
     bool is_started;
-    pthread_mutex_t mutex;
+    ma_mutex mutex;
 };
-
-static void sleep_ms(int32_t milliseconds) {
-    struct timespec ts;
-    ts.tv_sec = milliseconds / 1000;
-    ts.tv_nsec = (milliseconds % 1000) * 1000000;
-    nanosleep(&ts, NULL);
-}
 
 static void pv_recorder_ma_callback(ma_device *device, void *output, const void *input, ma_uint32 frame_count) {
     (void) output;
 
     pv_recorder_t *object = (pv_recorder_t *) device->pUserData;
 
-    pthread_mutex_lock(&object->mutex);
+    ma_mutex_lock(&object->mutex);
     pv_circular_buffer_write(object->buffer, input, (int32_t) frame_count);
-    pthread_mutex_unlock(&object->mutex);
+    ma_mutex_unlock(&object->mutex);
 }
 
 PV_API pv_recorder_status_t pv_recorder_init(int32_t device_index, int32_t buffer_capacity, pv_recorder_t **object) {
@@ -129,6 +114,16 @@ PV_API pv_recorder_status_t pv_recorder_init(int32_t device_index, int32_t buffe
         }
     }
 
+    result = ma_mutex_init(&(o->mutex));
+    if (result != MA_SUCCESS) {
+        pv_recorder_delete(o);
+        if (result == MA_OUT_OF_MEMORY) {
+            return PV_RECORDER_STATUS_OUT_OF_MEMORY;
+        } else {
+            return PV_RECORDER_STATUS_RUNTIME_ERROR;
+        }
+    }
+
     pv_circular_buffer_status_t status = pv_circular_buffer_init(
             buffer_capacity,
             sizeof(int16_t),
@@ -148,6 +143,7 @@ PV_API void pv_recorder_delete(pv_recorder_t *object) {
     if (object) {
         ma_device_uninit(&(object->device));
         ma_context_uninit(&(object->context));
+        ma_mutex_uninit(&(object->mutex));
         pv_circular_buffer_delete(object->buffer);
         free(object);
     }
@@ -211,16 +207,16 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
     int32_t remaining = *length;
     for (int32_t i = 0; i < READ_RETRY_COUNT; i++) {
 
-        pthread_mutex_lock(&object->mutex);
+        ma_mutex_lock(&object->mutex);
 
         pv_circular_buffer_status_t status = pv_circular_buffer_read(object->buffer, read_ptr, &remaining);
         if (status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS) {
-            pthread_mutex_unlock(&object->mutex);
+            ma_mutex_unlock(&object->mutex);
             return PV_RECORDER_STATUS_SUCCESS;
         }
 
-        pthread_mutex_unlock(&object->mutex);
-        sleep_ms(READ_SLEEP_MILLI_SECONDS);
+        ma_mutex_unlock(&object->mutex);
+        ma_sleep(READ_SLEEP_MILLI_SECONDS);
 
         read_ptr += remaining;
         processed += remaining;
