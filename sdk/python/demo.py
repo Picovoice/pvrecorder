@@ -2,22 +2,21 @@ from pvrecorder import PVRecorder
 
 
 def main():
-
     devices = PVRecorder.get_audio_devices()
     for i in range(len(devices)):
         print("index: %d, device name: %s" % (i, devices[i]))
 
-    def callback(pcm):
-        # do something
-        print(len(pcm))
-
-    recorder = PVRecorder(device_index=-1, frame_length=512, callback=callback)
+    recorder = PVRecorder(device_index=-1)
     recorder.start()
 
-    input("Press any key to continue...\n")
-
-    recorder.delete()
-
+    try:
+        while True:
+            pcm = recorder.read(512)
+            # do something with pcm
+    except KeyboardInterrupt:
+        print("Stopping...")
+    finally:
+        recorder.delete()
 
 
 if __name__ == "__main__":

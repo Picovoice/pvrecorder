@@ -10,7 +10,13 @@
 */
 
 #include <pthread.h>
+
+#if defined(_WIN32) || defined(_WIN64)
+
 #include <pthread_time.h>
+
+#endif
+
 #include <string.h>
 
 #pragma GCC diagnostic push
@@ -37,9 +43,6 @@ struct pv_recorder {
     pthread_mutex_t mutex;
 };
 
-ma_encoder_config encoderConfig;
-ma_encoder encoder;
-
 static void sleep_ms(int32_t milliseconds) {
     struct timespec ts;
     ts.tv_sec = milliseconds / 1000;
@@ -49,8 +52,6 @@ static void sleep_ms(int32_t milliseconds) {
 
 static void pv_recorder_ma_callback(ma_device *device, void *output, const void *input, ma_uint32 frame_count) {
     (void) output;
-
-    ma_encoder_write_pcm_frames(&encoder, input, frame_count);
 
     pv_recorder_t *object = (pv_recorder_t *) device->pUserData;
 
@@ -136,13 +137,6 @@ PV_API pv_recorder_status_t pv_recorder_init(int32_t device_index, int32_t buffe
     }
 
     *object = o;
-
-    encoderConfig = ma_encoder_config_init(ma_resource_format_wav, ma_format_s16, 1, 16000);
-
-    if (ma_encoder_init_file("temp.wav", &encoderConfig, &encoder) != MA_SUCCESS) {
-        printf("Failed to initialize output file.\n");
-        return -1;
-    }
 
     return PV_RECORDER_STATUS_SUCCESS;
 }
