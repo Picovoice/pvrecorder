@@ -55,7 +55,7 @@ class PVRecorder(object):
         Constructor
 
         :param device_index: The device index of the audio device to use. A (-1) will choose default audio device.
-        :param buffer_capacity: The size of the buffer to hold audio frames. Defaults to 4096.
+        :param buffer_capacity: The size of the buffer to hold audio frames. Defaults to 2048.
         """
 
         if self._LIBRARY is None:

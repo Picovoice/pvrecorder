@@ -64,6 +64,9 @@ PV_API pv_recorder_status_t pv_recorder_init(int32_t device_index, int32_t buffe
     if (device_index < PV_RECORDER_DEFAULT_DEVICE_INDEX) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
+    if (buffer_capacity <= 0) {
+        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
+    }
     if (!object) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
