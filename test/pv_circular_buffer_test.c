@@ -9,13 +9,18 @@
     specific language governing permissions and limitations under the License.
 */
 
-#include <assert.h>
 #include <time.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "pv_circular_buffer.h"
 
-#define CB_ASSERT(condition, message) assert(((void)message, condition));
+#define CB_ASSERT(condition, message)                                                           \
+    if ((condition) == 0) {                                                                     \
+        fprintf(stderr, "%s:%s():at_line %d: %s", __FILE__, __FUNCTION__, __LINE__, message);   \
+        exit(1);                                                                                \
+    }                                                                                           \
+    (void)(0)
 
 static void test_pv_circular_buffer_once(void) {
     pv_circular_buffer_t *cb;

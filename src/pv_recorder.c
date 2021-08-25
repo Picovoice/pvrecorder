@@ -9,6 +9,8 @@
     specific language governing permissions and limitations under the License.
 */
 
+#include <pthread.h>
+#include <pthread_time.h>
 #include <string.h>
 
 #pragma GCC diagnostic push
