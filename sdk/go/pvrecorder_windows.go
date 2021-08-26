@@ -35,6 +35,7 @@ var (
 	pv_recorder_delete_func 			= lib.NewProc("pv_recorder_delete")
 	pv_recorder_start_func 				= lib.NewProc("pv_recorder_start")
 	pv_recorder_stop_func 				= lib.NewProc("pv_recorder_stop")
+	pv_recorder_read_func				= lib.NewProc(lib, C.CString("pv_recorder_read"))
 	pv_recorder_get_audio_devices_func 	= lib.NewProc("pv_recorder_get_audio_devices")
 	pv_recorder_free_device_list_func 	= lib.NewProc("pv_recorder_free_device_list")
 )
@@ -68,6 +69,14 @@ func (np nativePVRecorderType) nativeStart(pvrecorder *PVRecorder) PVRecorderSta
 
 func (np nativePVRecorderType) nativeStop(pvrecorder *PVRecorder) PVRecorderStatus {
 	ret, _, _ := pv_recorder_stop_func(pvrecorder.handle)
+	return PVRecorderStatus(ret)
+}
+
+func (np nativePVRecorderType) nativeRead(pvrecorder *PVRecorder, pcm unsafe.Pointer, length *int) PVRecorderStatus {
+	ret, _, _ := pv_recorder_read_func(pvrecorder.handle,
+		uintptr(pcm),
+		uintptr(unsafe.Pointer(length)))
+		
 	return PVRecorderStatus(ret)
 }
 

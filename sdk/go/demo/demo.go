@@ -13,15 +13,11 @@ package main
 
 import (
 	"log"
-	"time"
+	"os"
+	"os/signal"
 
 	pvrecorder "github.com/Picovoice/pvrecorder/sdk/go"
 )
-
-func callback(pcm []int16) {
-	log.Printf("Received pcm with length: %d\n", len(pcm))
-	// do something with pcm
-}
 
 func main() {
 	log.Println("Printing devices...")
@@ -36,23 +32,41 @@ func main() {
 
 	recorder := pvrecorder.PVRecorder{
 		DeviceIndex: -1,
-		FrameLength: 512,
-		Callback: callback,
+		Capacity: 2048,
 	}
 
 	log.Println("Initializing...")
 	if err := recorder.Init(); err != nil {
 		log.Fatalf("Error: %s.\n", err.Error())
 	}
+	defer recorder.Delete()
 
 	log.Println("Starting...")
 	if err := recorder.Start(); err != nil {
 		log.Fatalf("Error: %s.\n", err.Error())
 	}
 
-	log.Println("Wating for 3 seconds...")
-	time.Sleep(3 * time.Second)
+	signalCh := make(chan os.Signal, 1)
+	waitCh := make(chan struct{})
+	signal.Notify(signalCh, os.Interrupt)
 
-	log.Println("Deleting...")
-	recorder.Delete()
+	go func () {
+		<- signalCh
+		close(waitCh)
+	}()
+	
+waitLoop:
+	for {
+		select {
+		case <- waitCh:
+			log.Println("Stopping...")
+			break waitLoop
+		default:
+			_, err := recorder.Read(512)
+			if err != nil {
+				log.Fatalf("Error: %s.\n", err.Error())
+			}
+			// do something with pcm
+		}
+	}
 }

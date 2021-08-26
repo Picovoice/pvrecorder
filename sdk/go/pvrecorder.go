@@ -14,6 +14,11 @@ package pvrecorder
 /*
 #include <stdint.h>
 #include <stdlib.h>
+
+void *malloc_cgo(int32_t length) {
+	return malloc(sizeof(int16_t) * length);
+}
+
 */
 import "C"
 import (
@@ -45,7 +50,9 @@ const (
 	BACKEND_ERROR				PVRecorderStatus = 4
 	DEVICE_ALREADY_INITIALIZED	PVRecorderStatus = 5
 	DEVICE_NOT_INITIALIZED 		PVRecorderStatus = 6
-	RUNTIME_ERROR 				PVRecorderStatus = 7
+	IO_ERROR					PVRecorderStatus = 7
+	BUFFER_OVERFLOW				PVRecorderStatus = 8
+	RUNTIME_ERROR 				PVRecorderStatus = 9
 )
 
 func pvRecorderStatusToString(status PVRecorderStatus) string {
@@ -64,6 +71,8 @@ func pvRecorderStatusToString(status PVRecorderStatus) string {
 		return "DEVICE_ALREADY_INITIALIZED"
 	case DEVICE_NOT_INITIALIZED:
 		return "DEVICE_NOT_INITIALIZED"
+	case IO_ERROR:
+		return "IO_ERROR"
 	case RUNTIME_ERROR:
 		return "RUNTIME_ERROR"
 	default:
@@ -76,22 +85,11 @@ type PVRecorder struct {
 	// handle for pvrecorder instance in C.
 	handle uintptr
 
-	// Extra userData to be used in the callback.
-	userData *userDataType
-
-	// Index of audio device to start recording.
+	// Index of audio device to start recording and capture audio.
 	DeviceIndex int
 
-	// FrameLength of the audio buffer. Callback uses this amount of frames each iteration.
-	FrameLength int
-
-	// Callback to process the audio frames each iteration.
-	Callback func ([]int16)
-}
-
-type userDataType struct {
-	callback func([]int16)
-	frameLength int
+	// Capacity of the audio buffer.
+	Capacity int
 }
 
 type nativePVRecorderInterface interface {
@@ -103,6 +101,9 @@ type nativePVRecorderInterface interface {
 
 type nativePVRecorderType struct {}
 
+// default capacity to use
+const capacity = 2048
+
 // private vars
 var (
 	extractionDir = filepath.Join(os.TempDir(), "pvrecorder")
@@ -112,11 +113,6 @@ var (
 
 // Init function for PVRecorder
 func (pvrecorder *PVRecorder) Init() error {
-	pvrecorder.userData = &userDataType{
-		callback: pvrecorder.Callback,
-		frameLength: pvrecorder.FrameLength,
-	}
-
 	ret := nativePVRecorder.nativeInit(pvrecorder)
 	if ret != SUCCESS {
 		return fmt.Errorf("PVRecorder Init failed with: %s", pvRecorderStatusToString(ret))
@@ -150,6 +146,28 @@ func (pvrecorder *PVRecorder) Stop() error {
 	return nil
 }
 
+// Read function reads audio frames.
+func (pvrecorder *PVRecorder) Read(frame_length int) ([]int16, error) {
+	length := frame_length
+	pcm := C.malloc_cgo(C.int32_t(length))
+	defer C.free(pcm)
+
+	ret := nativePVRecorder.nativeRead(pvrecorder, pcm, &length)
+	if ret == BUFFER_OVERFLOW {
+		log.Printf("WARNING: some audio frames were lost.\n")
+	} else if ret != SUCCESS {
+		return nil, fmt.Errorf("PVRecorder Read failed with: %s", pvRecorderStatusToString(ret))
+	}
+
+	var pcmSlice []int16
+	sh := (*reflect.SliceHeader)(unsafe.Pointer(&pcmSlice))
+	sh.Data = uintptr(unsafe.Pointer(pcm))
+	sh.Cap = length
+	sh.Len = length
+
+	return pcmSlice, nil
+}
+
 // GetAudioDevices function gets the currently available input audio devices.
 func GetAudioDevices() ([]string, error) {
 	var count int
@@ -172,22 +190,6 @@ func GetAudioDevices() ([]string, error) {
 	}
 
 	return deviceNames, nil
-}
-
-//export callbackHandler
-func callbackHandler(pcm *C.int16_t, userData unsafe.Pointer) {
-	if userData != nil {
-		req := (*userDataType)(userData)
-
-		var pcmSlice []int16
-
-		sh := (*reflect.SliceHeader)(unsafe.Pointer(&pcmSlice))
-		sh.Data = uintptr(unsafe.Pointer(pcm))
-		sh.Len = req.frameLength
-		sh.Cap = req.frameLength
-
-		req.callback(pcmSlice)
-	}
 }
 
 func extractLib() string {
