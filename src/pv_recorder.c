@@ -39,16 +39,9 @@ struct pv_recorder {
 
 void print_current_time_with_ms (void)
 {
-    struct timeval curTime;
-    gettimeofday(&curTime, NULL);
-    int milli = curTime.tv_usec / 1000;
-
-    char buffer [80];
-    strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
-
-    char currentTime[84] = "";
-    sprintf(currentTime, "%s:%03d", buffer, milli);
-    printf("current time: %s \n", currentTime);
+    struct timespec ts1;
+    clock_gettime(CLOCK_REALTIME, &ts1);
+    printf("%ld\n", ts1.tv_nsec / 1000);
 }
 
 static void pv_recorder_ma_callback(ma_device *device, void *output, const void *input, ma_uint32 frame_count) {
