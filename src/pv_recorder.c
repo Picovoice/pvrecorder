@@ -22,10 +22,8 @@
 #include "pv_circular_buffer.h"
 #include "pv_recorder.h"
 
-#include "time.h"
-
-static const int32_t READ_RETRY_COUNT = 200;
-static const int32_t READ_SLEEP_MILLI_SECONDS = 5;
+static const int32_t READ_RETRY_COUNT = 1000;
+static const int32_t READ_SLEEP_MILLI_SECONDS = 1;
 
 struct pv_recorder {
     ma_context context;
@@ -37,17 +35,8 @@ struct pv_recorder {
     ma_mutex mutex;
 };
 
-void print_current_time_with_ms (void)
-{
-    struct timespec ts1;
-    clock_gettime(CLOCK_REALTIME, &ts1);
-    printf("%ld\n", ts1.tv_nsec / 1000);
-}
-
 static void pv_recorder_ma_callback(ma_device *device, void *output, const void *input, ma_uint32 frame_count) {
     (void) output;
-
-    print_current_time_with_ms();
 
     pv_recorder_t *object = (pv_recorder_t *) device->pUserData;
 

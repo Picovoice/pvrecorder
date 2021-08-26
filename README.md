@@ -32,16 +32,25 @@ cmake .. -DOUTPUT_DIR={OUTPUT_DIR}
 cmake --build .
 ```
 
-If you want to build and run the demo file replace the last line in the previous command and run:
-
-```console
-cmake --build . -t demo
-./demo
-```
-
 ## Usage
 
 Refer to [example/demo.c](example/demo.c) for how to use `pv_recorder` to capture audio in C.
+
+The executable `demo` is also built together while compiling.
+
+To get the audio devices run:
+
+```console
+./demo --show_audio_devices
+```
+
+We will refer to `{DEVICE_INDEX}` as the index of the audio device of your choice and refer to 
+`{RAW_FILE_PATH}` as the path of the filepath to save the raw audio file. To run the demo and save
+the raw file, run:
+
+```console
+./demo {DEVICE_INDEX} {RAW_FILE_PATH}
+```
 
 ## SDK
 
