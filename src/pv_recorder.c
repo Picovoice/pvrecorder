@@ -22,8 +22,8 @@
 #include "pv_circular_buffer.h"
 #include "pv_recorder.h"
 
-static const int32_t READ_RETRY_COUNT = 1000;
-static const int32_t READ_SLEEP_MILLI_SECONDS = 1;
+static const int32_t READ_RETRY_COUNT = 500;
+static const int32_t READ_SLEEP_MILLI_SECONDS = 2;
 
 struct pv_recorder {
     ma_context context;
