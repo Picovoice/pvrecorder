@@ -53,12 +53,12 @@ class PVRecorder(object):
 
     _LIBRARY = None
 
-    def __init__(self, device_index, buffer_capacity=2048):
+    def __init__(self, device_index, capacity=2048):
         """
         Constructor
 
         :param device_index: The device index of the audio device to use. A (-1) will choose default audio device.
-        :param buffer_capacity: The size of the buffer to hold audio frames. Defaults to 2048.
+        :param capacity: The size of the buffer to hold audio frames. Defaults to 2048.
         """
 
         if self._LIBRARY is None:
@@ -74,7 +74,7 @@ class PVRecorder(object):
 
         self._handle = POINTER(self.CPVRecorder)()
 
-        status = init_func(device_index, buffer_capacity, byref(self._handle))
+        status = init_func(device_index, capacity, byref(self._handle))
         if status is not self.PVRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to initialize pv_recorder.")
 
@@ -114,7 +114,7 @@ class PVRecorder(object):
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to stop device.")
 
     def read(self, frame_length):
-        """Reads audio frames and returns a list."""
+        """Reads audio frames and returns a list containing the audio frames."""
 
         pcm = (c_int16 * frame_length)()
         length = c_int32(frame_length)

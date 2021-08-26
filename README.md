@@ -38,3 +38,12 @@ If you want to build and run the demo file replace the last line in the previous
 cmake --build . -t demo
 ./demo
 ```
+
+## Usage
+
+Refer to [example/demo.c](example/demo.c) for how to use `pv_recorder` to capture audio in C.
+
+## SDK
+
+coming soon.
+
