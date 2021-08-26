@@ -54,7 +54,7 @@ void pv_circular_buffer_delete(pv_circular_buffer_t *object);
 
 /**
  * Reads and copies the elements to the provided param ${buffer}. The param ${length} contains a new length
- * if a status other that PV_CIRCULAR_BUFFER_STATUS_SUCCESS is returned.
+ * if a status of PV_CIRCULAR_BUFFER_STATUS_READ_INCOMPLETE is returned.
  *
  * @param object Circular buffer object.
  * @param buffer[out] A pointer to copy the elements into.
