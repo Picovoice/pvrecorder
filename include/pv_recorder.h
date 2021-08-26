@@ -37,7 +37,6 @@ typedef enum {
     PV_RECORDER_STATUS_DEVICE_ALREADY_INITIALIZED,
     PV_RECORDER_STATUS_DEVICE_NOT_INITIALIZED,
     PV_RECORDER_STATUS_IO_ERROR,
-    PV_RECORDER_STATUS_BUFFER_OVERFLOW,
     PV_RECORDER_STATUS_RUNTIME_ERROR
 } pv_recorder_status_t;
 
@@ -45,13 +44,19 @@ typedef enum {
  * Constructor for Picovoice Audio Recorder.
  *
  * @param device_index The index of the audio device to use. A value of (-1) will resort to default device.
- * @param buffer_capacity Size of buffer to store audio frames as audio frames are received. The ideal capacity is at
- * least twice the amount of frame length the caller would need per iteration of the function pv_recorder_read.
+ * @param frame_length The length of audio frame to get for each read call.
+ * @param milliseconds Time in milliseconds to store audio frames to a temporary buffer.
+ * @param enable_logs Boolean variable to enable logs. This will enable warning logs when buffer overflow occurs.
  * @param[out] object Audio Recorder object to initialize.
  * @return Status Code. PV_RECORDER_STATUS_INVALID_ARGUMENT, PV_RECORDER_STATUS_BACKEND_ERROR,
  * PV_RECORDER_STATUS_DEVICE_INITIALIZED or PV_RECORDER_STATUS_OUT_OF_MEMORY on failure.
  */
-PV_API pv_recorder_status_t pv_recorder_init(int32_t device_index, int32_t buffer_capacity, pv_recorder_t **object);
+PV_API pv_recorder_status_t pv_recorder_init(
+        int32_t device_index,
+        int32_t frame_length,
+        int32_t milliseconds,
+        bool enable_logs,
+        pv_recorder_t **object);
 
 /**
  * Destructor.
@@ -83,13 +88,19 @@ PV_API pv_recorder_status_t pv_recorder_stop(pv_recorder_t *object);
  *
  * @param object PV_Recorder object.
  * @param pcm[out] An array for the frames to be copied to.
- * @param length[in,out] The amount of frames to be copied. The value will be modified to the actual length copied if
- * PV_RECORDER_IO_ERROR occurred.
  * @return Status Code. Returns PV_RECORDER_STATUS_INVALID_ARGUMENT, PV_RECORDER_INVALID_STATE or PV_RECORDER_IO_ERROR on failure.
  * Returns PV_RECORDER_STATUS_BUFFER_OVERFLOW if audio frames aren't being read fast enough. This means old audio frames
  * are being replaced by new audio frames.
  */
-PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm, int32_t *length);
+PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm);
+
+/**
+ * Getter to get the current selected audio device name.
+ *
+ * @param object PV_Recorder object.
+ * @return A string containing the name of the device.
+ */
+PV_API const char *pv_recorder_get_selected_device(pv_recorder_t *object);
 
 /**
  * Gets the input audio devices currently available. Each device name has a separate pointer, so the
