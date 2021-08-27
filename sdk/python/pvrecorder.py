@@ -100,6 +100,14 @@ class PVRecorder(object):
         self._get_selected_device_func.argtypes = [POINTER(self.CPVRecorder)]
         self._get_selected_device_func.restype = c_char_p
 
+        self._init_encoder_func = self._LIBRARY.pv_recorder_init_encoder
+        self._init_encoder_func.argtypes = [POINTER(self.CPVRecorder), c_char_p]
+        self._init_encoder_func.restype = self.PVRecorderStatuses
+
+        self._write_pcm_func = self._LIBRARY.pv_recorder_write_pcm
+        self._write_pcm_func.argtypes = [POINTER(self.CPVRecorder), (c_int16 * self._frame_length)]
+        self._write_pcm_func.restype = c_int32
+
     def delete(self):
         """Releases any resources used by PV_Recorder."""
 
@@ -127,6 +135,18 @@ class PVRecorder(object):
         if status is not self.PVRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to read from device.")
         return pcm[0:self._frame_length]
+
+    def init_encoder(self, output_path):
+        output_path_c = c_char_p(output_path.encode('utf-8'))
+        status = self._init_encoder_func(self._handle, output_path_c)
+        if status is not self.PVRecorderStatuses.SUCCESS:
+            raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to initialize encoder.")
+
+    def write_pcm(self, pcm):
+        pcm_array = (c_int16 * self._frame_length)(*pcm)
+        length = self._write_pcm_func(self._handle, pcm_array)
+        if length != self._frame_length:
+            raise ValueError("Failed to write pcm frames to output file.")
 
     @property
     def selected_device(self):
