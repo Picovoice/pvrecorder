@@ -88,15 +88,21 @@ type PVRecorder struct {
 	// Index of audio device to start recording and capture audio.
 	DeviceIndex int
 
+	// FrameLength to get for each read command.
+	FrameLength int
+
 	// Capacity of the audio buffer.
-	Capacity int
+	BufferSizeMSec int
 }
 
 type nativePVRecorderInterface interface {
 	nativeInit(*PVRecorder)
+	nativeDelete(*PVRecorder)
 	nativeStart(*PVRecorder)
 	nativeStop(*PVRecorder)
-	nativeDelete(*PVRecorder)
+	nativeGetSelectedDevice(*PVRecorder)
+	nativeGetAudioDevices(*C.int32_t, ***C.char)
+	nativeFreeDeviceList(C.int32_t, **C.char)
 }
 
 type nativePVRecorderType struct {}
@@ -147,12 +153,11 @@ func (pvrecorder *PVRecorder) Stop() error {
 }
 
 // Read function reads audio frames.
-func (pvrecorder *PVRecorder) Read(frame_length int) ([]int16, error) {
-	length := frame_length
-	pcm := C.malloc_cgo(C.int32_t(length))
+func (pvrecorder *PVRecorder) Read() ([]int16, error) {
+	pcm := C.malloc_cgo(C.int32_t(pvrecorder.FrameLength))
 	defer C.free(pcm)
 
-	ret := nativePVRecorder.nativeRead(pvrecorder, pcm, &length)
+	ret := nativePVRecorder.nativeRead(pvrecorder, pcm)
 	if ret == BUFFER_OVERFLOW {
 		log.Printf("WARNING: some audio frames were lost.\n")
 	} else if ret != SUCCESS {
@@ -162,11 +167,15 @@ func (pvrecorder *PVRecorder) Read(frame_length int) ([]int16, error) {
 	var pcmSlice []int16
 	sh := (*reflect.SliceHeader)(unsafe.Pointer(&pcmSlice))
 	sh.Data = uintptr(unsafe.Pointer(pcm))
-	sh.Cap = length
-	sh.Len = length
+	sh.Cap = pvrecorder.FrameLength
+	sh.Len = pvrecorder.FrameLength
 
 	return pcmSlice, nil
 }
+
+func (pvrecorder *PVRecorder) GetSelectedDevice() string {
+	return nativePVRecorder.nativeGetSelectedDevice(pvrecorder)
+}	
 
 // GetAudioDevices function gets the currently available input audio devices.
 func GetAudioDevices() ([]string, error) {

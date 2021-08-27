@@ -35,7 +35,8 @@ var (
 	pv_recorder_delete_func 			= lib.NewProc("pv_recorder_delete")
 	pv_recorder_start_func 				= lib.NewProc("pv_recorder_start")
 	pv_recorder_stop_func 				= lib.NewProc("pv_recorder_stop")
-	pv_recorder_read_func				= lib.NewProc(lib, C.CString("pv_recorder_read"))
+	pv_recorder_read_func				= lib.NewProc("pv_recorder_read")
+	pv_recorder_get_selected_device		= lib.NewProc("pv_recorder_get_selected_device")
 	pv_recorder_get_audio_devices_func 	= lib.NewProc("pv_recorder_get_audio_devices")
 	pv_recorder_free_device_list_func 	= lib.NewProc("pv_recorder_free_device_list")
 )
@@ -44,14 +45,14 @@ func (np nativePVRecorderType) nativeInit(pvrecorder *PVRecorder) PVRecorderStat
 	var (
 		deviceIndex = pvrecorder.DeviceIndex
 		frameLength = pvrecorder.FrameLength
+		bufferSizeMSec= pvrecorder.BufferSizeMSec
 		userData 	= pvrecorder.userData
 	)
 
 	ret, _, _ := pv_recorder_init_func.Call(
 		uintptr(deviceIndex),
 		uintptr(frameLength),
-		uintptr(unsafe.Pointer(C.callbackHandler)),
-		uintptr(unsafe.Pointer(userData)),
+		uintptr(bufferSizeMSec),
 		uintptr(unsafe.Pointer(&pvrecorder.handle))
 	)
 
@@ -64,20 +65,27 @@ func (np nativePVRecorderType) nativeDelete(pvrecorder *PVRecorder) {
 
 func (np nativePVRecorderType) nativeStart(pvrecorder *PVRecorder) PVRecorderStatus {
 	ret, _, _ := pv_recorder_start_func(pvrecorder.handle)
+
 	return PVRecorderStatus(ret)
 }
 
 func (np nativePVRecorderType) nativeStop(pvrecorder *PVRecorder) PVRecorderStatus {
 	ret, _, _ := pv_recorder_stop_func(pvrecorder.handle)
+
 	return PVRecorderStatus(ret)
 }
 
-func (np nativePVRecorderType) nativeRead(pvrecorder *PVRecorder, pcm unsafe.Pointer, length *int) PVRecorderStatus {
+func (np nativePVRecorderType) nativeRead(pvrecorder *PVRecorder, pcm unsafe.Pointer) PVRecorderStatus {
 	ret, _, _ := pv_recorder_read_func(pvrecorder.handle,
-		uintptr(pcm),
-		uintptr(unsafe.Pointer(length)))
-		
+		uintptr(pcm))
+
 	return PVRecorderStatus(ret)
+}
+
+func (np nativePVRecorderType) nativeGetSelectedDevice(pvrecorder *PVRecorder) string {
+	ret, _, _ := pv_recorder_get_selected_device_func(pvrecorder.handle)
+
+	return C.Gostring(ret)
 }
 
 func nativeGetAudioDevices(count *int, devices ***C.char) PVRecorderStatus {

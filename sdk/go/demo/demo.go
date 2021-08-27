@@ -12,6 +12,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"log"
 	"os"
 	"os/signal"
@@ -32,7 +34,8 @@ func main() {
 
 	recorder := pvrecorder.PVRecorder{
 		DeviceIndex: -1,
-		Capacity: 2048,
+		FrameLength: 512,
+		BufferSizeMSec: 1000,
 	}
 
 	log.Println("Initializing...")
@@ -40,6 +43,8 @@ func main() {
 		log.Fatalf("Error: %s.\n", err.Error())
 	}
 	defer recorder.Delete()
+
+	log.Printf("Using device: %s", recorder.GetSelectedDevice())
 
 	log.Println("Starting...")
 	if err := recorder.Start(); err != nil {
@@ -54,6 +59,15 @@ func main() {
 		<- signalCh
 		close(waitCh)
 	}()
+
+
+	f, err := os.Create("temp.bin")
+	if err != nil {
+		log.Fatalf("Failed to create file: %s\n", err.Error())
+	}
+	defer f.Close()
+
+	buf := new(bytes.Buffer)
 	
 waitLoop:
 	for {
@@ -62,11 +76,17 @@ waitLoop:
 			log.Println("Stopping...")
 			break waitLoop
 		default:
-			_, err := recorder.Read(512)
+			pcm, err := recorder.Read()
 			if err != nil {
 				log.Fatalf("Error: %s.\n", err.Error())
 			}
-			// do something with pcm
+			if err := binary.Write(buf, binary.LittleEndian, pcm); err != nil {
+				log.Fatalf("Failed to write pcm to buffer: %s.\n", err.Error())
+			}
+			if _, err := f.Write(buf.Bytes()); err != nil {
+				log.Fatalf("Failed to write bytes to file: %s\n", err.Error())
+			}
+			buf.Reset()
 		}
 	}
 }
