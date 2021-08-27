@@ -16,13 +16,12 @@ package pvrecorder
 /*
 #cgo LDFLAGS: -lpthread -ldl -lm
 #include <dlfcn.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
 
-typedef int32_t (*pv_recorder_init_func)(int32_t, int32_t, int32_t, bool, void **);
+typedef int32_t (*pv_recorder_init_func)(int32_t, int32_t, int32_t, int32_t, void **);
 
-int32_t pv_recorder_init_wrapper(void *f, int32_t device_index, int32_t frame_length, int32_t buffer_size_msec, bool log_overflow, void **object) {
+int32_t pv_recorder_init_wrapper(void *f, int32_t device_index, int32_t frame_length, int32_t buffer_size_msec, int32_t log_overflow, void **object) {
 	return ((pv_recorder_init_func) f)(device_index, frame_length, buffer_size_msec, log_overflow, object);
 }
 
@@ -109,7 +108,7 @@ func (np nativePVRecorderType) nativeInit(pvrecorder *PVRecorder) PVRecorderStat
 		(C.int32_t)(deviceIndex),
 		(C.int32_t)(frameLength),
 		(C.int32_t)(bufferSizeMSec),
-		(C.bool)(logOverflow),
+		(C.int32_t)(logOverflow),
 		&ptrC[0])
 
 	pvrecorder.handle = uintptr(ptrC[0])
