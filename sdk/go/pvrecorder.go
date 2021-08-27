@@ -104,6 +104,7 @@ type nativePVRecorderInterface interface {
     nativeGetSelectedDevice(*PVRecorder)
     nativeGetAudioDevices(*C.int32_t, ***C.char)
     nativeFreeDeviceList(C.int32_t, **C.char)
+    nativeVersion()
 }
 
 type nativePVRecorderType struct {}
@@ -179,10 +180,10 @@ func GetAudioDevices() ([]string, error) {
     var count int
     var devices **C.char
 
-    if ret := nativeGetAudioDevices(&count, &devices); ret != SUCCESS {
+    if ret := nativePVRecorder.nativeGetAudioDevices(&count, &devices); ret != SUCCESS {
         return nil, fmt.Errorf("PVRecorder GetAudioDevices failed with: %s", pvRecorderStatusToString(ret))
     }
-    defer nativeFreeDeviceList(count, devices)
+    defer nativePVRecorder.nativeFreeDeviceList(count, devices)
 
     deviceSlice := (*[1 << 28]*C.char)(unsafe.Pointer(devices))[:count:count]
 
@@ -196,7 +197,7 @@ func GetAudioDevices() ([]string, error) {
 
 // Version function gets the current library version.
 func Version() string {
-    return nativeVersion()
+    return nativePVRecorder.nativeVersion()
 }
 
 func extractLib() string {

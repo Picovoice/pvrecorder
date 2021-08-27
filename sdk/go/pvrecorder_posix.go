@@ -149,7 +149,7 @@ func (nativePVRecorderType) nativeGetSelectedDevice(pvrecorder *PVRecorder) stri
     return C.GoString(ret)
 }
 
-func nativeGetAudioDevices(count *int, devices ***C.char) PVRecorderStatus {
+func (nativePVRecorderType) nativeGetAudioDevices(count *int, devices ***C.char) PVRecorderStatus {
     var ret = C.pv_recorder_get_audio_devices_wrapper(pv_recorder_get_audio_devices_ptr,
         (*C.int32_t)(unsafe.Pointer(count)),
         (***C.char)(unsafe.Pointer(devices)))
@@ -157,13 +157,13 @@ func nativeGetAudioDevices(count *int, devices ***C.char) PVRecorderStatus {
     return PVRecorderStatus(ret)
 }
 
-func nativeFreeDeviceList(count int, devices **C.char) {
+func (nativePVRecorderType) nativeFreeDeviceList(count int, devices **C.char) {
     C.pv_recorder_free_device_list_wrapper(pv_recorder_free_device_list_ptr,
         (C.int32_t)(count),
         (**C.char)(unsafe.Pointer(devices)))
 }
 
-func nativeVersion() string {
+func (nativePVRecorderType) nativeVersion() string {
     var ret = C.pv_recorder_version_wrapper(pv_recorder_version_ptr);
     return C.GoString(ret)
 }
