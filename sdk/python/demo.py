@@ -11,6 +11,8 @@
 
 
 import argparse
+import struct
+import wave
 from pvrecorder import PVRecorder
 
 
@@ -43,29 +45,29 @@ def main():
         device_index = args.audio_device_index
         output_path = args.output_path
 
-        print("Initializing recorder...")
         recorder = PVRecorder(device_index=device_index, frame_length=512)
-
-        print("Starting recorder...")
         recorder.start()
 
         print("Using device: ", recorder.selected_device)
 
         if output_path is not None:
-            print("Initializing encoder...")
-            recorder.init_encoder(output_path)
+            wavfile = wave.open(output_path, "w")
+            wavfile.setparams((1, 2, 16000, 512, "NONE", "NONE"))
 
         try:
             while True:
                 pcm = recorder.read()
+
                 if output_path is not None:
-                    recorder.write_pcm(pcm)
+                    for frame in pcm:
+                        wavfile.writeframes(struct.pack("<h", frame))
 
         except KeyboardInterrupt:
             print("Stopping...")
         finally:
-            print("Deleting...")
             recorder.delete()
+            if output_path is not None:
+                wavfile.close()
 
 
 if __name__ == "__main__":
