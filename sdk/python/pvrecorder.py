@@ -49,8 +49,6 @@ class PVRecorder(object):
     class CPVRecorder(Structure):
         pass
 
-    _LIBRARY = None
-
     def __init__(self, device_index, frame_length, buffer_size_msec=1000, log_overflow=True):
         """
         Constructor
@@ -61,9 +59,6 @@ class PVRecorder(object):
         :param log_overflow: Boolean variable to indicate to log overflow warnings. A log warning should indicate
         read is not being called fast enough from the callers point.
         """
-
-        if self._LIBRARY is None:
-            self._LIBRARY = cdll.LoadLibrary(PVRecorder._lib_path())
 
         init_func = self._LIBRARY.pv_recorder_init
         init_func.argtypes = [
@@ -102,6 +97,10 @@ class PVRecorder(object):
         self._get_selected_device_func.argtypes = [POINTER(self.CPVRecorder)]
         self._get_selected_device_func.restype = c_char_p
 
+        self._version_func = PVRecorder._LIBRARY.pv_recorder_version
+        self._version_func.argtypes = None
+        self._version_func.restype = c_char_p
+
     def delete(self):
         """Releases any resources used by PV_Recorder."""
 
@@ -137,15 +136,19 @@ class PVRecorder(object):
         device_name = self._get_selected_device_func(self._handle)
         return device_name.decode('utf-8')
 
+    @property
+    def version(self):
+        """Gets the current version of pv_recorder library."""
+
+        version = self._version_func()
+        return version.decode('utf-8')
+
     @staticmethod
     def get_audio_devices():
         """Gets the audio devices currently available on device.
 
         :return: A list of strings, indicating the names of audio devices.
         """
-
-        if PVRecorder._LIBRARY is None:
-            PVRecorder._LIBRARY = cdll.LoadLibrary(PVRecorder._lib_path())
 
         get_audio_devices_func = PVRecorder._LIBRARY.pv_recorder_get_audio_devices
         get_audio_devices_func.argstype = [POINTER(c_int32), POINTER(POINTER(c_char_p))]
@@ -171,20 +174,6 @@ class PVRecorder(object):
         return device_list
 
     @staticmethod
-    def version():
-        """Gets the current version of pv_recorder library."""
-
-        if PVRecorder._LIBRARY is None:
-            PVRecorder._LIBRARY = cdll.LoadLibrary(PVRecorder._lib_path())
-
-        version_func = PVRecorder._LIBRARY.pv_recorder_version
-        version_func.argtypes = None
-        version_func.restype = c_char_p
-
-        version = version_func()
-        return version.decode('utf-8')
-
-    @staticmethod
     def _lib_path():
         """A helper function to get the library path."""
 
@@ -207,3 +196,5 @@ class PVRecorder(object):
             extension = "so"
 
         return os.path.join(os.path.dirname(__file__), "lib", os_name, cpu, f"libpv_recorder.{extension}")
+
+    _LIBRARY = cdll.LoadLibrary(_lib_path.__func__())

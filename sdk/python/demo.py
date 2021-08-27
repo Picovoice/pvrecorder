@@ -37,20 +37,19 @@ def main():
 
     args = parser.parse_args()
 
-    print("pvrecorder.py version: %s" % PVRecorder.version())
-
     if args.show_audio_devices:
         devices = PVRecorder.get_audio_devices()
         for i in range(len(devices)):
-            print("index: %d, device name: %s" % (i, devices[i]))
+            print(f"index: {i}, device name: {devices[i]}")
     else:
         device_index = args.audio_device_index
         output_path = args.output_path
 
         recorder = PVRecorder(device_index=device_index, frame_length=512)
-        recorder.start()
+        print(f"pvrecorder.py version: {recorder.version}")
 
-        print("Using device: ", recorder.selected_device)
+        recorder.start()
+        print(f"Using device: {recorder.selected_device}")
 
         if output_path is not None:
             wavfile = wave.open(output_path, "w")
@@ -59,10 +58,8 @@ def main():
         try:
             while True:
                 pcm = recorder.read()
-
                 if output_path is not None:
-                    for frame in pcm:
-                        wavfile.writeframes(struct.pack("<h", frame))
+                    wavfile.writeframes(struct.pack("<h", pcm))
 
         except KeyboardInterrupt:
             print("Stopping...")
