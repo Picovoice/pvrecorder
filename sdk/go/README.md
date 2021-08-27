@@ -38,14 +38,6 @@ if err != nil {
 }
 ```
 
-Before recording, create a callback that processes the pcm:
-
-```go
-func callback(pcm []int16) {
-    // do something with pcm
-}
-```
-
 To start recording, initialize the instance and run start function:
 
 ```go
@@ -54,7 +46,8 @@ import . "github.com/Picovoice/pvrecorder/sdk/go"
 recorder := PVRecorder{
     DeviceIndex: -1,
     FrameLength: 512,
-    Callback: callback,
+    BufferSizeMSec: 1000,
+    LogOverflow: 1,
 }
 if err := recorder.Init(); err != nil {
     // error
@@ -62,6 +55,16 @@ if err := recorder.Init(); err != nil {
 if err := recorder.Start(); err != nil {
     // error
 }
+```
+
+To read the pcm frames, run:
+
+```go
+pcm, err := recorder.Run()
+if err != nil {
+    // handle error
+}
+// do something with pcm
 ```
 
 To stop recording just run stop on the instance:
@@ -74,4 +77,14 @@ Once you are done, free the used resources. You do not have to call stop before 
 
 ```go
 recorder.Delete()
+```
+
+### Demo
+
+For more detailed information on how to use the pv_recorder go sdk, please that a look at [demo/demo.go](demo/demo.go). 
+
+To run the demo:
+
+```console
+go run demo/demo.go
 ```

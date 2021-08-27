@@ -89,7 +89,7 @@ type PVRecorder struct {
 	// FrameLength to get for each read command.
 	FrameLength int
 
-	// Capacity of the audio buffer.
+	// BufferSizeMSec is the total amount of audio frames to store in milliseconds.
 	BufferSizeMSec int
 
 	// LogOverflow flag to enable logs.
