@@ -51,7 +51,7 @@ class PVRecorder(object):
 
     _LIBRARY = None
 
-    def __init__(self, device_index, frame_length, buffer_size_msec=1000):
+    def __init__(self, device_index, frame_length, buffer_size_msec=1000, log_overflow=True):
         """
         Constructor
 
@@ -76,7 +76,7 @@ class PVRecorder(object):
         self._handle = POINTER(self.CPVRecorder)()
         self._frame_length = frame_length
 
-        status = init_func(device_index, frame_length, buffer_size_msec, True, byref(self._handle))
+        status = init_func(device_index, frame_length, buffer_size_msec, log_overflow, byref(self._handle))
         if status is not self.PVRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to initialize pv_recorder.")
 
@@ -167,6 +167,20 @@ class PVRecorder(object):
         free_device_list_func(count, devices)
 
         return device_list
+
+    @staticmethod
+    def version():
+        """Gets the current version of pv_recorder library."""
+
+        if PVRecorder._LIBRARY is None:
+            PVRecorder._LIBRARY = cdll.LoadLibrary(PVRecorder._lib_path())
+
+        version_func = PVRecorder._LIBRARY.pv_recorder_version
+        version_func.argtypes = None
+        version_func.restype = c_char_p
+
+        version = version_func()
+        return version.decode('utf-8')
 
     @staticmethod
     def _lib_path():

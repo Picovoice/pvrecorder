@@ -37,6 +37,8 @@ def main():
 
     args = parser.parse_args()
 
+    print("pvrecorder.py version: %s" % PVRecorder.version())
+
     if args.show_audio_devices:
         devices = PVRecorder.get_audio_devices()
         for i in range(len(devices)):
