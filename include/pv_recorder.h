@@ -103,25 +103,6 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
 PV_API const char *pv_recorder_get_selected_device(pv_recorder_t *object);
 
 /**
- * Encoder initializer to save pcm frames.
- *
- * @param object PV_Recorder object.
- * @param output_path The path to write to file to.
- * @return Status Code. Returns PV_RECORDER_STATUS_INVALID_ARGUMENT, PV_RECORDER_STATUS_INVALID_STATE,
- * PV_RECORDER_STATUS_OUT_OF_MEMORY or PV_RECORDER_STATUS_BACKEND_ERROR on failure.
- */
-PV_API pv_recorder_status_t pv_recorder_init_encoder(pv_recorder_t *object, const char *output_path);
-
-/**
- * Writes pcm frames to a wav file.
- *
- * @param object PV_Recorder object.
- * @param pcm The pcm frames to write.
- * @return The total length of the frames written. Returns -1 if arguments are wrong or encoder was not initialized.
- */
-PV_API int32_t pv_recorder_write_pcm(pv_recorder_t *object, const int16_t *pcm);
-
-/**
  * Gets the input audio devices currently available. Each device name has a separate pointer, so the
  * caller must free each item in the output array individually and free the output array itself.
  * The utility function pv_recorder_free_device_list is provided to free the device list.

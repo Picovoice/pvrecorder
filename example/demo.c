@@ -83,13 +83,13 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-
     int16_t *pcm = malloc(512 * sizeof(int16_t));
 
+    FILE *file = NULL;
     if (path_to_raw_file) {
-        status = pv_recorder_init_encoder(recorder, path_to_raw_file);
-        if (status != PV_RECORDER_STATUS_SUCCESS) {
-            fprintf(stderr, "Failed to initialize encoder with %s.\n", pv_recorder_status_to_string(status));
+        file = fopen(path_to_raw_file, "wb");
+        if (!file) {
+            fprintf(stderr, "Failed to open file.\n");
         }
     }
 
@@ -99,13 +99,17 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "Failed to read with %s.\n", pv_recorder_status_to_string(status));
             exit(1);
         }
-        if (path_to_raw_file) {
-            const int32_t length = pv_recorder_write_pcm(recorder, pcm);
+        if (file) {
+            uint32_t length = fwrite(pcm, sizeof(int16_t), 512, file);
             if (length != 512) {
-                fprintf(stderr, "Failed to write pcm frames to file.\n");
+                fprintf(stderr, "Failed to write raw bytes to file.\n");
                 exit(1);
             }
         }
+    }
+
+    if (file) {
+        fclose(file);
     }
 
     fprintf(stdout, "Stop recording...\n");
