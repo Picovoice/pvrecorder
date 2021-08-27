@@ -67,8 +67,9 @@ int main(int argc, char *argv[]) {
     // Use PV_Recorder
     fprintf(stdout, "Initializing pv_recorder...\n");
 
+    const int32_t frame_length = 512;
     pv_recorder_t *recorder = NULL;
-    pv_recorder_status_t status = pv_recorder_init(device_index, 512, 100, true, &recorder);
+    pv_recorder_status_t status = pv_recorder_init(device_index, frame_length, 100, true, &recorder);
     if (status != PV_RECORDER_STATUS_SUCCESS) {
         fprintf(stderr, "Failed to initialize device with %s.\n", pv_recorder_status_to_string(status));
         exit(1);
@@ -84,7 +85,6 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    static const int32_t frame_length = 512;
     int16_t *pcm = malloc(frame_length * sizeof(int16_t));
     if (!pcm) {
         fprintf(stderr, "Failed to allocate pcm memory.\n");

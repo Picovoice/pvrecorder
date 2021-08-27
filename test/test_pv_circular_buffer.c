@@ -19,7 +19,7 @@
 static char error_message[256] = {0};
 
 static const char *test_error_message(const char *message, va_list args) {
-    vsnprintf(error_message, 256, message, args);
+    vsnprintf(error_message, sizeof(error_message) / sizeof (error_message[0]), message, args);
     return error_message;
 }
 
