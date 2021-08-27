@@ -30,7 +30,7 @@ use crate::util::*;
 struct CPvRecorder {}
 
 #[repr(C)]
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Clone, Debug)]
 #[allow(non_camel_case_types)]
 pub enum PvRecorderStatus {
     SUCCESS = 0,
@@ -48,8 +48,8 @@ pub enum PvRecorderStatus {
 type PvRecorderInitFn = unsafe extern "C" fn(
     device_index: i32,
     frame_length: i32,
-    milliseconds: i32,
-    enable_logs: bool,
+    buffer_size_msec: i32,
+    log_overflow: bool,
     object: *mut *mut CPvRecorder,
 ) -> PvRecorderStatus;
 type PvRecorderDeleteFn = unsafe extern "C" fn(object: *mut CPvRecorder);
@@ -101,8 +101,8 @@ pub struct RecorderBuilder {
     library_path: PathBuf,
     device_index: i32,
     frame_length: i32,
-    milliseconds: i32,
-    enable_logs: bool,
+    buffer_size_msec: i32,
+    log_overflow: bool,
 }
 
 impl RecorderBuilder {
@@ -111,9 +111,14 @@ impl RecorderBuilder {
             library_path: pv_library_path(),
             device_index: DEFAULT_DEVICE_INDEX,
             frame_length: DEFAULT_FRAME_LENGTH,
-            milliseconds: DEFAULT_MILLISECONDS,
-            enable_logs: false,
+            buffer_size_msec: DEFAULT_MILLISECONDS,
+            log_overflow: false,
         };
+    }
+
+    pub fn library_path<'a, P: AsRef<Path>>(&'a mut self, library_path: P) -> &'a mut Self {
+        self.library_path = PathBuf::from(library_path.as_ref());
+        return self;
     }
 
     pub fn device_index<'a>(&'a mut self, device_index: i32) -> &'a mut Self {
@@ -126,13 +131,13 @@ impl RecorderBuilder {
         return self;
     }
 
-    pub fn milliseconds<'a>(&'a mut self, milliseconds: i32) -> &'a mut Self {
-        self.milliseconds = milliseconds;
+    pub fn buffer_size_msec<'a>(&'a mut self, buffer_size_msec: i32) -> &'a mut Self {
+        self.buffer_size_msec = buffer_size_msec;
         return self;
     }
 
-    pub fn enable_logs<'a>(&'a mut self, enable_logs: bool) -> &'a mut Self {
-        self.enable_logs = enable_logs;
+    pub fn log_overflow<'a>(&'a mut self, log_overflow: bool) -> &'a mut Self {
+        self.log_overflow = log_overflow;
         return self;
     }
 
@@ -145,8 +150,8 @@ impl RecorderBuilder {
             self.library_path.clone(),
             self.device_index,
             self.frame_length,
-            self.milliseconds,
-            self.enable_logs,
+            self.buffer_size_msec,
+            self.log_overflow,
         );
         return recorder_inner.map(|inner| Recorder {
             inner: Arc::new(inner),
@@ -227,8 +232,8 @@ impl RecorderInner {
         library_path: P,
         device_index: i32,
         frame_length: i32,
-        milliseconds: i32,
-        enable_logs: bool,
+        buffer_size_msec: i32,
+        log_overflow: bool,
     ) -> Result<Self, RecorderError> {
         unsafe {
             if device_index < -1 {
@@ -251,12 +256,12 @@ impl RecorderInner {
                 ));
             }
 
-            if milliseconds < 0 {
+            if buffer_size_msec < 0 {
                 return Err(RecorderError::new(
                     RecorderErrorStatus::ArgumentError,
                     &format!(
-                        "milliseconds value {} should be greater than zero",
-                        milliseconds
+                        "buffer_size_msec value {} should be greater than zero",
+                        buffer_size_msec
                     ),
                 ));
             }
@@ -279,14 +284,14 @@ impl RecorderInner {
             let status = pv_recorder_init(
                 device_index,
                 frame_length,
-                milliseconds,
-                enable_logs,
+                buffer_size_msec,
+                log_overflow,
                 addr_of_mut!(cpvrecorder),
             );
             if status != PvRecorderStatus::SUCCESS {
                 return Err(RecorderError::new(
                     RecorderErrorStatus::LibraryLoadError,
-                    "Failed to initialize the pvrecorder library",
+                    &format!("Failed to initialize the pvrecorder library ({:?})", status),
                 ));
             }
 
