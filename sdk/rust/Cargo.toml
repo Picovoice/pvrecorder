@@ -1,0 +1,21 @@
+[package]
+name = "pvrecorder"
+version = "1.0.0"
+edition = "2018"
+description = "Rust recorder library for Picovoice"
+license = "Apache-2.0"
+keywords = [
+    "audio",
+    "recorder",
+]
+publish = false
+
+[lib]
+name = "pvrecorder"
+path = "src/lib.rs"
+crate_type = ["lib"]
+
+[dependencies]
+libc = "0.2"
+libloading = "0.7"
+log = "0.4"

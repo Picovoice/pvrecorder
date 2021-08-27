@@ -1,0 +1,9 @@
+[package]
+name = "pvrecorder_demo"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+pvrecorder = { path = "../../sdk/rust" }
+hound = "3.4.0"
+clap = "2.33.3"
