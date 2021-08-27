@@ -29,6 +29,7 @@ static void print_usage(const char *program) {
 }
 
 int main(int argc, char *argv[]) {
+    fprintf(stdout, "pv_recorder version: %s\n", pv_recorder_version());
     if ((argc != 2) && (argc != 3)) {
         print_usage(argv[0]);
         exit(1);
@@ -37,8 +38,8 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, interrupt_handler);
 
     if (strcmp(argv[1], "--show_audio_devices") == 0) {
-        char **devices;
-        int32_t count;
+        char **devices = NULL;
+        int32_t count = 0;
 
         // List devices
         pv_recorder_status_t status = pv_recorder_get_audio_devices(&count, &devices);
@@ -66,8 +67,9 @@ int main(int argc, char *argv[]) {
     // Use PV_Recorder
     fprintf(stdout, "Initializing pv_recorder...\n");
 
-    pv_recorder_t *recorder;
-    pv_recorder_status_t status = pv_recorder_init(device_index, 512, 100, true, &recorder);
+    const int32_t frame_length = 512;
+    pv_recorder_t *recorder = NULL;
+    pv_recorder_status_t status = pv_recorder_init(device_index, frame_length, 100, true, &recorder);
     if (status != PV_RECORDER_STATUS_SUCCESS) {
         fprintf(stderr, "Failed to initialize device with %s.\n", pv_recorder_status_to_string(status));
         exit(1);
@@ -83,13 +85,18 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    int16_t *pcm = malloc(512 * sizeof(int16_t));
+    int16_t *pcm = malloc(frame_length * sizeof(int16_t));
+    if (!pcm) {
+        fprintf(stderr, "Failed to allocate pcm memory.\n");
+        exit(1);
+    }
 
     FILE *file = NULL;
     if (path_to_raw_file) {
         file = fopen(path_to_raw_file, "wb");
         if (!file) {
             fprintf(stderr, "Failed to open file.\n");
+            exit(1);
         }
     }
 
@@ -100,8 +107,8 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
         if (file) {
-            uint32_t length = fwrite(pcm, sizeof(int16_t), 512, file);
-            if (length != 512) {
+            const size_t length = fwrite(pcm, sizeof(int16_t), frame_length, file);
+            if (length != frame_length) {
                 fprintf(stderr, "Failed to write raw bytes to file.\n");
                 exit(1);
             }
@@ -121,6 +128,7 @@ int main(int argc, char *argv[]) {
 
     fprintf(stdout, "Deleting pv_recorder...\n");
     pv_recorder_delete(recorder);
+    free(pcm);
 
     return 0;
 }

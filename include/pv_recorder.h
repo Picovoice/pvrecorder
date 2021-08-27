@@ -131,4 +131,11 @@ PV_API void pv_recorder_free_device_list(int32_t count, char **devices);
  */
 PV_API const char *pv_recorder_status_to_string(pv_recorder_status_t status);
 
+/**
+ * Getter for version.
+ *
+ * @return Version.
+ */
+PV_API const char *pv_recorder_version(void);
+
 #endif //PV_RECORDER_H

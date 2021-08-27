@@ -45,11 +45,11 @@ To get the audio devices run:
 ```
 
 We will refer to `{DEVICE_INDEX}` as the index of the audio device of your choice and refer to 
-`{RAW_FILE_PATH}` as the path of the filepath to save the raw audio file. To run the demo and save
+`{OUTPUT_FILE_PATH}` as the path of the filepath to save the audio file in wav format. To run the demo and save
 the raw file, run:
 
 ```console
-./demo {DEVICE_INDEX} {RAW_FILE_PATH}
+./demo {DEVICE_INDEX} {OUTPUT_FILE_PATH}
 ```
 
 ## SDK

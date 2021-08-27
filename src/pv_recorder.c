@@ -63,15 +63,12 @@ PV_API pv_recorder_status_t pv_recorder_init(
     if (buffer_size_msec <= 0) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
-    if ((log_overflow != true) && (log_overflow != false)) {
-        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
-    }
     if (!object) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
 
     // capacity = 16kHz * seconds
-    const int32_t capacity = (int32_t) (16000 * buffer_size_msec / 1000);
+    const int32_t capacity = (int32_t) ((16000 * buffer_size_msec) / 1000);
     if (capacity < frame_length) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
@@ -250,6 +247,9 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
 }
 
 PV_API const char *pv_recorder_get_selected_device(pv_recorder_t *object) {
+    if (!object) {
+        return NULL;
+    }
     return object->device.capture.name;
 }
 
@@ -338,4 +338,8 @@ PV_API const char *pv_recorder_status_to_string(pv_recorder_status_t status) {
     }
 
     return STRINGS[status - PV_RECORDER_STATUS_SUCCESS];
+}
+
+PV_API const char *pv_recorder_version(void) {
+    return "v1.0.0";
 }
