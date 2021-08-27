@@ -28,6 +28,7 @@ static const int32_t READ_SLEEP_MILLI_SECONDS = 2;
 struct pv_recorder {
     ma_context context;
     ma_device device;
+    ma_encoder *encoder;
     pv_circular_buffer_t *buffer;
     int32_t frame_length;
     bool is_started;
@@ -167,6 +168,7 @@ PV_API void pv_recorder_delete(pv_recorder_t *object) {
         ma_device_uninit(&(object->device));
         ma_context_uninit(&(object->context));
         ma_mutex_uninit(&(object->mutex));
+        ma_encoder_uninit(object->encoder);
         pv_circular_buffer_delete(object->buffer);
         free(object);
     }
@@ -250,7 +252,58 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
 }
 
 PV_API const char *pv_recorder_get_selected_device(pv_recorder_t *object) {
+    if (!object) {
+        return NULL;
+    }
     return object->device.capture.name;
+}
+
+PV_API pv_recorder_status_t pv_recorder_init_encoder(pv_recorder_t *object, const char *output_path) {
+    if (!object) {
+        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
+    }
+    if (object->encoder) {
+        // we already initialized
+        return PV_RECORDER_STATUS_INVALID_STATE;
+    }
+
+    object->encoder = calloc(1, sizeof(ma_encoder));
+    if (!object->encoder) {
+        return PV_RECORDER_STATUS_OUT_OF_MEMORY;
+    }
+
+    ma_encoder_config encoder_config = ma_encoder_config_init(
+            ma_resource_format_wav,
+            ma_format_s16,
+            1,
+            ma_standard_sample_rate_16000);
+
+    ma_result result = ma_encoder_init_file(output_path, &encoder_config, object->encoder);
+    if (result != MA_SUCCESS) {
+        if (result == MA_OUT_OF_MEMORY) {
+            return PV_RECORDER_STATUS_OUT_OF_MEMORY;
+        } else {
+            // no backend to write to file
+            return PV_RECORDER_STATUS_BACKEND_ERROR;
+        }
+    }
+
+    return PV_RECORDER_STATUS_SUCCESS;
+}
+
+PV_API int32_t pv_recorder_write_pcm(pv_recorder_t *object, const int16_t *pcm) {
+    if (!object) {
+        return -1;
+    }
+    if (!pcm) {
+        return -1;
+    }
+    if (!object->encoder) {
+        // initialize encoder before calling this function.
+        return -1;
+    }
+
+    return (int32_t) ma_encoder_write_pcm_frames(object->encoder, pcm, object->frame_length);
 }
 
 PV_API pv_recorder_status_t pv_recorder_get_audio_devices(int32_t *count, char ***devices) {
