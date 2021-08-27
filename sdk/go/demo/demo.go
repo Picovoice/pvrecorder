@@ -14,6 +14,7 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"flag"
 	"log"
 	"os"
 	"os/signal"
@@ -22,18 +23,25 @@ import (
 )
 
 func main() {
-	log.Println("Printing devices...")
-	if devices, err := pvrecorder.GetAudioDevices(); err != nil {
-		log.Fatalf("Error: %s.\n", err.Error())
-	} else {
-		for i, device := range devices {
-			log.Printf("index: %d, device name: %s\n", i, device)
+	showAudioDevices := flag.Bool("show_audio_devices", false, "Display all the available input devices")
+	audioDeviceIndex := flag.Int("audio_device_index", -1, "Index of audio input device to use.")
+	rawOutputPath := flag.String("raw_output_path", "", "Output path to save recorded audio raw bytes.")
+	flag.Parse()
+
+	if *showAudioDevices {
+		log.Println("Printing devices...")
+		if devices, err := pvrecorder.GetAudioDevices(); err != nil {
+			log.Fatalf("Error: %s.\n", err.Error())
+		} else {
+			for i, device := range devices {
+				log.Printf("index: %d, device name: %s\n", i, device)
+			}
 		}
+		return;
 	}
-	log.Println("")
 
 	recorder := pvrecorder.PVRecorder{
-		DeviceIndex: -1,
+		DeviceIndex: *audioDeviceIndex,
 		FrameLength: 512,
 		BufferSizeMSec: 1000,
 	}
@@ -60,14 +68,18 @@ func main() {
 		close(waitCh)
 	}()
 
+	var f *os.File
+	var buf *bytes.Buffer
+	if *rawOutputPath != "" {
+		file, err := os.Create(*rawOutputPath)
+		if err != nil {
+			log.Fatalf("Failed to create file: %s\n", err.Error())
+		}
+		defer file.Close()
 
-	f, err := os.Create("temp.bin")
-	if err != nil {
-		log.Fatalf("Failed to create file: %s\n", err.Error())
+		f = file
+		buf = new(bytes.Buffer)
 	}
-	defer f.Close()
-
-	buf := new(bytes.Buffer)
 	
 waitLoop:
 	for {
@@ -80,13 +92,14 @@ waitLoop:
 			if err != nil {
 				log.Fatalf("Error: %s.\n", err.Error())
 			}
-			if err := binary.Write(buf, binary.LittleEndian, pcm); err != nil {
-				log.Fatalf("Failed to write pcm to buffer: %s.\n", err.Error())
+			if *rawOutputPath != "" {
+				if err := binary.Write(buf, binary.LittleEndian, pcm); err != nil {
+					log.Fatalf("Failed to write pcm to buffer: %s.\n", err.Error())
+				}
+				if _, err := f.Write(buf.Bytes()); err != nil {
+					log.Fatalf("Failed to write bytes to file: %s\n", err.Error())
+				}
 			}
-			if _, err := f.Write(buf.Bytes()); err != nil {
-				log.Fatalf("Failed to write bytes to file: %s\n", err.Error())
-			}
-			buf.Reset()
 		}
 	}
 }

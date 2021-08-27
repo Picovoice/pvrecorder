@@ -51,8 +51,7 @@ const (
 	DEVICE_ALREADY_INITIALIZED	PVRecorderStatus = 5
 	DEVICE_NOT_INITIALIZED 		PVRecorderStatus = 6
 	IO_ERROR					PVRecorderStatus = 7
-	BUFFER_OVERFLOW				PVRecorderStatus = 8
-	RUNTIME_ERROR 				PVRecorderStatus = 9
+	RUNTIME_ERROR 				PVRecorderStatus = 8
 )
 
 func pvRecorderStatusToString(status PVRecorderStatus) string {
@@ -158,9 +157,7 @@ func (pvrecorder *PVRecorder) Read() ([]int16, error) {
 	defer C.free(pcm)
 
 	ret := nativePVRecorder.nativeRead(pvrecorder, pcm)
-	if ret == BUFFER_OVERFLOW {
-		log.Printf("WARNING: some audio frames were lost.\n")
-	} else if ret != SUCCESS {
+	if ret != SUCCESS {
 		return nil, fmt.Errorf("PVRecorder Read failed with: %s", pvRecorderStatusToString(ret))
 	}
 
