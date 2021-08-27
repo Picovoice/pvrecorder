@@ -59,7 +59,7 @@ def main():
             while True:
                 pcm = recorder.read()
                 if output_path is not None:
-                    wavfile.writeframes(struct.pack("<h", pcm))
+                    wavfile.writeframes(struct.pack("h" * len(pcm), *pcm))
 
         except KeyboardInterrupt:
             print("Stopping...")
