@@ -34,21 +34,20 @@ devices = PVRecorder.get_audio_devices()
 ```
 
 To start recording initialize the instance, choose an index from the previous command or set to `-1` to 
-use default audio device, and set the max capacity of audio buffer:
+use default audio device, and the frame_length to get at each iteration:
 
 ```python
 from pvporcupine import PVRecorder
 
-recorder = PVRecorder(device_index=-1, capacity=2048)
+recorder = PVRecorder(device_index=-1, frame_length=512)
 recorder.start()
 ```
 
-To constantly get the recorded audio run:\
-**Note**: it is recommended to set the capacity when initializing to at least double the frame length reading each cycle.
+To get the recorded audio run:\
 
 ```python
 while True:
-    pcm = recorder.read(512)
+    pcm = recorder.read()
     # do something with pcm
 ```
 
@@ -63,3 +62,5 @@ Once you are done, free the used resources. You do not have to call stop before 
 ```python
 recorder.delete()
 ```
+
+For detailed information, look at [demo.py](demo.py) for a demo on showing devices and reading pcm frames.
