@@ -58,6 +58,8 @@ class PVRecorder(object):
         :param device_index: The device index of the audio device to use. A (-1) will choose default audio device.
         :param frame_length: The length of the frame to receive at each read call.
         :param buffer_size_msec: Time in milliseconds indication the total amount of time to store audio frames.
+        :param log_overflow: Boolean variable to indicate to log overflow warnings. A log warning should indicate
+        read is not being called fast enough from the callers point.
         """
 
         if self._LIBRARY is None:
