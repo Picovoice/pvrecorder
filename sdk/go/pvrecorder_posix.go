@@ -22,148 +22,148 @@ package pvrecorder
 typedef int32_t (*pv_recorder_init_func)(int32_t, int32_t, int32_t, int32_t, void **);
 
 int32_t pv_recorder_init_wrapper(void *f, int32_t device_index, int32_t frame_length, int32_t buffer_size_msec, int32_t log_overflow, void **object) {
-	return ((pv_recorder_init_func) f)(device_index, frame_length, buffer_size_msec, log_overflow, object);
+    return ((pv_recorder_init_func) f)(device_index, frame_length, buffer_size_msec, log_overflow, object);
 }
 
 typedef void (*pv_recorder_delete_func)(void *);
 
 void pv_recorder_delete_wrapper(void *f, void *object) {
-	return ((pv_recorder_delete_func) f)(object);
+    return ((pv_recorder_delete_func) f)(object);
 }
 
 typedef int32_t (*pv_recorder_start_func)(void *);
 
 int32_t pv_recorder_start_wrapper(void *f, void *object) {
-	return ((pv_recorder_start_func) f)(object);
+    return ((pv_recorder_start_func) f)(object);
 }
 
 typedef int32_t (*pv_recorder_stop_func)(void *);
 
 int32_t pv_recorder_stop_wrapper(void *f, void *object) {
-	return ((pv_recorder_stop_func) f)(object);
+    return ((pv_recorder_stop_func) f)(object);
 }
 
 typedef int32_t (*pv_recorder_read_func)(void *, int16_t *);
 
 int32_t pv_recorder_read_wrapper(void *f, void *object, int16_t *pcm) {
-	return ((pv_recorder_read_func) f)(object, pcm);
+    return ((pv_recorder_read_func) f)(object, pcm);
 }
 
 typedef const char *(*pv_recorder_get_selected_device_func)(void *);
 
 const char *pv_recorder_get_selected_device_wrapper(void *f, void* object) {
-	return ((pv_recorder_get_selected_device_func) f)(object);
+    return ((pv_recorder_get_selected_device_func) f)(object);
 }
 
 typedef int32_t (*pv_recorder_get_audio_devices_func)(int32_t *, char ***);
 
 int32_t pv_recorder_get_audio_devices_wrapper(void *f, int32_t *count, char ***devices) {
-	return ((pv_recorder_get_audio_devices_func) f)(count, devices);
+    return ((pv_recorder_get_audio_devices_func) f)(count, devices);
 }
 
 typedef void (*pv_recorder_free_device_list_func)(int32_t, char**);
 
 void pv_recorder_free_device_list_wrapper(void *f, int32_t count, char **devices) {
-	return ((pv_recorder_free_device_list_func) f)(count, devices);
+    return ((pv_recorder_free_device_list_func) f)(count, devices);
 }
 
 typedef const char *(*pv_recorder_version_func)();
 
 const char *pv_recorder_version_wrapper(void *f) {
-	return ((pv_recorder_version_func) f)();
+    return ((pv_recorder_version_func) f)();
 }
 
 */
 import "C"
 
 import (
-	"unsafe"
+    "unsafe"
 )
 
 // private vars
 var (
-	lib = C.dlopen(C.CString(libName), C.RTLD_NOW)
+    lib = C.dlopen(C.CString(libName), C.RTLD_NOW)
 
-	pv_recorder_init_ptr 				= C.dlsym(lib, C.CString("pv_recorder_init"))
-	pv_recorder_delete_ptr 				= C.dlsym(lib, C.CString("pv_recorder_delete"))
-	pv_recorder_start_ptr 				= C.dlsym(lib, C.CString("pv_recorder_start"))
-	pv_recorder_stop_ptr 				= C.dlsym(lib, C.CString("pv_recorder_stop"))
-	pv_recorder_read_ptr				= C.dlsym(lib, C.CString("pv_recorder_read"))
-	pv_recorder_get_selected_device_ptr = C.dlsym(lib, C.CString("pv_recorder_get_selected_device"))
-	pv_recorder_get_audio_devices_ptr 	= C.dlsym(lib, C.CString("pv_recorder_get_audio_devices"))
-	pv_recorder_free_device_list_ptr 	= C.dlsym(lib, C.CString("pv_recorder_free_device_list"))
-	pv_recorder_version_ptr				= C.dlsym(lib, C.CString("pv_recorder_version"))
+    pv_recorder_init_ptr                = C.dlsym(lib, C.CString("pv_recorder_init"))
+    pv_recorder_delete_ptr              = C.dlsym(lib, C.CString("pv_recorder_delete"))
+    pv_recorder_start_ptr               = C.dlsym(lib, C.CString("pv_recorder_start"))
+    pv_recorder_stop_ptr                = C.dlsym(lib, C.CString("pv_recorder_stop"))
+    pv_recorder_read_ptr                = C.dlsym(lib, C.CString("pv_recorder_read"))
+    pv_recorder_get_selected_device_ptr = C.dlsym(lib, C.CString("pv_recorder_get_selected_device"))
+    pv_recorder_get_audio_devices_ptr   = C.dlsym(lib, C.CString("pv_recorder_get_audio_devices"))
+    pv_recorder_free_device_list_ptr    = C.dlsym(lib, C.CString("pv_recorder_free_device_list"))
+    pv_recorder_version_ptr             = C.dlsym(lib, C.CString("pv_recorder_version"))
 )
 
 func (np nativePVRecorderType) nativeInit(pvrecorder *PVRecorder) PVRecorderStatus {
-	var (
-		deviceIndex 	= pvrecorder.DeviceIndex
-		frameLength 	= pvrecorder.FrameLength
-		bufferSizeMSec 	= pvrecorder.BufferSizeMSec
-		logOverflow 	= pvrecorder.LogOverflow
-		ptrC 			= make([]unsafe.Pointer, 1)
-	)
-	
-	var ret = C.pv_recorder_init_wrapper(pv_recorder_init_ptr,
-		(C.int32_t)(deviceIndex),
-		(C.int32_t)(frameLength),
-		(C.int32_t)(bufferSizeMSec),
-		(C.int32_t)(logOverflow),
-		&ptrC[0])
+    var (
+        deviceIndex     = pvrecorder.DeviceIndex
+        frameLength     = pvrecorder.FrameLength
+        bufferSizeMSec  = pvrecorder.BufferSizeMSec
+        logOverflow     = pvrecorder.LogOverflow
+        ptrC            = make([]unsafe.Pointer, 1)
+    )
+    
+    var ret = C.pv_recorder_init_wrapper(pv_recorder_init_ptr,
+        (C.int32_t)(deviceIndex),
+        (C.int32_t)(frameLength),
+        (C.int32_t)(bufferSizeMSec),
+        (C.int32_t)(logOverflow),
+        &ptrC[0])
 
-	pvrecorder.handle = uintptr(ptrC[0])
-	return PVRecorderStatus(ret)
+    pvrecorder.handle = uintptr(ptrC[0])
+    return PVRecorderStatus(ret)
 }
 
 func (nativePVRecorderType) nativeDelete(pvrecorder *PVRecorder) {
-	C.pv_recorder_delete_wrapper(pv_recorder_delete_ptr,
-		unsafe.Pointer(pvrecorder.handle))
+    C.pv_recorder_delete_wrapper(pv_recorder_delete_ptr,
+        unsafe.Pointer(pvrecorder.handle))
 }
 
 func (nativePVRecorderType) nativeStart(pvrecorder *PVRecorder) PVRecorderStatus {
-	var ret = C.pv_recorder_start_wrapper(pv_recorder_start_ptr,
-		unsafe.Pointer(pvrecorder.handle))
+    var ret = C.pv_recorder_start_wrapper(pv_recorder_start_ptr,
+        unsafe.Pointer(pvrecorder.handle))
 
-	return PVRecorderStatus(ret)
+    return PVRecorderStatus(ret)
 }
 
 func (nativePVRecorderType) nativeStop(pvrecorder *PVRecorder) PVRecorderStatus {
-	var ret = C.pv_recorder_stop_wrapper(pv_recorder_stop_ptr,
-		unsafe.Pointer(pvrecorder.handle))
-	
-	return PVRecorderStatus(ret)
+    var ret = C.pv_recorder_stop_wrapper(pv_recorder_stop_ptr,
+        unsafe.Pointer(pvrecorder.handle))
+    
+    return PVRecorderStatus(ret)
 }
 
 func (nativePVRecorderType) nativeRead(pvrecorder *PVRecorder, pcm *C.int16_t) PVRecorderStatus {
-	var ret = C.pv_recorder_read_wrapper(pv_recorder_read_ptr,
-		unsafe.Pointer(pvrecorder.handle),
-		pcm)
+    var ret = C.pv_recorder_read_wrapper(pv_recorder_read_ptr,
+        unsafe.Pointer(pvrecorder.handle),
+        pcm)
 
-	return PVRecorderStatus(ret)
+    return PVRecorderStatus(ret)
 }
 
 func (nativePVRecorderType) nativeGetSelectedDevice(pvrecorder *PVRecorder) string {
-	var ret = C.pv_recorder_get_selected_device_wrapper(pv_recorder_get_selected_device_ptr,
-		unsafe.Pointer(pvrecorder.handle))
+    var ret = C.pv_recorder_get_selected_device_wrapper(pv_recorder_get_selected_device_ptr,
+        unsafe.Pointer(pvrecorder.handle))
 
-	return C.GoString(ret)
+    return C.GoString(ret)
 }
 
 func nativeGetAudioDevices(count *int, devices ***C.char) PVRecorderStatus {
-	var ret = C.pv_recorder_get_audio_devices_wrapper(pv_recorder_get_audio_devices_ptr,
-		(*C.int32_t)(unsafe.Pointer(count)),
-		(***C.char)(unsafe.Pointer(devices)))
+    var ret = C.pv_recorder_get_audio_devices_wrapper(pv_recorder_get_audio_devices_ptr,
+        (*C.int32_t)(unsafe.Pointer(count)),
+        (***C.char)(unsafe.Pointer(devices)))
 
-	return PVRecorderStatus(ret)
+    return PVRecorderStatus(ret)
 }
 
 func nativeFreeDeviceList(count int, devices **C.char) {
-	C.pv_recorder_free_device_list_wrapper(pv_recorder_free_device_list_ptr,
-		(C.int32_t)(count),
-		(**C.char)(unsafe.Pointer(devices)))
+    C.pv_recorder_free_device_list_wrapper(pv_recorder_free_device_list_ptr,
+        (C.int32_t)(count),
+        (**C.char)(unsafe.Pointer(devices)))
 }
 
 func nativeVersion() string {
-	var ret = C.pv_recorder_version_wrapper(pv_recorder_version_ptr);
-	return C.GoString(ret)
+    var ret = C.pv_recorder_version_wrapper(pv_recorder_version_ptr);
+    return C.GoString(ret)
 }

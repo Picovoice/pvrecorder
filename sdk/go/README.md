@@ -60,7 +60,7 @@ if err := recorder.Start(); err != nil {
 To read the pcm frames, run:
 
 ```go
-pcm, err := recorder.Run()
+pcm, err := recorder.Read()
 if err != nil {
     // handle error
 }
