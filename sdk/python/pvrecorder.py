@@ -8,7 +8,6 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 #
-
 import os
 import platform
 import subprocess
@@ -33,7 +32,8 @@ class PVRecorder(object):
         BACKEND_ERROR = 4
         DEVICE_ALREADY_INITIALIZED = 5
         DEVICE_NOT_INITIALIZED = 6
-        RUNTIME_ERROR = 7
+        IO_ERROR = 7
+        RUNTIME_ERROR = 8
 
     _PVRECORDER_STATUS_TO_EXCEPTION = {
         PVRecorderStatuses.OUT_OF_MEMORY: MemoryError,
@@ -42,41 +42,38 @@ class PVRecorder(object):
         PVRecorderStatuses.BACKEND_ERROR: SystemError,
         PVRecorderStatuses.DEVICE_ALREADY_INITIALIZED: ValueError,
         PVRecorderStatuses.DEVICE_NOT_INITIALIZED: ValueError,
+        PVRecorderStatuses.IO_ERROR: IOError,
         PVRecorderStatuses.RUNTIME_ERROR: RuntimeError
     }
 
     class CPVRecorder(Structure):
         pass
 
-    _CALLBACK_TYPE = CFUNCTYPE(None, POINTER(c_int16))
-    _LIBRARY = None
-
-    def __init__(self, device_index, frame_length, callback):
+    def __init__(self, device_index, frame_length, buffer_size_msec=1000, log_overflow=True):
         """
         Constructor
 
         :param device_index: The device index of the audio device to use. A (-1) will choose default audio device.
-        :param frame_length: The length of the pcm frames to receive in each callback.
-        :param callback: The function to run after a buffer of size 'frame_length' is processed.
+        :param frame_length: The length of the frame to receive at each read call.
+        :param buffer_size_msec: Time in milliseconds indication the total amount of time to store audio frames.
+        :param log_overflow: Boolean variable to indicate to log overflow warnings. A log warning should indicate
+        read is not being called fast enough from the callers point.
         """
-
-        if self._LIBRARY is None:
-            self._LIBRARY = cdll.LoadLibrary(PVRecorder._lib_path())
 
         init_func = self._LIBRARY.pv_recorder_init
         init_func.argtypes = [
             c_int32,
             c_int32,
-            self._CALLBACK_TYPE,
+            c_int32,
+            c_bool,
             POINTER(POINTER(self.CPVRecorder))
         ]
         init_func.restype = self.PVRecorderStatuses
 
         self._handle = POINTER(self.CPVRecorder)()
-        self._callback = callback
         self._frame_length = frame_length
 
-        status = init_func(device_index, frame_length, self._callback_wrapper(), byref(self._handle))
+        status = init_func(device_index, frame_length, buffer_size_msec, log_overflow, byref(self._handle))
         if status is not self.PVRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to initialize pv_recorder.")
 
@@ -91,6 +88,18 @@ class PVRecorder(object):
         self._stop_func = self._LIBRARY.pv_recorder_stop
         self._stop_func.argtypes = [POINTER(self.CPVRecorder)]
         self._stop_func.restype = self.PVRecorderStatuses
+
+        self._read_func = self._LIBRARY.pv_recorder_read
+        self._read_func.argtypes = [POINTER(self.CPVRecorder), POINTER(c_int16)]
+        self._read_func.restype = self.PVRecorderStatuses
+
+        self._get_selected_device_func = self._LIBRARY.pv_recorder_get_selected_device
+        self._get_selected_device_func.argtypes = [POINTER(self.CPVRecorder)]
+        self._get_selected_device_func.restype = c_char_p
+
+        self._version_func = PVRecorder._LIBRARY.pv_recorder_version
+        self._version_func.argtypes = None
+        self._version_func.restype = c_char_p
 
     def delete(self):
         """Releases any resources used by PV_Recorder."""
@@ -111,15 +120,28 @@ class PVRecorder(object):
         if status is not self.PVRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to stop device.")
 
-    def _callback_wrapper(self):
-        """A callback wrapper which wraps the callback given from caller. The caller should expect an
-        array of 'frame_length' as its argument."""
+    def read(self):
+        """Reads audio frames and returns a list containing the audio frames."""
 
-        def func(pcm):
-            pcm_array = pcm[0:self._frame_length]
-            self._callback(pcm_array)
-        self._func = CALLBACK(func)
-        return self._func
+        pcm = (c_int16 * self._frame_length)()
+        status = self._read_func(self._handle, pcm)
+        if status is not self.PVRecorderStatuses.SUCCESS:
+            raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to read from device.")
+        return pcm[0:self._frame_length]
+
+    @property
+    def selected_device(self):
+        """Gets the current selected device."""
+
+        device_name = self._get_selected_device_func(self._handle)
+        return device_name.decode('utf-8')
+
+    @property
+    def version(self):
+        """Gets the current version of pv_recorder library."""
+
+        version = self._version_func()
+        return version.decode('utf-8')
 
     @staticmethod
     def get_audio_devices():
@@ -127,9 +149,6 @@ class PVRecorder(object):
 
         :return: A list of strings, indicating the names of audio devices.
         """
-
-        if PVRecorder._LIBRARY is None:
-            PVRecorder._LIBRARY = cdll.LoadLibrary(PVRecorder._lib_path())
 
         get_audio_devices_func = PVRecorder._LIBRARY.pv_recorder_get_audio_devices
         get_audio_devices_func.argstype = [POINTER(c_int32), POINTER(POINTER(c_char_p))]
@@ -177,3 +196,5 @@ class PVRecorder(object):
             extension = "so"
 
         return os.path.join(os.path.dirname(__file__), "lib", os_name, cpu, f"libpv_recorder.{extension}")
+
+    _LIBRARY = cdll.LoadLibrary(_lib_path.__func__())

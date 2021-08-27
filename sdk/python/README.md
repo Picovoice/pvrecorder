@@ -28,26 +28,25 @@ pip3 install pvrecorder
 Getting the list of input devices does not require an instance:
 
 ```python
-from pvporcupine import PVRecorder
+from pvrecorder import PVRecorder
 
 devices = PVRecorder.get_audio_devices()
-```
-
-Before recording, create a callback that processes the pcm:
-
-```python
-def callback(pcm):
-    # do something with pcm
-    print(len(pcm))
 ```
 
 To start recording initialize the instance and run start:
 
 ```python
-from pvporcupine import PVRecorder
+from pvrecorder import PVRecorder
 
-recorder = PVRecorder(device_index=-1, frame_length=512, callback=callback)
+recorder = PVRecorder(device_index=-1, frame_length=512)
 recorder.start()
+```
+
+Get the pcm frames by calling the read function:
+
+```python
+pcm = recorder.read()
+# do something with pcm
 ```
 
 To stop recording just run stop on the instance:
