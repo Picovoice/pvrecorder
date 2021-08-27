@@ -82,7 +82,10 @@ fn base_library_path() -> PathBuf {
     return match machine.as_str() {
         machine if RPI_MACHINES.contains(&machine) => {
             if cfg!(target_arch = "aarch64") {
-                PathBuf::from(format!("raspberry-pi/{}-aarch64/libpv_recorder.so", &machine))
+                PathBuf::from(format!(
+                    "raspberry-pi/{}-aarch64/libpv_recorder.so",
+                    &machine
+                ))
             } else {
                 PathBuf::from(format!("raspberry-pi/{}/libpv_recorder.so", &machine))
             }
