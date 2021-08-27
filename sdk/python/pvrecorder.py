@@ -8,7 +8,6 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 #
-import logging
 import os
 import platform
 import subprocess
@@ -34,8 +33,7 @@ class PVRecorder(object):
         DEVICE_ALREADY_INITIALIZED = 5
         DEVICE_NOT_INITIALIZED = 6
         IO_ERROR = 7
-        BUFFER_OVERFLOW = 8
-        RUNTIME_ERROR = 9
+        RUNTIME_ERROR = 8
 
     _PVRECORDER_STATUS_TO_EXCEPTION = {
         PVRecorderStatuses.OUT_OF_MEMORY: MemoryError,
@@ -53,12 +51,13 @@ class PVRecorder(object):
 
     _LIBRARY = None
 
-    def __init__(self, device_index, buffer_capacity=2048):
+    def __init__(self, device_index, frame_length, buffer_size_msec=1000):
         """
         Constructor
 
         :param device_index: The device index of the audio device to use. A (-1) will choose default audio device.
-        :param buffer_capacity: The size of the buffer to hold audio frames. Defaults to 2048.
+        :param frame_length: The length of the frame to receive at each read call.
+        :param buffer_size_msec: Time in milliseconds indication the total amount of time to store audio frames.
         """
 
         if self._LIBRARY is None:
@@ -68,13 +67,16 @@ class PVRecorder(object):
         init_func.argtypes = [
             c_int32,
             c_int32,
+            c_int32,
+            c_bool,
             POINTER(POINTER(self.CPVRecorder))
         ]
         init_func.restype = self.PVRecorderStatuses
 
         self._handle = POINTER(self.CPVRecorder)()
+        self._frame_length = frame_length
 
-        status = init_func(device_index, buffer_capacity, byref(self._handle))
+        status = init_func(device_index, frame_length, buffer_size_msec, True, byref(self._handle))
         if status is not self.PVRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to initialize pv_recorder.")
 
@@ -91,8 +93,12 @@ class PVRecorder(object):
         self._stop_func.restype = self.PVRecorderStatuses
 
         self._read_func = self._LIBRARY.pv_recorder_read
-        self._read_func.argtypes = [POINTER(self.CPVRecorder), POINTER(c_int16), POINTER(c_int32)]
+        self._read_func.argtypes = [POINTER(self.CPVRecorder), POINTER(c_int16)]
         self._read_func.restype = self.PVRecorderStatuses
+
+        self._get_selected_device_func = self._LIBRARY.pv_recorder_get_selected_device
+        self._get_selected_device_func.argtypes = [POINTER(self.CPVRecorder)]
+        self._get_selected_device_func.restype = c_char_p
 
     def delete(self):
         """Releases any resources used by PV_Recorder."""
@@ -113,17 +119,21 @@ class PVRecorder(object):
         if status is not self.PVRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to stop device.")
 
-    def read(self, frame_length):
-        """Reads audio frames and returns a list."""
+    def read(self):
+        """Reads audio frames and returns a list containing the audio frames."""
 
-        pcm = (c_int16 * frame_length)()
-        length = c_int32(frame_length)
-        status = self._read_func(self._handle, pcm, byref(length))
-        if status is self.PVRecorderStatuses.BUFFER_OVERFLOW:
-            logging.warning("Some audio frames were lost.")
-        elif status is not self.PVRecorderStatuses.SUCCESS:
+        pcm = (c_int16 * self._frame_length)()
+        status = self._read_func(self._handle, pcm)
+        if status is not self.PVRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to read from device.")
-        return pcm[0:frame_length]
+        return pcm[0:self._frame_length]
+
+    @property
+    def selected_device(self):
+        """Gets the current selected device."""
+
+        device_name = self._get_selected_device_func(self._handle)
+        return device_name.decode('utf-8')
 
     @staticmethod
     def get_audio_devices():

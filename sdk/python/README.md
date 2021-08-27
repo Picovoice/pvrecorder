@@ -33,21 +33,22 @@ from pvporcupine import PVRecorder
 devices = PVRecorder.get_audio_devices()
 ```
 
-Before recording, create a callback that processes the pcm:
-
-```python
-def callback(pcm):
-    # do something with pcm
-    print(len(pcm))
-```
-
-To start recording initialize the instance and run start:
+To start recording initialize the instance, choose an index from the previous command or set to `-1` to 
+use default audio device, and the frame_length to get at each iteration:
 
 ```python
 from pvporcupine import PVRecorder
 
-recorder = PVRecorder(device_index=-1, frame_length=512, callback=callback)
+recorder = PVRecorder(device_index=-1, frame_length=512)
 recorder.start()
+```
+
+To get the recorded audio run:\
+
+```python
+while True:
+    pcm = recorder.read()
+    # do something with pcm
 ```
 
 To stop recording just run stop on the instance:
@@ -61,3 +62,5 @@ Once you are done, free the used resources. You do not have to call stop before 
 ```python
 recorder.delete()
 ```
+
+For detailed information, look at [demo.py](demo.py) for a demo on showing devices and reading pcm frames.
