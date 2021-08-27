@@ -46,7 +46,7 @@ func main() {
 		DeviceIndex: *audioDeviceIndex,
 		FrameLength: 512,
 		BufferSizeMSec: 1000,
-		LogOverflow: true,
+		LogOverflow: 1,
 	}
 
 	log.Println("Initializing...")

@@ -29,15 +29,15 @@ import (
 var (
 	lib = windows.NewLazyDLL(libName)
 
-	pv_recorder_init_func 				= lib.NewProc("pv_recorder_init")
-	pv_recorder_delete_func 			= lib.NewProc("pv_recorder_delete")
-	pv_recorder_start_func 				= lib.NewProc("pv_recorder_start")
-	pv_recorder_stop_func 				= lib.NewProc("pv_recorder_stop")
-	pv_recorder_read_func				= lib.NewProc("pv_recorder_read")
-	pv_recorder_get_selected_device		= lib.NewProc("pv_recorder_get_selected_device")
-	pv_recorder_get_audio_devices_func 	= lib.NewProc("pv_recorder_get_audio_devices")
-	pv_recorder_free_device_list_func 	= lib.NewProc("pv_recorder_free_device_list")
-	pv_recorder_version_func			= lib.NewProc("pv_recorder_version")
+	pv_recorder_init_func 					= lib.NewProc("pv_recorder_init")
+	pv_recorder_delete_func 				= lib.NewProc("pv_recorder_delete")
+	pv_recorder_start_func 					= lib.NewProc("pv_recorder_start")
+	pv_recorder_stop_func 					= lib.NewProc("pv_recorder_stop")
+	pv_recorder_read_func					= lib.NewProc("pv_recorder_read")
+	pv_recorder_get_selected_device_func	= lib.NewProc("pv_recorder_get_selected_device")
+	pv_recorder_get_audio_devices_func 		= lib.NewProc("pv_recorder_get_audio_devices")
+	pv_recorder_free_device_list_func 		= lib.NewProc("pv_recorder_free_device_list")
+	pv_recorder_version_func				= lib.NewProc("pv_recorder_version")
 )
 
 func (np nativePVRecorderType) nativeInit(pvrecorder *PVRecorder) PVRecorderStatus {
@@ -46,7 +46,6 @@ func (np nativePVRecorderType) nativeInit(pvrecorder *PVRecorder) PVRecorderStat
 		frameLength 	= pvrecorder.FrameLength
 		bufferSizeMSec	= pvrecorder.BufferSizeMSec
 		logOverflow 	= pvrecorder.LogOverflow
-		userData 		= pvrecorder.userData
 	)
 
 	ret, _, _ := pv_recorder_init_func.Call(
@@ -54,43 +53,42 @@ func (np nativePVRecorderType) nativeInit(pvrecorder *PVRecorder) PVRecorderStat
 		uintptr(frameLength),
 		uintptr(bufferSizeMSec),
 		uintptr(logOverflow),
-		uintptr(unsafe.Pointer(&pvrecorder.handle))
-	)
+		uintptr(unsafe.Pointer(&pvrecorder.handle)))
 
 	return PVRecorderStatus(ret)
 }
 
 func (np nativePVRecorderType) nativeDelete(pvrecorder *PVRecorder) {
-	pv_recorder_delete_func(pvrecorder.handle)
+	pv_recorder_delete_func.Call(pvrecorder.handle)
 }
 
 func (np nativePVRecorderType) nativeStart(pvrecorder *PVRecorder) PVRecorderStatus {
-	ret, _, _ := pv_recorder_start_func(pvrecorder.handle)
+	ret, _, _ := pv_recorder_start_func.Call(pvrecorder.handle)
 
 	return PVRecorderStatus(ret)
 }
 
 func (np nativePVRecorderType) nativeStop(pvrecorder *PVRecorder) PVRecorderStatus {
-	ret, _, _ := pv_recorder_stop_func(pvrecorder.handle)
+	ret, _, _ := pv_recorder_stop_func.Call(pvrecorder.handle)
 
 	return PVRecorderStatus(ret)
 }
 
-func (np nativePVRecorderType) nativeRead(pvrecorder *PVRecorder, pcm unsafe.Pointer) PVRecorderStatus {
-	ret, _, _ := pv_recorder_read_func(pvrecorder.handle,
-		uintptr(pcm))
+func (np nativePVRecorderType) nativeRead(pvrecorder *PVRecorder, pcm *C.int16_t) PVRecorderStatus {
+	ret, _, _ := pv_recorder_read_func.Call(pvrecorder.handle,
+		uintptr(unsafe.Pointer(pcm)))
 
 	return PVRecorderStatus(ret)
 }
 
 func (np nativePVRecorderType) nativeGetSelectedDevice(pvrecorder *PVRecorder) string {
-	ret, _, _ := pv_recorder_get_selected_device_func(pvrecorder.handle)
+	ret, _, _ := pv_recorder_get_selected_device_func.Call(pvrecorder.handle)
 
-	return C.Gostring(ret)
+	return C.GoString((*C.char)(unsafe.Pointer(ret)))
 }
 
 func nativeGetAudioDevices(count *int, devices ***C.char) PVRecorderStatus {
-	ret, _, _ := pv_recorder_get_audio_devices_func(
+	ret, _, _ := pv_recorder_get_audio_devices_func.Call(
 		uintptr(unsafe.Pointer(count)),
 		uintptr(unsafe.Pointer(devices)))
 
@@ -98,13 +96,13 @@ func nativeGetAudioDevices(count *int, devices ***C.char) PVRecorderStatus {
 }
 
 func nativeFreeDeviceList(count int, devices **C.char) {
-	pv_recorder_free_device_list_func(
+	pv_recorder_free_device_list_func.Call(
 		uintptr(count),
 		uintptr(unsafe.Pointer(devices)))
 }
 
 func nativeVersion() string {
-	ret, _, _ := pv_recorder_version_func()
+	ret, _, _ := pv_recorder_version_func.Call()
 
-	return C.GoString(ret)
+	return C.GoString((*C.char)(unsafe.Pointer(ret)))
 }

@@ -93,7 +93,7 @@ type PVRecorder struct {
 	BufferSizeMSec int
 
 	// LogOverflow flag to enable logs.
-	LogOverflow bool
+	LogOverflow int
 }
 
 type nativePVRecorderInterface interface {
@@ -107,9 +107,6 @@ type nativePVRecorderInterface interface {
 }
 
 type nativePVRecorderType struct {}
-
-// default capacity to use
-const capacity = 2048
 
 // private vars
 var (
@@ -205,9 +202,9 @@ func Version() string {
 func extractLib() string {
 	var scriptPath string
 	if runtime.GOOS == "windows" {
-		scriptPath = filepath.Join("embedded", "scripts", "platform.bat")
+		scriptPath = "embedded/scripts/platform.bat"
 	} else {
-		scriptPath = filepath.Join("embedded", "scripts", "platform.sh")
+		scriptPath = "embedded/scripts/platform.sh"
 	}
 
 	script := extractFile(scriptPath, extractionDir)
@@ -233,7 +230,7 @@ func extractLib() string {
 		log.Fatalf("OS: %s is not supported.", runtime.GOOS)
 	}
 
-	srcPath := filepath.Join("embedded", "lib", osName, cpu, libFile)
+	srcPath := fmt.Sprintf("embedded/lib/%s/%s/%s", osName, cpu, libFile)
 
 	return extractFile(srcPath, extractionDir)
 }
