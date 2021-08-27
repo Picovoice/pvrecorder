@@ -9,8 +9,6 @@
     specific language governing permissions and limitations under the License.
 */
 
-#include <string.h>
-
 #pragma GCC diagnostic push
 
 #pragma GCC diagnostic ignored "-Wunused-result"
@@ -21,17 +19,20 @@
 
 #pragma GCC diagnostic pop
 
+#include "pv_circular_buffer.h"
 #include "pv_recorder.h"
+
+static const int32_t READ_RETRY_COUNT = 500;
+static const int32_t READ_SLEEP_MILLI_SECONDS = 2;
 
 struct pv_recorder {
     ma_context context;
     ma_device device;
+    pv_circular_buffer_t *buffer;
     int32_t frame_length;
-    int32_t buffer_filled;
-    int16_t *frame_buffer;
-    void *user_data;
-    void (*pcm_callback)(const int16_t *);
-    void (*pcm_callback_with_data)(const int16_t *, void *);
+    bool is_started;
+    bool log_overflow;
+    ma_mutex mutex;
 };
 
 static void pv_recorder_ma_callback(ma_device *device, void *output, const void *input, ma_uint32 frame_count) {
@@ -39,40 +40,19 @@ static void pv_recorder_ma_callback(ma_device *device, void *output, const void 
 
     pv_recorder_t *object = (pv_recorder_t *) device->pUserData;
 
-    int16_t *buffer_ptr = &(object->frame_buffer[object->buffer_filled]);
-    int16_t *input_ptr = (int16_t *) input;
-
-    int32_t processed_frames = 0;
-
-    while (processed_frames < frame_count) {
-        const int32_t remaining_frames = (int32_t) frame_count - processed_frames;
-        const int32_t available_frames = object->frame_length - object->buffer_filled;
-
-        if (available_frames > 0) {
-            const int32_t frames_to_read = (remaining_frames < available_frames) ? remaining_frames : available_frames;
-
-            memcpy(buffer_ptr, input_ptr, frames_to_read * sizeof(int16_t));
-            buffer_ptr += frames_to_read;
-            input_ptr += frames_to_read;
-
-            processed_frames += frames_to_read;
-            object->buffer_filled += frames_to_read;
-        } else {
-            if (object->user_data == NULL) {
-                object->pcm_callback(object->frame_buffer);
-            } else {
-                object->pcm_callback_with_data(object->frame_buffer, object->user_data);
-            }
-
-            buffer_ptr = object->frame_buffer;
-            object->buffer_filled = 0;
-        }
+    ma_mutex_lock(&object->mutex);
+    pv_circular_buffer_status_t status = pv_circular_buffer_write(object->buffer, input, (int32_t) frame_count);
+    if ((status == PV_CIRCULAR_BUFFER_STATUS_WRITE_OVERFLOW) && (object->log_overflow)) {
+        fprintf(stdout, "Overflow - reader is not reading fast enough.\n");
     }
+    ma_mutex_unlock(&object->mutex);
 }
 
-static pv_recorder_status_t pv_recorder_init_common(
+PV_API pv_recorder_status_t pv_recorder_init(
         int32_t device_index,
         int32_t frame_length,
+        int32_t buffer_size_msec,
+        bool log_overflow,
         pv_recorder_t **object) {
     if (device_index < PV_RECORDER_DEFAULT_DEVICE_INDEX) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
@@ -80,7 +60,16 @@ static pv_recorder_status_t pv_recorder_init_common(
     if (frame_length <= 0) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
+    if (buffer_size_msec <= 0) {
+        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
+    }
     if (!object) {
+        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
+    }
+
+    // capacity = 16kHz * seconds
+    const int32_t capacity = (int32_t) ((16000 * buffer_size_msec) / 1000);
+    if (capacity < frame_length) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
 
@@ -142,64 +131,40 @@ static pv_recorder_status_t pv_recorder_init_common(
         }
     }
 
-    o->frame_buffer = malloc(frame_length * sizeof(int16_t));
-    if (!(o->frame_buffer)) {
+    result = ma_mutex_init(&(o->mutex));
+    if (result != MA_SUCCESS) {
+        pv_recorder_delete(o);
+        if (result == MA_OUT_OF_MEMORY) {
+            return PV_RECORDER_STATUS_OUT_OF_MEMORY;
+        } else {
+            return PV_RECORDER_STATUS_RUNTIME_ERROR;
+        }
+    }
+
+    pv_circular_buffer_status_t status = pv_circular_buffer_init(
+            capacity,
+            sizeof(int16_t),
+            &(o->buffer));
+
+    if (status != PV_CIRCULAR_BUFFER_STATUS_SUCCESS) {
         pv_recorder_delete(o);
         return PV_RECORDER_STATUS_OUT_OF_MEMORY;
     }
+
     o->frame_length = frame_length;
+    o->log_overflow = log_overflow;
 
     *object = o;
 
     return PV_RECORDER_STATUS_SUCCESS;
 }
 
-PV_API pv_recorder_status_t pv_recorder_init(
-        int32_t device_index,
-        int32_t frame_length,
-        void (*callback)(const int16_t *),
-        pv_recorder_t **object) {
-    if (!callback) {
-        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
-    }
-    pv_recorder_status_t status = pv_recorder_init_common(
-            device_index,
-            frame_length,
-            object);
-    if (status == PV_RECORDER_STATUS_SUCCESS) {
-        (*object)->pcm_callback = callback;
-    }
-    return status;
-}
-
-PV_API pv_recorder_status_t pv_recorder_init_with_data(
-        int32_t device_index,
-        int32_t frame_length,
-        void (*callback)(const int16_t *, void *),
-        void *user_data,
-        pv_recorder_t **object) {
-    if (!callback) {
-        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
-    }
-    if (!user_data) {
-        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
-    }
-    pv_recorder_status_t status = pv_recorder_init_common(
-            device_index,
-            frame_length,
-            object);
-    if (status == PV_RECORDER_STATUS_SUCCESS) {
-        (*object)->pcm_callback_with_data = callback;
-        (*object)->user_data = user_data;
-    }
-    return status;
-}
-
 PV_API void pv_recorder_delete(pv_recorder_t *object) {
     if (object) {
         ma_device_uninit(&(object->device));
         ma_context_uninit(&(object->context));
-        free(object->frame_buffer);
+        ma_mutex_uninit(&(object->mutex));
+        pv_circular_buffer_delete(object->buffer);
         free(object);
     }
 }
@@ -214,9 +179,12 @@ PV_API pv_recorder_status_t pv_recorder_start(pv_recorder_t *object) {
         if (result == MA_DEVICE_NOT_INITIALIZED) {
             return PV_RECORDER_STATUS_DEVICE_NOT_INITIALIZED;
         } else {
+            // device already started
             return PV_RECORDER_STATUS_INVALID_STATE;
         }
     }
+
+    object->is_started = true;
 
     return PV_RECORDER_STATUS_SUCCESS;
 }
@@ -231,11 +199,58 @@ PV_API pv_recorder_status_t pv_recorder_stop(pv_recorder_t *object) {
         if (result == MA_DEVICE_NOT_INITIALIZED) {
             return PV_RECORDER_STATUS_DEVICE_NOT_INITIALIZED;
         } else {
+            // device already stopped
             return PV_RECORDER_STATUS_INVALID_STATE;
         }
     }
 
+    pv_circular_buffer_reset(object->buffer);
+    object->is_started = false;
+
     return PV_RECORDER_STATUS_SUCCESS;
+}
+
+PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm) {
+    if (!object) {
+        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
+    }
+    if (!pcm) {
+        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
+    }
+    if (!(object->is_started)) {
+        return PV_RECORDER_STATUS_INVALID_STATE;
+    }
+
+    int16_t *read_ptr = pcm;
+    int32_t processed = 0;
+    int32_t remaining = object->frame_length;
+
+    for (int32_t i = 0; i < READ_RETRY_COUNT; i++) {
+        ma_mutex_lock(&object->mutex);
+
+        const int32_t length = pv_circular_buffer_read(object->buffer, read_ptr, remaining);
+        processed += length;
+
+        if (processed == object->frame_length) {
+            ma_mutex_unlock(&object->mutex);
+            return PV_RECORDER_STATUS_SUCCESS;
+        }
+
+        ma_mutex_unlock(&object->mutex);
+        ma_sleep(READ_SLEEP_MILLI_SECONDS);
+
+        read_ptr += length;
+        remaining = object->frame_length - processed;
+    }
+
+    return PV_RECORDER_STATUS_IO_ERROR;
+}
+
+PV_API const char *pv_recorder_get_selected_device(pv_recorder_t *object) {
+    if (!object) {
+        return NULL;
+    }
+    return object->device.capture.name;
 }
 
 PV_API pv_recorder_status_t pv_recorder_get_audio_devices(int32_t *count, char ***devices) {
@@ -313,12 +328,18 @@ PV_API const char *pv_recorder_status_to_string(pv_recorder_status_t status) {
             "INVALID_STATE",
             "BACKEND_ERROR",
             "DEVICE_INITIALIZED",
-            "DEVICE_NOT_INITIALIZED"};
+            "DEVICE_NOT_INITIALIZED",
+            "IO_ERROR",
+            "RUNTIME_ERROR"};
 
-    int32_t size = sizeof(STRINGS)/sizeof(STRINGS[0]);
+    int32_t size = sizeof(STRINGS) / sizeof(STRINGS[0]);
     if (status < PV_RECORDER_STATUS_SUCCESS || status >= (PV_RECORDER_STATUS_SUCCESS + size)) {
         return NULL;
     }
 
     return STRINGS[status - PV_RECORDER_STATUS_SUCCESS];
+}
+
+PV_API const char *pv_recorder_version(void) {
+    return "v1.0.0";
 }
