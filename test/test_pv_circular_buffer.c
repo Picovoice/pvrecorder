@@ -19,7 +19,7 @@
 static char error_message[256] = {0};
 
 static const char *test_error_message(const char *message, va_list args) {
-    vsprintf(error_message, message, args);
+    vsnprintf(error_message, 256, message, args);
     return error_message;
 }
 
@@ -43,6 +43,7 @@ static void test_pv_circular_buffer_once(void) {
 
     int32_t out_size = in_size;
     int16_t *out_buffer = malloc(out_size * sizeof(int16_t));
+    check_condition(out_buffer != NULL, __FUNCTION__, __LINE__, "Failed to allocate memory.");
 
     status = pv_circular_buffer_write(cb, in_buffer, in_size);
     check_condition(status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS, __FUNCTION__ , __LINE__, "Failed to write buffer.");
@@ -71,6 +72,7 @@ static void test_pv_circular_buffer_read_incomplete(void) {
 
     int32_t out_size = 5;
     int16_t *out_buffer = malloc(out_size * sizeof(int16_t));
+    check_condition(out_buffer != NULL, __FUNCTION__, __LINE__, "Failed to allocate memory.");
 
     int32_t length = pv_circular_buffer_read(cb, out_buffer, out_size);
     check_condition(length == 0, __FUNCTION__ , __LINE__, "Expected buffer size to be 0.");
@@ -112,6 +114,7 @@ static void test_pv_circular_buffer_read_write(void) {
 
     int32_t out_size = in_size;
     int16_t *out_buffer = malloc(out_size * sizeof(int16_t));
+    check_condition(out_buffer != NULL, __FUNCTION__, __LINE__, "Failed to allocate memory.");
 
     for (int32_t i = 0; i < 10; i++) {
         pv_circular_buffer_write(cb, in_buffer, in_size);
@@ -145,6 +148,7 @@ static void test_pv_circular_buffer_read_write_one_by_one(void) {
 
     int32_t out_size = in_size;
     int16_t *out_buffer = malloc(out_size * sizeof(int16_t));
+    check_condition(out_buffer != NULL, __FUNCTION__, __LINE__, "Failed to allocate memory.");
 
     for (int32_t i = 0; i < in_size; i++) {
         status = pv_circular_buffer_write(cb, in_buffer + i, 1);
