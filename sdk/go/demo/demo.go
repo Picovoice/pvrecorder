@@ -28,6 +28,8 @@ func main() {
 	rawOutputPath := flag.String("raw_output_path", "", "Output path to save recorded audio raw bytes.")
 	flag.Parse()
 
+	log.Printf("pvrecorder.go version: %s\n", pvrecorder.Version())
+
 	if *showAudioDevices {
 		log.Println("Printing devices...")
 		if devices, err := pvrecorder.GetAudioDevices(); err != nil {
@@ -44,6 +46,7 @@ func main() {
 		DeviceIndex: *audioDeviceIndex,
 		FrameLength: 512,
 		BufferSizeMSec: 1000,
+		LogOverflow: true,
 	}
 
 	log.Println("Initializing...")
@@ -81,7 +84,7 @@ func main() {
 		buf = new(bytes.Buffer)
 	}
 	
-waitLoop:
+	waitLoop:
 	for {
 		select {
 		case <- waitCh:
@@ -99,6 +102,7 @@ waitLoop:
 				if _, err := f.Write(buf.Bytes()); err != nil {
 					log.Fatalf("Failed to write bytes to file: %s\n", err.Error())
 				}
+				buf.Reset()
 			}
 		}
 	}

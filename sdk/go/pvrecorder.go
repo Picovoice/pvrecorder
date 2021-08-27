@@ -15,10 +15,10 @@ package pvrecorder
 #include <stdint.h>
 #include <stdlib.h>
 
-void *malloc_cgo(int32_t length) {
-	return malloc(sizeof(int16_t) * length);
+int16_t *malloc_cgo(int32_t length) {
+	int16_t *pcm = malloc(sizeof(int16_t) * length);
+	return pcm;
 }
-
 */
 import "C"
 import (
@@ -29,7 +29,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"reflect"
 	"runtime"
 	"strings"
 	"unsafe"
@@ -92,6 +91,9 @@ type PVRecorder struct {
 
 	// Capacity of the audio buffer.
 	BufferSizeMSec int
+
+	// LogOverflow flag to enable logs.
+	LogOverflow bool
 }
 
 type nativePVRecorderInterface interface {
@@ -154,22 +156,23 @@ func (pvrecorder *PVRecorder) Stop() error {
 // Read function reads audio frames.
 func (pvrecorder *PVRecorder) Read() ([]int16, error) {
 	pcm := C.malloc_cgo(C.int32_t(pvrecorder.FrameLength))
-	defer C.free(pcm)
+	defer C.free(unsafe.Pointer(pcm))
 
 	ret := nativePVRecorder.nativeRead(pvrecorder, pcm)
 	if ret != SUCCESS {
 		return nil, fmt.Errorf("PVRecorder Read failed with: %s", pvRecorderStatusToString(ret))
 	}
 
-	var pcmSlice []int16
-	sh := (*reflect.SliceHeader)(unsafe.Pointer(&pcmSlice))
-	sh.Data = uintptr(unsafe.Pointer(pcm))
-	sh.Cap = pvrecorder.FrameLength
-	sh.Len = pvrecorder.FrameLength
+	pcmCSlice := (*[1 << 28]C.int16_t)(unsafe.Pointer(pcm))[:pvrecorder.FrameLength:pvrecorder.FrameLength]
+	pcmSlice := make([]int16, pvrecorder.FrameLength)
+	for i := range pcmSlice {
+		pcmSlice[i] = int16(pcmCSlice[i])
+	}
 
 	return pcmSlice, nil
 }
 
+// GetSelectedDevice gets the current selected audio input device name
 func (pvrecorder *PVRecorder) GetSelectedDevice() string {
 	return nativePVRecorder.nativeGetSelectedDevice(pvrecorder)
 }	
@@ -184,11 +187,7 @@ func GetAudioDevices() ([]string, error) {
 	}
 	defer nativeFreeDeviceList(count, devices)
 
-	var deviceSlice []*C.char
-	sh := (*reflect.SliceHeader)(unsafe.Pointer(&deviceSlice))
-	sh.Data = uintptr(unsafe.Pointer(devices))
-	sh.Cap = count
-	sh.Len = count
+	deviceSlice := (*[1 << 28]*C.char)(unsafe.Pointer(devices))[:count:count]
 
 	deviceNames := make([]string, count)
 	for i := 0; i < count; i++ {
@@ -196,6 +195,11 @@ func GetAudioDevices() ([]string, error) {
 	}
 
 	return deviceNames, nil
+}
+
+// Version function gets the current library version.
+func Version() string {
+	return nativeVersion()
 }
 
 func extractLib() string {

@@ -16,8 +16,6 @@ package pvrecorder
 /*
 #include <stdlib.h>
 #include <stdint.h>
-
-extern void callbackHandler(int16_t *pcm, void *userData);
 */
 import "C"
 
@@ -39,20 +37,23 @@ var (
 	pv_recorder_get_selected_device		= lib.NewProc("pv_recorder_get_selected_device")
 	pv_recorder_get_audio_devices_func 	= lib.NewProc("pv_recorder_get_audio_devices")
 	pv_recorder_free_device_list_func 	= lib.NewProc("pv_recorder_free_device_list")
+	pv_recorder_version_func			= lib.NewProc("pv_recorder_version")
 )
 
 func (np nativePVRecorderType) nativeInit(pvrecorder *PVRecorder) PVRecorderStatus {
 	var (
-		deviceIndex = pvrecorder.DeviceIndex
-		frameLength = pvrecorder.FrameLength
-		bufferSizeMSec= pvrecorder.BufferSizeMSec
-		userData 	= pvrecorder.userData
+		deviceIndex 	= pvrecorder.DeviceIndex
+		frameLength 	= pvrecorder.FrameLength
+		bufferSizeMSec	= pvrecorder.BufferSizeMSec
+		logOverflow 	= pvrecorder.LogOverflow
+		userData 		= pvrecorder.userData
 	)
 
 	ret, _, _ := pv_recorder_init_func.Call(
 		uintptr(deviceIndex),
 		uintptr(frameLength),
 		uintptr(bufferSizeMSec),
+		uintptr(logOverflow),
 		uintptr(unsafe.Pointer(&pvrecorder.handle))
 	)
 
@@ -100,4 +101,10 @@ func nativeFreeDeviceList(count int, devices **C.char) {
 	pv_recorder_free_device_list_func(
 		uintptr(count),
 		uintptr(unsafe.Pointer(devices)))
+}
+
+func nativeVersion() string {
+	ret, _, _ := pv_recorder_version_func()
+
+	return C.GoString(ret)
 }
