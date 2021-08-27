@@ -44,12 +44,12 @@ int main(int argc, char *argv[]) {
         pv_recorder_status_t status = pv_recorder_get_audio_devices(&count, &devices);
         if (status != PV_RECORDER_STATUS_SUCCESS) {
             fprintf(stderr, "Failed to get audio devices with: %s.\n", pv_recorder_status_to_string(status));
-            exit(-1);
+            exit(1);
         }
 
         fprintf(stdout, "Printing devices...\n");
         for (int32_t i = 0; i < count; i++) {
-            fprintf(stderr, "index: %d, name: %s\n", i, devices[i]);
+            fprintf(stdout, "index: %d, name: %s\n", i, devices[i]);
         }
 
         pv_recorder_free_device_list(count, devices);
@@ -57,7 +57,11 @@ int main(int argc, char *argv[]) {
     }
 
     const int32_t device_index = (int32_t) strtol(argv[1], NULL, 10);
-    const char *path_to_raw_file = argv[2];
+    const char *path_to_raw_file = NULL;
+
+    if (argc == 3) {
+        path_to_raw_file = argv[2];
+    }
 
     // Use PV_Recorder
     fprintf(stdout, "Initializing pv_recorder...\n");
@@ -66,7 +70,7 @@ int main(int argc, char *argv[]) {
     pv_recorder_status_t status = pv_recorder_init(device_index, 512, 100, true, &recorder);
     if (status != PV_RECORDER_STATUS_SUCCESS) {
         fprintf(stderr, "Failed to initialize device with %s.\n", pv_recorder_status_to_string(status));
-        exit(-1);
+        exit(1);
     }
 
     const char *selected_device = pv_recorder_get_selected_device(recorder);
@@ -76,16 +80,16 @@ int main(int argc, char *argv[]) {
     status = pv_recorder_start(recorder);
     if (status != PV_RECORDER_STATUS_SUCCESS) {
         fprintf(stderr, "Failed to start device with %s.\n", pv_recorder_status_to_string(status));
-        exit(-1);
+        exit(1);
     }
 
     int16_t *pcm = malloc(512 * sizeof(int16_t));
 
     FILE *file = NULL;
-    if (path_to_raw_file != NULL) {
+    if (path_to_raw_file) {
         file = fopen(path_to_raw_file, "wb");
-        if (file == NULL) {
-            fprintf(stdout, "Failed to open file.\n");
+        if (!file) {
+            fprintf(stderr, "Failed to open file.\n");
         }
     }
 
@@ -93,22 +97,26 @@ int main(int argc, char *argv[]) {
         status = pv_recorder_read(recorder, pcm);
         if (status != PV_RECORDER_STATUS_SUCCESS) {
             fprintf(stderr, "Failed to read with %s.\n", pv_recorder_status_to_string(status));
-            exit(-1);
+            exit(1);
         }
-        if (file != NULL) {
-            fwrite(pcm, sizeof(int16_t), 512, file);
+        if (file) {
+            uint32_t length = fwrite(pcm, sizeof(int16_t), 512, file);
+            if (length != 512) {
+                fprintf(stderr, "Failed to write raw bytes to file.\n");
+                exit(1);
+            }
         }
     }
 
-    if (file != NULL) {
+    if (file) {
         fclose(file);
     }
 
     fprintf(stdout, "Stop recording...\n");
     status = pv_recorder_stop(recorder);
     if (status != PV_RECORDER_STATUS_SUCCESS) {
-        fprintf(stderr, "Failed to start device with %s.\n", pv_recorder_status_to_string(status));
-        exit(-1);
+        fprintf(stderr, "Failed to stop device with %s.\n", pv_recorder_status_to_string(status));
+        exit(1);
     }
 
     fprintf(stdout, "Deleting pv_recorder...\n");

@@ -45,8 +45,8 @@ typedef enum {
  *
  * @param device_index The index of the audio device to use. A value of (-1) will resort to default device.
  * @param frame_length The length of audio frame to get for each read call.
- * @param milliseconds Time in milliseconds to store audio frames to a temporary buffer.
- * @param enable_logs Boolean variable to enable logs. This will enable warning logs when buffer overflow occurs.
+ * @param buffer_size_msec Time in milliseconds to store audio frames to a temporary buffer.
+ * @param log_overflow Boolean variable to enable overflow logs. This will enable warning logs when buffer overflow occurs.
  * @param[out] object Audio Recorder object to initialize.
  * @return Status Code. PV_RECORDER_STATUS_INVALID_ARGUMENT, PV_RECORDER_STATUS_BACKEND_ERROR,
  * PV_RECORDER_STATUS_DEVICE_INITIALIZED or PV_RECORDER_STATUS_OUT_OF_MEMORY on failure.
@@ -54,8 +54,8 @@ typedef enum {
 PV_API pv_recorder_status_t pv_recorder_init(
         int32_t device_index,
         int32_t frame_length,
-        int32_t milliseconds,
-        bool enable_logs,
+        int32_t buffer_size_msec,
+        bool log_overflow,
         pv_recorder_t **object);
 
 /**

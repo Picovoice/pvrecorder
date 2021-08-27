@@ -65,7 +65,7 @@ void pv_circular_buffer_delete(pv_circular_buffer_t *object) {
     }
 }
 
-pv_circular_buffer_status_t pv_circular_buffer_read(pv_circular_buffer_t *object, void *buffer, int32_t *length) {
+int32_t pv_circular_buffer_read(pv_circular_buffer_t *object, void *buffer, int32_t length) {
     if (!object) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
@@ -75,36 +75,34 @@ pv_circular_buffer_status_t pv_circular_buffer_read(pv_circular_buffer_t *object
     if (!length) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
-    if ((*length <= 0) || (*length >= object->capacity)) {
+    if ((length <= 0) || (length >= object->capacity)) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
 
-    int32_t processed = 0;
-    int32_t max_copy = (object->count < *length) ? object->count : *length;
+    void *dst_ptr = buffer;
+    const void *src_ptr = (char *) object->buffer + (object->read_index * object->element_size);
 
-    while (processed < max_copy) {
-        const int32_t remaining = max_copy - processed;
-        const int32_t available = object->capacity - object->read_index;
+    const int32_t available = object->capacity - object->read_index;
+    const int32_t max_copy = (object->count < length) ? object->count : length;
+    const int32_t to_copy = (max_copy < available) ? max_copy : available;
 
-        const int32_t to_copy = (remaining < available) ? remaining : available;
+    memcpy(dst_ptr, src_ptr, to_copy * object->element_size);
 
-        void *dst_ptr = (char *) buffer + (processed * object->element_size);
-        const void *src_ptr = (char *) object->buffer + (object->read_index * object->element_size);
+    object->read_index = (object->read_index + to_copy) % object->capacity;
 
-        memcpy(dst_ptr, src_ptr, to_copy * object->element_size);
+    const int32_t remaining = max_copy - to_copy;
+    if (remaining > 0) {
+        dst_ptr = (char *) buffer + (to_copy * object->element_size);
+        src_ptr = object->buffer;
 
-        object->read_index = (object->read_index + to_copy) % object->capacity;
-        processed += to_copy;
-        object->count -= to_copy;
+        memcpy(dst_ptr, src_ptr, remaining * object->element_size);
+
+        object->read_index = remaining;
     }
 
-    pv_circular_buffer_status_t status = PV_CIRCULAR_BUFFER_STATUS_SUCCESS;
-    if (processed < *length) {
-        status = PV_CIRCULAR_BUFFER_STATUS_READ_INCOMPLETE;
-        *length = processed;
-    }
+    object->count -= max_copy;
 
-    return status;
+    return max_copy;
 }
 
 pv_circular_buffer_status_t pv_circular_buffer_write(pv_circular_buffer_t *object, const void *buffer, int32_t length) {
@@ -119,22 +117,27 @@ pv_circular_buffer_status_t pv_circular_buffer_write(pv_circular_buffer_t *objec
     }
 
     pv_circular_buffer_status_t status = PV_CIRCULAR_BUFFER_STATUS_SUCCESS;
-    int32_t processed = 0;
 
-    while (processed < length) {
-        const int32_t remaining = length - processed;
-        const int32_t available = object->capacity - object->write_index;
+    void *dst_ptr = (char *) object->buffer + (object->write_index * object->element_size);
+    const void *src_ptr = buffer;
 
-        const int32_t to_copy = (remaining < available) ? remaining : available;
+    const int32_t available = object->capacity - object->write_index;
+    const int32_t to_copy = (length < available) ? length : available;
 
-        void *dst_ptr = (char *) object->buffer + (object->write_index * object->element_size);
-        const void *src_ptr = (char *) buffer + (processed * object->element_size);
+    memcpy(dst_ptr, src_ptr, to_copy * object->element_size);
 
-        memcpy(dst_ptr, src_ptr, to_copy * object->element_size);
+    object->write_index = (object->write_index + to_copy) % object->capacity;
+    object->count += to_copy;
 
-        object->write_index = (object->write_index + to_copy) % object->capacity;
-        processed += to_copy;
-        object->count += to_copy;
+    const int32_t remaining = length - to_copy;
+    if (remaining > 0) {
+        dst_ptr = object->buffer;
+        src_ptr = (char *) buffer + (to_copy * object->element_size);
+
+        memcpy(dst_ptr, src_ptr, remaining * object->element_size);
+
+        object->write_index = remaining;
+        object->count += remaining;
     }
 
     if(object->count > object->capacity) {
@@ -157,7 +160,6 @@ const char *pv_circular_buffer_status_to_string(pv_circular_buffer_status_t stat
             "SUCCESS",
             "OUT_OF_MEMORY",
             "INVALID_ARGUMENT",
-            "READ_INCOMPLETE",
             "WRITE_OVERFLOW"};
 
     int32_t size = sizeof(STRINGS) / sizeof(STRINGS[0]);

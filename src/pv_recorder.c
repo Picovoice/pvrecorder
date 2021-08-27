@@ -31,7 +31,7 @@ struct pv_recorder {
     pv_circular_buffer_t *buffer;
     int32_t frame_length;
     bool is_started;
-    bool enable_logs;
+    bool log_overflow;
     ma_mutex mutex;
 };
 
@@ -42,8 +42,8 @@ static void pv_recorder_ma_callback(ma_device *device, void *output, const void 
 
     ma_mutex_lock(&object->mutex);
     pv_circular_buffer_status_t status = pv_circular_buffer_write(object->buffer, input, (int32_t) frame_count);
-    if ((status == PV_CIRCULAR_BUFFER_STATUS_WRITE_OVERFLOW) && (object->enable_logs)) {
-        fprintf(stdout, "WARNING - lost some audio frames.\n");
+    if ((status == PV_CIRCULAR_BUFFER_STATUS_WRITE_OVERFLOW) && (object->log_overflow)) {
+        fprintf(stdout, "Overflow - reader is not reading fast enough.\n");
     }
     ma_mutex_unlock(&object->mutex);
 }
@@ -51,8 +51,8 @@ static void pv_recorder_ma_callback(ma_device *device, void *output, const void 
 PV_API pv_recorder_status_t pv_recorder_init(
         int32_t device_index,
         int32_t frame_length,
-        int32_t milliseconds,
-        bool enable_logs,
+        int32_t buffer_size_msec,
+        bool log_overflow,
         pv_recorder_t **object) {
     if (device_index < PV_RECORDER_DEFAULT_DEVICE_INDEX) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
@@ -60,7 +60,10 @@ PV_API pv_recorder_status_t pv_recorder_init(
     if (frame_length <= 0) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
-    if (milliseconds <= 0) {
+    if (buffer_size_msec <= 0) {
+        return PV_RECORDER_STATUS_INVALID_ARGUMENT;
+    }
+    if ((log_overflow != true) && (log_overflow != false)) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
     if (!object) {
@@ -68,7 +71,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
     }
 
     // capacity = 16kHz * seconds
-    const int32_t capacity = (int32_t) (16000 * milliseconds / 1000);
+    const int32_t capacity = (int32_t) (16000 * buffer_size_msec / 1000);
     if (capacity < frame_length) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
@@ -152,7 +155,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
     }
 
     o->frame_length = frame_length;
-    o->enable_logs = enable_logs;
+    o->log_overflow = log_overflow;
 
     *object = o;
 
@@ -228,8 +231,10 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
     for (int32_t i = 0; i < READ_RETRY_COUNT; i++) {
         ma_mutex_lock(&object->mutex);
 
-        pv_circular_buffer_status_t status = pv_circular_buffer_read(object->buffer, read_ptr, &remaining);
-        if (status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS) {
+        const int32_t length = pv_circular_buffer_read(object->buffer, read_ptr, remaining);
+        processed += length;
+
+        if (processed == object->frame_length) {
             ma_mutex_unlock(&object->mutex);
             return PV_RECORDER_STATUS_SUCCESS;
         }
@@ -237,8 +242,7 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
         ma_mutex_unlock(&object->mutex);
         ma_sleep(READ_SLEEP_MILLI_SECONDS);
 
-        read_ptr += remaining;
-        processed += remaining;
+        read_ptr += length;
         remaining = object->frame_length - processed;
     }
 

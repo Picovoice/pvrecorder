@@ -27,7 +27,6 @@ typedef enum {
     PV_CIRCULAR_BUFFER_STATUS_SUCCESS = 0,
     PV_CIRCULAR_BUFFER_STATUS_OUT_OF_MEMORY,
     PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT,
-    PV_CIRCULAR_BUFFER_STATUS_READ_INCOMPLETE,
     PV_CIRCULAR_BUFFER_STATUS_WRITE_OVERFLOW,
 } pv_circular_buffer_status_t;
 
@@ -53,16 +52,15 @@ pv_circular_buffer_status_t pv_circular_buffer_init(
 void pv_circular_buffer_delete(pv_circular_buffer_t *object);
 
 /**
- * Reads and copies the elements to the provided param ${buffer}. The param ${length} contains a new length
- * if a status of PV_CIRCULAR_BUFFER_STATUS_READ_INCOMPLETE is returned.
+ * Reads and copies the elements to the provided buffer.
  *
  * @param object Circular buffer object.
  * @param buffer[out] A pointer to copy the elements into.
- * @param length[in,out] The amount to copy to the buffer. Replaced with the actual amount of length copied if status
+ * @param length The amount to copy to read from the buffer.
  * is not PV_CIRCULAR_BUFFER_STATUS_SUCCESS.
- * @return Status Code. Returns PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT on failure.
+ * @return Returns the total length of frames copied to buffer.
  */
-pv_circular_buffer_status_t pv_circular_buffer_read(pv_circular_buffer_t *object, void *buffer, int32_t *length);
+int32_t pv_circular_buffer_read(pv_circular_buffer_t *object, void *buffer, int32_t length);
 
 /**
  * Writes and copies the elements of param ${buffer} to the object's buffer. Overwrites existing frames if the buffer

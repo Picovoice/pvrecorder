@@ -47,10 +47,8 @@ static void test_pv_circular_buffer_once(void) {
     status = pv_circular_buffer_write(cb, in_buffer, in_size);
     check_condition(status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS, __FUNCTION__ , __LINE__, "Failed to write buffer.");
 
-    status = pv_circular_buffer_read(cb, out_buffer, &out_size);
-    check_condition(status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS, __FUNCTION__ , __LINE__, "Failed to read buffer.");
-
-    check_condition(in_size == out_size, __FUNCTION__ , __LINE__, "Read and write buffers have different sizes.");
+    int32_t length = pv_circular_buffer_read(cb, out_buffer, out_size);
+    check_condition(length == out_size, __FUNCTION__ , __LINE__, "Read and write buffers have different sizes.");
 
     for (int32_t i = 0; i < in_size; i++) {
         check_condition(in_buffer[i] == out_buffer[i],
@@ -74,9 +72,8 @@ static void test_pv_circular_buffer_read_incomplete(void) {
     int32_t out_size = 5;
     int16_t *out_buffer = malloc(out_size * sizeof(int16_t));
 
-    status = pv_circular_buffer_read(cb, out_buffer, &out_size);
-    check_condition(status == PV_CIRCULAR_BUFFER_STATUS_READ_INCOMPLETE, __FUNCTION__ , __LINE__, "Expected a read time out.");
-    check_condition(out_size == 0, __FUNCTION__ , __LINE__, "Expected buffer size to be 0.");
+    int32_t length = pv_circular_buffer_read(cb, out_buffer, out_size);
+    check_condition(length == 0, __FUNCTION__ , __LINE__, "Expected buffer size to be 0.");
 
     free(out_buffer);
     pv_circular_buffer_delete(cb);
@@ -118,8 +115,8 @@ static void test_pv_circular_buffer_read_write(void) {
 
     for (int32_t i = 0; i < 10; i++) {
         pv_circular_buffer_write(cb, in_buffer, in_size);
-        pv_circular_buffer_read(cb, out_buffer, &out_size);
-        check_condition(in_size == out_size, __FUNCTION__ , __LINE__, "Read and write buffers have different sizes.");
+        int32_t length = pv_circular_buffer_read(cb, out_buffer, out_size);
+        check_condition(length == out_size, __FUNCTION__ , __LINE__, "Read buffer received different sizes.");
         for (int32_t j = 0; j < in_size; j++) {
             check_condition(in_buffer[i] == out_buffer[i],
                             __FUNCTION__ ,
@@ -149,14 +146,12 @@ static void test_pv_circular_buffer_read_write_one_by_one(void) {
     int32_t out_size = in_size;
     int16_t *out_buffer = malloc(out_size * sizeof(int16_t));
 
-    int32_t out_length = 1;
     for (int32_t i = 0; i < in_size; i++) {
         status = pv_circular_buffer_write(cb, in_buffer + i, 1);
         check_condition(status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS, __FUNCTION__ , __LINE__, "Failed to write to buffer.");
 
-        status = pv_circular_buffer_read(cb, out_buffer + i, &out_length);
-        check_condition(status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS, __FUNCTION__ , __LINE__, "Failed to read from buffer.");
-        check_condition(out_length == 1, __FUNCTION__ , __LINE__, "Buffer read received incorrect output length.");
+        int32_t length = pv_circular_buffer_read(cb, out_buffer + i, 1);
+        check_condition(length == 1, __FUNCTION__ , __LINE__, "Buffer read received incorrect output length.");
 
         check_condition(in_buffer[i] == out_buffer[i], __FUNCTION__ , __LINE__, "Buffer have incorrect sizes.");
     }
