@@ -1,0 +1,8 @@
+.vs
+demo/bin/**
+demo/obj/**
+demo/Properties/**
+pvrecorder/bin/**
+pvrecorder/obj/**
+pvrecorder/Properties/**
+*.user
