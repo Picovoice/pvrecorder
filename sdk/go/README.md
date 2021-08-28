@@ -43,8 +43,8 @@ To start recording, initialize the instance and run start function:
 ```go
 import . "github.com/Picovoice/pvrecorder/sdk/go"
 
-recorder := PVRecorder{
-    DeviceIndex: -1,
+recorder := PvRecorder{
+    DeviceIndex: -1, // Using -1 for index uses default audio input device.
     FrameLength: 512,
     BufferSizeMSec: 1000,
     LogOverflow: 1,

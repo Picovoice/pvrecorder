@@ -37,23 +37,23 @@ import (
 //go:embed embedded
 var embeddedFS embed.FS
 
-// PVRecorderStatus type
-type PVRecorderStatus int
+// PvRecorderStatus type
+type PvRecorderStatus int
 
-// PVRecorder status return codes from C library
+// PvRecorder status return codes from C library
 const (
-    SUCCESS                     PVRecorderStatus = 0
-    OUT_OF_MEMORY               PVRecorderStatus = 1
-    INVALID_ARGUMENT            PVRecorderStatus = 2
-    INVALID_STATE               PVRecorderStatus = 3
-    BACKEND_ERROR               PVRecorderStatus = 4
-    DEVICE_ALREADY_INITIALIZED  PVRecorderStatus = 5
-    DEVICE_NOT_INITIALIZED      PVRecorderStatus = 6
-    IO_ERROR                    PVRecorderStatus = 7
-    RUNTIME_ERROR               PVRecorderStatus = 8
+    SUCCESS                     PvRecorderStatus = 0
+    OUT_OF_MEMORY               PvRecorderStatus = 1
+    INVALID_ARGUMENT            PvRecorderStatus = 2
+    INVALID_STATE               PvRecorderStatus = 3
+    BACKEND_ERROR               PvRecorderStatus = 4
+    DEVICE_ALREADY_INITIALIZED  PvRecorderStatus = 5
+    DEVICE_NOT_INITIALIZED      PvRecorderStatus = 6
+    IO_ERROR                    PvRecorderStatus = 7
+    RUNTIME_ERROR               PvRecorderStatus = 8
 )
 
-func pvRecorderStatusToString(status PVRecorderStatus) string {
+func pvRecorderStatusToString(status PvRecorderStatus) string {
     switch status {
     case SUCCESS:
         return "SUCCESS"
@@ -78,8 +78,8 @@ func pvRecorderStatusToString(status PVRecorderStatus) string {
     }
 }
 
-// PVRecorder struct
-type PVRecorder struct {
+// PvRecorder struct
+type PvRecorder struct {
     // handle for pvrecorder instance in C.
     handle uintptr
 
@@ -96,69 +96,69 @@ type PVRecorder struct {
     LogOverflow int
 }
 
-type nativePVRecorderInterface interface {
-    nativeInit(*PVRecorder)
-    nativeDelete(*PVRecorder)
-    nativeStart(*PVRecorder)
-    nativeStop(*PVRecorder)
-    nativeGetSelectedDevice(*PVRecorder)
+type nativePvRecorderInterface interface {
+    nativeInit(*PvRecorder)
+    nativeDelete(*PvRecorder)
+    nativeStart(*PvRecorder)
+    nativeStop(*PvRecorder)
+    nativeGetSelectedDevice(*PvRecorder)
     nativeGetAudioDevices(*C.int32_t, ***C.char)
     nativeFreeDeviceList(C.int32_t, **C.char)
     nativeVersion()
 }
 
-type nativePVRecorderType struct {}
+type nativePvRecorderType struct {}
 
 // private vars
 var (
     extractionDir = filepath.Join(os.TempDir(), "pvrecorder")
     libName = extractLib()
-    nativePVRecorder = nativePVRecorderType{}
+    nativePvRecorder = nativePvRecorderType{}
 )
 
-// Init function for PVRecorder
-func (pvrecorder *PVRecorder) Init() error {
-    ret := nativePVRecorder.nativeInit(pvrecorder)
+// Init function for PvRecorder
+func (pvrecorder *PvRecorder) Init() error {
+    ret := nativePvRecorder.nativeInit(pvrecorder)
     if ret != SUCCESS {
-        return fmt.Errorf("PVRecorder Init failed with: %s", pvRecorderStatusToString(ret))
+        return fmt.Errorf("PvRecorder Init failed with: %s", pvRecorderStatusToString(ret))
     }
 
     return nil
 }
 
-// Delete function releases resources acquired by PVRecorder
-func (pvrecorder *PVRecorder) Delete() {
-    nativePVRecorder.nativeDelete(pvrecorder)
+// Delete function releases resources acquired by PvRecorder
+func (pvrecorder *PvRecorder) Delete() {
+    nativePvRecorder.nativeDelete(pvrecorder)
 }
 
 // Start function starts recording audio.
-func (pvrecorder *PVRecorder) Start() error {
-    ret := nativePVRecorder.nativeStart(pvrecorder)
+func (pvrecorder *PvRecorder) Start() error {
+    ret := nativePvRecorder.nativeStart(pvrecorder)
     if ret != SUCCESS {
-        return fmt.Errorf("PVRecorder Start failed with: %s", pvRecorderStatusToString(ret))
+        return fmt.Errorf("PvRecorder Start failed with: %s", pvRecorderStatusToString(ret))
     }
 
     return nil
 }
 
 // Stop function stops recording audio.
-func (pvrecorder *PVRecorder) Stop() error {
-    ret := nativePVRecorder.nativeStop(pvrecorder)
+func (pvrecorder *PvRecorder) Stop() error {
+    ret := nativePvRecorder.nativeStop(pvrecorder)
     if ret != SUCCESS {
-        return fmt.Errorf("PVRecorder Stop failed with: %s", pvRecorderStatusToString(ret))
+        return fmt.Errorf("PvRecorder Stop failed with: %s", pvRecorderStatusToString(ret))
     }
 
     return nil
 }
 
 // Read function reads audio frames.
-func (pvrecorder *PVRecorder) Read() ([]int16, error) {
+func (pvrecorder *PvRecorder) Read() ([]int16, error) {
     pcm := C.malloc_cgo(C.int32_t(pvrecorder.FrameLength))
     defer C.free(unsafe.Pointer(pcm))
 
-    ret := nativePVRecorder.nativeRead(pvrecorder, pcm)
+    ret := nativePvRecorder.nativeRead(pvrecorder, pcm)
     if ret != SUCCESS {
-        return nil, fmt.Errorf("PVRecorder Read failed with: %s", pvRecorderStatusToString(ret))
+        return nil, fmt.Errorf("PvRecorder Read failed with: %s", pvRecorderStatusToString(ret))
     }
 
     pcmCSlice := (*[1 << 28]C.int16_t)(unsafe.Pointer(pcm))[:pvrecorder.FrameLength:pvrecorder.FrameLength]
@@ -171,8 +171,8 @@ func (pvrecorder *PVRecorder) Read() ([]int16, error) {
 }
 
 // GetSelectedDevice gets the current selected audio input device name
-func (pvrecorder *PVRecorder) GetSelectedDevice() string {
-    return nativePVRecorder.nativeGetSelectedDevice(pvrecorder)
+func (pvrecorder *PvRecorder) GetSelectedDevice() string {
+    return nativePvRecorder.nativeGetSelectedDevice(pvrecorder)
 }
 
 // GetAudioDevices function gets the currently available input audio devices.
@@ -180,10 +180,10 @@ func GetAudioDevices() ([]string, error) {
     var count int
     var devices **C.char
 
-    if ret := nativePVRecorder.nativeGetAudioDevices(&count, &devices); ret != SUCCESS {
-        return nil, fmt.Errorf("PVRecorder GetAudioDevices failed with: %s", pvRecorderStatusToString(ret))
+    if ret := nativePvRecorder.nativeGetAudioDevices(&count, &devices); ret != SUCCESS {
+        return nil, fmt.Errorf("PvRecorder GetAudioDevices failed with: %s", pvRecorderStatusToString(ret))
     }
-    defer nativePVRecorder.nativeFreeDeviceList(count, devices)
+    defer nativePvRecorder.nativeFreeDeviceList(count, devices)
 
     deviceSlice := (*[1 << 28]*C.char)(unsafe.Pointer(devices))[:count:count]
 
@@ -197,7 +197,7 @@ func GetAudioDevices() ([]string, error) {
 
 // Version function gets the current library version.
 func Version() string {
-    return nativePVRecorder.nativeVersion()
+    return nativePvRecorder.nativeVersion()
 }
 
 func extractLib() string {

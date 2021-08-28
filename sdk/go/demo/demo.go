@@ -42,7 +42,7 @@ func main() {
         return;
     }
 
-    recorder := pvrecorder.PVRecorder{
+    recorder := pvrecorder.PvRecorder{
         DeviceIndex: *audioDeviceIndex,
         FrameLength: 512,
         BufferSizeMSec: 1000,
