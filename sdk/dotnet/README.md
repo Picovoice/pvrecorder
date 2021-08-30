@@ -1,6 +1,6 @@
 # PV_Recorder
 
-A cross platform audio recorder to read one channel and 16kHz samples.
+A cross platform audio recorder that captures single-channel audio at a sample rate of 16kHz.
 
 ## Requirements
 
@@ -63,6 +63,14 @@ Once you are done, free the used resources. You do not have to call stop before 
 
 ```csharp
 recorder.Dispose();
+```
+
+To have to resources freed immediately after use without explicitly calling the `Dispose` function, wrap PvRecorder in a using statement:
+
+```csharp
+using(PvRecorder recorder = PvRecorder.Create(deviceIndex: -1, frameLength: 512)) {
+    // PvRecorder usage
+}
 ```
 
 ### Demo
