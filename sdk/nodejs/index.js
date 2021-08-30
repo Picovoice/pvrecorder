@@ -132,7 +132,7 @@ class PvRecorder {
 
 function getLibraryPath() {
     let scriptPath;
-    if (os.platform() === "windows") {
+    if (os.platform() === "win32") {
         scriptPath = path.join("scripts", "platform.bat")
     } else {
         scriptPath = path.join("scripts", "platform.sh")
@@ -141,7 +141,7 @@ function getLibraryPath() {
     let output = execSync(scriptPath).toString();
     let [osName, cpu] = output.split(" ");
 
-    return path.resolve(path.join("lib", osName, cpu, "pv_recorder"))
+    return path.resolve("lib", osName, cpu, "pv_recorder.node");
 }
 
 module.exports = PvRecorder;

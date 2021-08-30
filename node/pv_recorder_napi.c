@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <node_api.h>
+#include <stdio.h>
 
 #include "pv_recorder.h"
 
@@ -132,7 +133,7 @@ napi_value napi_pv_recorder_read(napi_env env, napi_callback_info info) {
 
 napi_value napi_pv_recorder_get_selected_device(napi_env env, napi_callback_info info) {
     size_t argc = 1;
-    napi_value args[0];
+    napi_value args[1];
     napi_status status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
     assert(status == napi_ok);
 

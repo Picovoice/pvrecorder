@@ -28,7 +28,7 @@ if (WIN32)
   set(NODE_LIB ${NODE_WIN_LIB_DIR}/node.a)
 endif()
 
-add_library(${PROJECT_NAME} SHARED pv_recorder_napi.c)
+add_library(${PROJECT_NAME} SHARED pv_recorder_napi.c $<TARGET_OBJECTS:pv_recorder>)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     PREFIX ""
@@ -45,16 +45,16 @@ endif()
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/../include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_INCLUDE_DIR})
 
-target_link_libraries(${PROJECT_NAME} ${NODE_LIB} pv_recorder)
+target_link_libraries(${PROJECT_NAME} ${NODE_LIB})
 
 if (APPLE)
     target_link_options(${PROJECT_NAME} PRIVATE "-undefined" "dynamic_lookup")
 endif()
 
-if(DEFINED NODE_OUTPUT_DIR)
+if(DEFINED OUTPUT_DIR)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:${PROJECT_NAME}>
-            "${CMAKE_SOURCE_DIR}/${NODE_OUTPUT_DIR}/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
-            COMMENT "Copying to output directory.")
+            "${CMAKE_SOURCE_DIR}/lib/node/${OUTPUT_DIR}/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
+            COMMENT "Copying node lib to output directory.")
 endif()
