@@ -12,7 +12,7 @@
 
 const ncp = require("ncp").ncp;
 
-console.log("\nCopying library files...");
+console.log("Copying library files...");
 
 // PvRecorder Libs
 ncp(

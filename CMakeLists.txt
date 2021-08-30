@@ -21,7 +21,7 @@ if(DEFINED OUTPUT_DIR)
     add_custom_command(TARGET pv_recorder POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:${PROJECT_NAME}>
-            "${CMAKE_SOURCE_DIR}/${OUTPUT_DIR}/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
+            "${CMAKE_SOURCE_DIR}/lib/${OUTPUT_DIR}/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
             COMMENT "Copying to output directory.")
 endif()
 
