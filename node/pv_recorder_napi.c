@@ -33,7 +33,7 @@ napi_value napi_pv_recorder_init(napi_env env, napi_callback_info info) {
     }
 
     napi_value result;
-    uint64_t object_id_and_status = (((uint64_t) handle) * 10) + pv_recorder_status;
+    uint64_t object_id_and_status = (((uint64_t)(uintptr_t) handle) * 10) + pv_recorder_status;
     status = napi_create_bigint_uint64(env, (uint64_t) object_id_and_status, &result);
     assert(status == napi_ok);
 
@@ -52,7 +52,7 @@ napi_value napi_pv_recorder_delete(napi_env env, napi_callback_info info) {
     assert(status == napi_ok);
     assert(lossless);
 
-    pv_recorder_delete((pv_recorder_t *) object_id);
+    pv_recorder_delete((pv_recorder_t *)(uintptr_t) object_id);
 
     return NULL;
 }
@@ -69,7 +69,7 @@ napi_value napi_pv_recorder_start(napi_env env, napi_callback_info info) {
     assert(status == napi_ok);
     assert(lossless);
 
-    pv_recorder_status_t pv_recorder_status = pv_recorder_start((pv_recorder_t *) object_id);
+    pv_recorder_status_t pv_recorder_status = pv_recorder_start((pv_recorder_t *)(uintptr_t) object_id);
 
     napi_value result;
     status = napi_create_int32(env, pv_recorder_status, &result);
@@ -90,7 +90,7 @@ napi_value napi_pv_recorder_stop(napi_env env, napi_callback_info info) {
     assert(status == napi_ok);
     assert(lossless);
 
-    pv_recorder_status_t pv_recorder_status = pv_recorder_stop((pv_recorder_t *) object_id);
+    pv_recorder_status_t pv_recorder_status = pv_recorder_stop((pv_recorder_t *)(uintptr_t) object_id);
 
     napi_value result;
     status = napi_create_int32(env, pv_recorder_status, &result);
@@ -122,7 +122,7 @@ napi_value napi_pv_recorder_read(napi_env env, napi_callback_info info) {
     assert(length > 0);
     assert(offset == 0);
 
-    pv_recorder_status_t pv_recorder_status = pv_recorder_read((pv_recorder_t *) object_id, (int16_t *) data);
+    pv_recorder_status_t pv_recorder_status = pv_recorder_read((pv_recorder_t *)(uintptr_t) object_id, (int16_t *) data);
 
     napi_value result;
     status = napi_create_int32(env, pv_recorder_status, &result);
@@ -144,7 +144,7 @@ napi_value napi_pv_recorder_get_selected_device(napi_env env, napi_callback_info
     assert(lossless);
 
     napi_value result;
-    status = napi_create_string_utf8(env, pv_recorder_get_selected_device((pv_recorder_t *) object_id), NAPI_AUTO_LENGTH, &result);
+    status = napi_create_string_utf8(env, pv_recorder_get_selected_device((pv_recorder_t *)(uintptr_t) object_id), NAPI_AUTO_LENGTH, &result);
     assert(status == napi_ok);
 
     return result;
