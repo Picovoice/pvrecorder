@@ -1,0 +1,12 @@
+{
+  "name": "pv_recorder",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "prepare": "node copy.js"
+  },
+  "dependencies": {
+    "ncp": "^2.0.0"
+  }
+}
