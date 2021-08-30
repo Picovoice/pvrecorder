@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\pvrecorder\pvrecorder.csproj" />
+        <ProjectReference Include="..\PvRecorder\PvRecorder.csproj" />
     </ItemGroup>
 
 </Project>
