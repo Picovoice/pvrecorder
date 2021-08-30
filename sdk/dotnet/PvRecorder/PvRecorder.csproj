@@ -2,6 +2,21 @@
 
     <PropertyGroup>
         <TargetFrameworks>netcoreapp3.1;netstandard2.0</TargetFrameworks>
+        <Version>1.0.0</Version>
+        <Authors>Picovoice</Authors>
+        <Company />
+        <Product>PvRecorder</Product>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/Picovoice/pvrecorder</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Picovoice/pvrecorder.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>audio, audio recorder</PackageTags>
+        <PackageReleaseNotes>See https://github.com/Picovoice/pvrecorder/ </PackageReleaseNotes>
+        <Copyright>Picovoice 2021</Copyright>
+        <Description>
+            PvRecorder is a library for .NET to record and capture audio frames.
+        </Description>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     </PropertyGroup>
 
     <ItemGroup>
@@ -39,7 +54,7 @@
             <Link>lib\linux\x86_64\libpv_recorder.so</Link>
             <Visible>false</Visible>
         </Content>
-        <Content Include="..\..\..\lib\raspberry-pi\**\*">
+        <Content Include="..\..\..\lib\raspberry-pi\**\*" Exclude="..\..\..\lib\raspberry-pi\arm11\*;..\..\..\lib\raspberry-pi\cortex-a7\*">
             <PackagePath>
                 build/netstandard2.0/lib/raspberry-pi;
                 build/netcoreapp3.1/lib/raspberry-pi

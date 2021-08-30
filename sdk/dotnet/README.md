@@ -12,8 +12,6 @@ A cross platform audio recorder to read one channel and 16kHz samples.
 - macOS (x86_64)
 - Linux (x86_64)
 - Raspberry Pi:
-    - Zero
-    - 2
     - 3 (32 and 64 bit)
     - 4 (32 and 64 bit)
 - NVIDIA Jetson Nano
