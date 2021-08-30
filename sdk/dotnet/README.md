@@ -30,23 +30,25 @@ Getting the list of input devices does not require an instance:
 ```csharp
 using Pv;
 
-PvRecorder recorder = PvRecorder.Create(
-    deviceIndex: -1, // uses default index
-    frameLength: 512,
-);
+string[] devices = PvRecorder.GetAudioDevices();
 ```
 
 To start recording initialize the instance and run start:
 
 ```csharp
-recorder.Start()
+PvRecorder recorder = PvRecorder.Create(
+    deviceIndex: -1, // uses default index
+    frameLength: 512,
+);
+
+recorder.Start();
 ```
 
 Get the pcm frames by calling the read function:
 
 ```csharp
 while (true) {
-    pcm = recorder.Read()
+    pcm = recorder.Read();
     // do something with pcm
 }
 ```
@@ -54,13 +56,13 @@ while (true) {
 To stop recording just run stop on the instance:
 
 ```csharp
-recorder.Stop()
+recorder.Stop();
 ```
 
 Once you are done, free the used resources. You do not have to call stop before Dispose:
 
 ```csharp
-recorder.Dispose()
+recorder.Dispose();
 ```
 
 ### Demo
