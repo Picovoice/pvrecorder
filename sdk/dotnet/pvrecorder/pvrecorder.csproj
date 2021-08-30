@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿	<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;netstandard2.0</TargetFrameworks>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp3.1;netstandard2.0</TargetFrameworks>
+	</PropertyGroup>
 
 	<ItemGroup>
-		<Content Include="PVRecorder.targets">
+		<Content Include="PvRecorder.targets">
 			<PackagePath>
 				build/netstandard2.0;
 				build/netcoreapp3.1
@@ -18,7 +18,7 @@
 				build/netcoreapp3.1/lib/windows/amd64/libpv_recorder.dll
 			</PackagePath>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<Link>lib\windows\amd64\libpv_pvrecorder.dll</Link>
+			<Link>lib\windows\amd64\libpv_recorder.dll</Link>
 			<Visible>false</Visible>
 		</Content>
 		<Content Include="..\..\..\lib\linux\x86_64\libpv_recorder.so">
@@ -59,4 +59,4 @@
 		</Content>
 	</ItemGroup>
 
-</Project>
+	</Project>

@@ -1,11 +1,25 @@
-﻿using System;
+﻿/*
+    Copyright 2021 Picovoice Inc.
+
+    You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
+    file accompanying this source.
+
+    Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+    an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+    specific language governing permissions and limitations under the License.
+*/
+using System;
+using System.IO;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace Pv
 {
-    public enum PVRecorderStatus
+    /// <summary>
+    /// Status codes return by PvRecorder Library.
+    /// </summary>
+    public enum PvRecorderStatus
     {
         SUCCESS = 0,
         OUT_OF_MEMORY = 1,
@@ -17,17 +31,21 @@ namespace Pv
         IO_ERROR = 7,
         RUNTIME_ERROR = 8
     }
-    public class PVRecorder : IDisposable
+
+    /// <summary>
+    /// .NET sdk for capturing and reading audio frames.
+    /// </summary>
+    public class PvRecorder : IDisposable
     {
         private const string LIBRARY = "libpv_recorder";
         private IntPtr _libraryPointer = IntPtr.Zero;
 
         private int frameLength;
 
-        static PVRecorder()
+        static PvRecorder()
         {
 #if NETCOREAPP3_1
-            NativeLibrary.SetDllImportResolver(typeof(PVRecorder).Assembly, ImportResolver);
+            NativeLibrary.SetDllImportResolver(typeof(PvRecorder).Assembly, ImportResolver);
 #endif
         }
 
@@ -40,43 +58,73 @@ namespace Pv
         }
 #endif
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        private static extern PVRecorderStatus pv_recorder_init(int deviceIndex, int frameLength, int bufferSizeMSec, bool logOverflow, out IntPtr handle);
+        private static extern PvRecorderStatus pv_recorder_init(int deviceIndex, int frameLength, int bufferSizeMSec, bool logOverflow, out IntPtr handle);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern void pv_recorder_delete(IntPtr handle);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        private static extern PVRecorderStatus pv_recorder_start(IntPtr handle);
+        private static extern PvRecorderStatus pv_recorder_start(IntPtr handle);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        private static extern PVRecorderStatus pv_recorder_stop(IntPtr handle);
+        private static extern PvRecorderStatus pv_recorder_stop(IntPtr handle);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        private static extern PVRecorderStatus pv_recorder_read(IntPtr handle, out short[] pcm);
+        private static extern PvRecorderStatus pv_recorder_read(IntPtr handle, short[] pcm);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern IntPtr pv_recorder_get_selected_device(IntPtr handle);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        private static extern PVRecorderStatus pv_recorder_get_audio_devices(out int count, out IntPtr[] devices);
+        private static extern PvRecorderStatus pv_recorder_get_audio_devices(out int count, out IntPtr devices);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        private static extern void pv_recorder_free_device_list(int count, IntPtr[] devices);
+        private static extern void pv_recorder_free_device_list(int count, IntPtr devices);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern IntPtr pv_recorder_version();
 
-        public static PVRecorder Create(int deviceIndex, int frameLength, int bufferSizeMSec = 1000, bool logOverflow = true)
+        /// <summary>
+        /// Factory method for PvRecorder library.
+        /// </summary>
+        /// <param name="deviceIndex">
+        /// The index of the audio device to capture audio from. A value of (-1) will use the default audio.
+        /// </param>
+        /// <param name="frameLength">
+        /// Length of the audio frames to receive at each read call.
+        /// </param>
+        /// <param name="bufferSizeMSec">
+        /// Time in milliseconds for the buffer size to hold recorded audio.
+        /// </param>
+        /// <param name="logOverflow">
+        /// Boolean value representing if buffer overflow warnings should be logged.
+        /// </param>
+        /// <returns>An instance of PvRecorder.</returns>
+        public static PvRecorder Create(int deviceIndex, int frameLength, int bufferSizeMSec = 1000, bool logOverflow = true)
         {
-            return new PVRecorder(deviceIndex, frameLength, bufferSizeMSec, logOverflow);
+            return new PvRecorder(deviceIndex, frameLength, bufferSizeMSec, logOverflow);
         }
 
-        private PVRecorder(int deviceIndex, int frameLength, int bufferSizeMSec, bool logOverflow)
+        /// <summary>
+        /// Constructor for PvRecorder.
+        /// </summary>
+        /// <param name="deviceIndex">
+        /// The index of the audio device to capture audio from. A value of (-1) will use the default audio.
+        /// </param>
+        /// <param name="frameLength">
+        /// Length of the audio frames to receive at each read call.
+        /// </param>
+        /// <param name="bufferSizeMSec">
+        /// Time in milliseconds for the buffer size to hold recorded audio.
+        /// </param>
+        /// <param name="logOverflow">
+        /// Boolean value representing if buffer overflow warnings should be logged.
+        private PvRecorder(int deviceIndex, int frameLength, int bufferSizeMSec, bool logOverflow)
         {
-            PVRecorderStatus status = pv_recorder_init(deviceIndex, frameLength, bufferSizeMSec, logOverflow, out _libraryPointer);
-            if (status != PVRecorderStatus.SUCCESS)
+            PvRecorderStatus status = pv_recorder_init(deviceIndex, frameLength, bufferSizeMSec, logOverflow, out _libraryPointer);
+            if (status != PvRecorderStatus.SUCCESS)
             {
-                throw PVRecorderStatusToException(status);
+                throw PvRecorderStatusToException(status);
             }
 
             this.frameLength = frameLength;
@@ -84,60 +132,81 @@ namespace Pv
             Version = Marshal.PtrToStringAnsi(pv_recorder_version());
         }
 
+        /// <summary>
+        /// Starts recording audio.
+        /// </summary>
         public void Start()
         {
-            PVRecorderStatus status = pv_recorder_start(_libraryPointer);
-            if (status != PVRecorderStatus.SUCCESS)
+            PvRecorderStatus status = pv_recorder_start(_libraryPointer);
+            if (status != PvRecorderStatus.SUCCESS)
             {
-                throw PVRecorderStatusToException(status);
+                throw PvRecorderStatusToException(status);
             }
         }
 
+        /// <summary>
+        /// Stops recording audio.
+        /// </summary>
         public void Stop()
         {
-            PVRecorderStatus status = pv_recorder_stop(_libraryPointer);
-            if (status != PVRecorderStatus.SUCCESS)
+            PvRecorderStatus status = pv_recorder_stop(_libraryPointer);
+            if (status != PvRecorderStatus.SUCCESS)
             {
-                throw PVRecorderStatusToException(status);
+                throw PvRecorderStatusToException(status);
             }
         }
 
+        /// <summary>
+        /// Reads audio frames. 
+        /// </summary>
+        /// <returns>An array of audio frames with length ${frameLength} provided in the factory method,</returns>
         public short[] Read()
         {
             short[] pcm = new short[frameLength];
-            PVRecorderStatus status = pv_recorder_read(_libraryPointer, out pcm);
-            if (status != PVRecorderStatus.SUCCESS)
+            PvRecorderStatus status = pv_recorder_read(_libraryPointer, pcm);
+            if (status != PvRecorderStatus.SUCCESS)
             {
-                throw PVRecorderStatusToException(status);
+                throw PvRecorderStatusToException(status);
             }
             return pcm;
         }
 
+        /// <summary>
+        /// Gets the current selected device.
+        /// </summary>
         public string SelectedDevice
         {
             get; private set;
         }
 
+        /// <summary>
+        /// Gets the current version of the library.
+        /// </summary>
         public string Version
         {
             get; private set;
         }
 
+        /// <summary>
+        /// Gets the available input devices of the current machine.
+        /// </summary>
+        /// <returns>A list of strings containing the names of the audio devices.</returns>
         public static string[] GetAudioDevices()
         {
             int count;
-            IntPtr[] devices;
+            IntPtr devices;
 
-            PVRecorderStatus status = pv_recorder_get_audio_devices(out count, out devices);
-            if (status != PVRecorderStatus.SUCCESS)
+            PvRecorderStatus status = pv_recorder_get_audio_devices(out count, out devices);
+            if (status != PvRecorderStatus.SUCCESS)
             {
-                throw PVRecorderStatusToException(status);
+                throw PvRecorderStatusToException(status);
             }
 
+            int elementSize = Marshal.SizeOf(typeof(IntPtr));
             string[] deviceNames = new string[count];
             for (int i = 0; i < count; i++)
             {
-                deviceNames[i] = Marshal.PtrToStringAnsi(devices[i]);
+                deviceNames[i] = Marshal.PtrToStringAnsi(Marshal.ReadIntPtr(devices, i * elementSize));
             }
 
             pv_recorder_free_device_list(count, devices);
@@ -145,15 +214,40 @@ namespace Pv
             return deviceNames;
         }
 
-        private static Exception PVRecorderStatusToException(PVRecorderStatus status, string message=null)
+        /// <summary>
+        /// Converts status codes to .NET exceptions.
+        /// </summary>
+        /// <param name="status">Status code.</param>
+        /// <returns>.NET exception</returns>
+        private static Exception PvRecorderStatusToException(PvRecorderStatus status)
         {
             switch (status)
             {
+                case PvRecorderStatus.OUT_OF_MEMORY:
+                    return new OutOfMemoryException();
+                case PvRecorderStatus.INVALID_ARGUMENT:
+                    return new ArgumentException();
+                case PvRecorderStatus.INVALID_STATE:
+                    return new Exception("PvRecorder failed with invalid state.");
+                case PvRecorderStatus.BACKEND_ERROR:
+                    return new Exception("PvRecorder backend error.");
+                case PvRecorderStatus.DEVICE_ALREADY_INITIALIZED:
+                    return new Exception("PvRecorder device already initialized.");
+                case PvRecorderStatus.DEVICE_NOT_INITIALIZED:
+                    return new Exception("PvRecorder device not initialized.");
+                case PvRecorderStatus.IO_ERROR:
+                    return new IOException();
+                case PvRecorderStatus.RUNTIME_ERROR:
+                    return new SystemException("PvRecorder runtime error.");
                 default:
-                    return new Exception("Unknown status returned from PVRecorder.");
+                    return new Exception("Unknown status returned from PvRecorder.");
             }
         }
 
+        /// <summary>
+        /// Helper function to get the library path of pv_recorder.
+        /// </summary>
+        /// <returns>A string representing the absolute path of the library.</returns>
         private static string GetLibraryPath()
         {
             string scriptPath = "scripts/";
@@ -176,6 +270,7 @@ namespace Pv
 
             process.StartInfo = processStartInfo;
             process.Start();
+            process.WaitForExit();
 
             if (process.ExitCode != 0 )
             {
@@ -190,20 +285,23 @@ namespace Pv
 
             if (osName == "windows")
             {
-                libName = string.Format("{0}.dll", LIBRARY);
+                libName = $"{LIBRARY}.dll";
             } 
             else if (osName == "mac")
             {
-                libName = string.Format("{0}.dll", LIBRARY);
+                libName = $"{LIBRARY}.dylib";
             }
             else
             {
-                libName = string.Format("{0}.dll", LIBRARY);
+                libName = $"{LIBRARY}.so";
             }
 
-            return string.Format("lib/{0}/{1}/{2}", osName, cpu, libName);
+            return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), $"lib/{osName}/{cpu}/{libName}");
         }
 
+        /// <summary>
+        /// Frees memory used by PvRecorder instance.
+        /// </summary>
         public void Dispose()
         {
             if (_libraryPointer != IntPtr.Zero)
@@ -215,7 +313,7 @@ namespace Pv
             }
         }
 
-        ~PVRecorder()
+        ~PvRecorder()
         {
             Dispose();
         }

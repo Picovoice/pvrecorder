@@ -1,11 +1,13 @@
 ﻿using System;
-
+using System.IO;
 using Pv;
 
 namespace demo
 {
     class Demo
     {
+        private static bool isInterrupted = false;
+
         static void Main(string[] args)
         {
             bool showAudioDevices = false;
@@ -44,7 +46,7 @@ namespace demo
 
             if (showAudioDevices)
             {
-                string[] devices = PVRecorder.GetAudioDevices();
+                string[] devices = PvRecorder.GetAudioDevices();
                 for (int i = 0; i < devices.Length; i++)
                 {
                     Console.WriteLine($"index: {i}, name: {devices[i]}");
@@ -52,18 +54,58 @@ namespace demo
             }
             else
             {
-                int frameLength = 512;
-                PVRecorder recorder = PVRecorder.Create(audioDeviceIndex, frameLength);
-                Console.WriteLine($"Using PVRecorder version: {recorder.Version}");
-
-                recorder.Start();
-                Console.WriteLine($"Using device: {recorder.SelectedDevice}");
-
-                while (true)
+                PvRecorder recorder = null;
+                FileStream fileStream = null;
+                BinaryWriter binaryWriter = null;
+                try
                 {
-                    short[] pcm = recorder.Read();
-                }
+                    Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e)
+                    {
+                        e.Cancel = true;
+                        Demo.isInterrupted = true;
+                    };
 
+                    int frameLength = 512;
+                    recorder = PvRecorder.Create(audioDeviceIndex, frameLength);
+                    Console.WriteLine($"Using PvRecorder version: {recorder.Version}");
+
+                    recorder.Start();
+                    Console.WriteLine($"Using device: {recorder.SelectedDevice}");
+
+                    if (rawOutputPath != null)
+                    {
+                        fileStream = new FileStream(rawOutputPath, FileMode.Create);
+                        binaryWriter = new BinaryWriter(fileStream);
+                    }
+
+                    while (!isInterrupted)
+                    {
+                        short[] pcm = recorder.Read();
+                        if (binaryWriter != null)
+                        {
+                            foreach (short frame in pcm)
+                            {
+                                binaryWriter.Write(frame);
+                            }
+                        }
+                    }
+                }
+                finally
+                {
+
+                    Console.WriteLine("Stopping...");
+                    if (binaryWriter != null)
+                    {
+                        binaryWriter.Close();
+                    }
+
+                    if (fileStream != null)
+                    {
+                        fileStream.Close();
+                    }
+                    recorder?.Dispose();
+                }
+    
             }
         }
     }
