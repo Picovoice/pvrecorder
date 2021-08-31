@@ -24,24 +24,24 @@ const PvRecorderStatus = require("./pv_recorder_status_t");
 function PvRecorderStatusToException(status, errorMessage) {
     switch (status) {
         case PvRecorderStatus.OUT_OF_MEMORY:
-            throw new PvRecorderStatusOutOfMemoryError(errorMessage);
+            return new PvRecorderStatusOutOfMemoryError(errorMessage);
         case PvRecorderStatus.INVALID_ARGUMENT:
-            throw new PvRecorderStatusInvalidArgumentError(errorMessage);
+            return new PvRecorderStatusInvalidArgumentError(errorMessage);
         case PvRecorderStatus.INVALID_STATE:
-            throw new PvRecorderStatusInvalidStateError(errorMessage);
+            return new PvRecorderStatusInvalidStateError(errorMessage);
         case PvRecorderStatus.BACKEND_ERROR:
-            throw new PvRecorderStatusBackendError(errorMessage);
+            return new PvRecorderStatusBackendError(errorMessage);
         case PvRecorderStatus.DEVICE_ALREADY_INITIALIZED:
-            throw new PvRecorderStatusDeviceAlreadyInitializedError(errorMessage);
+            return new PvRecorderStatusDeviceAlreadyInitializedError(errorMessage);
         case PvRecorderStatus.DEVICE_NOT_INITIALIZED:
-            throw new PvRecorderStatusDeviceNotInitializedError(errorMessage);
+            return new PvRecorderStatusDeviceNotInitializedError(errorMessage);
         case PvRecorderStatus.IO_ERROR:
-            throw new PvRecorderStatusIOError(errorMessage);
+            return new PvRecorderStatusIOError(errorMessage);
         case PvRecorderStatus.RUNTIME_ERROR:
-            throw new PvRecorderStatusRuntimeError(errorMessage);
+            return new PvRecorderStatusRuntimeError(errorMessage);
         default:
             console.warn(`Unknown error code: ${status}`);
-            throw new Error(errorMessage);
+            return new Error(errorMessage);
     }
 }
 

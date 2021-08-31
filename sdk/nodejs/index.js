@@ -36,7 +36,7 @@ class PvRecorder {
         const packed = pvRecorder.init(deviceIndex, frameLength, bufferSizeMSec, logOverflow);
         const status = Number(packed % 10n);
         if (status !== PvRecorderStatus.SUCCESS) {
-            PvRecorderStatusToException(status, "PvRecorder failed to initialize.");
+            throw PvRecorderStatusToException(status, "PvRecorder failed to initialize.");
         }
         this.handle = packed / 10n;
         this.frameLength = frameLength;
@@ -49,7 +49,7 @@ class PvRecorder {
     start() {
         const status = pvRecorder.start(this.handle);
         if (status !== PvRecorderStatus.SUCCESS) {
-            PvRecorderStatusToException(status, "PvRecorder failed to start.");
+            throw PvRecorderStatusToException(status, "PvRecorder failed to start.");
         }
     }
 
@@ -59,7 +59,7 @@ class PvRecorder {
     stop() {
         const status = pvRecorder.read(this.handle);
         if (status !== PvRecorderStatus.SUCCESS) {
-            PvRecorderStatusToException(status, "PvRecorder failed to start.");
+            throw PvRecorderStatusToException(status, "PvRecorder failed to start.");
         }
     }
 
@@ -91,7 +91,7 @@ class PvRecorder {
         let pcm = new Int16Array(this.frameLength);
         const status = pvRecorder.read(this.handle, pcm);
         if (status !== PvRecorderStatus.SUCCESS) {
-            PvRecorderStatusToException(status, "PvRecorder failed to read pcm frames.");
+            throw PvRecorderStatusToException(status, "PvRecorder failed to read pcm frames.");
         }
         return pcm;
     }
