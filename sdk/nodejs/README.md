@@ -1,6 +1,6 @@
 # PV_Recorder
 
-A cross platform audio recorder to read one channel and 16kHz samples.
+A cross platform audio recorder that captures single-channel audio at a sample rate of 16kHz.
 
 ## Requirements
 
@@ -58,7 +58,7 @@ To stop recording just run stop on the instance:
 recorder.stop();
 ```
 
-Once you are done, free the used resources. You do not have to call stop before Dispose:
+Once you are done, free the used resources. You do not have to call stop before release:
 
 ```csharp
 recorder.release()
@@ -66,9 +66,9 @@ recorder.release()
 
 ### Demo
 
-For more detailed information on how to use the pv_recorder .NET sdk, please that a look at [demo/demo.js](demo/demo.js). 
+For more detailed information on how to use the pv_recorder Node.js sdk, please that a look at [demo/demo.js](demo/demo.js). 
 
-In the following instructions we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{RAW_OUTPUT_PATH}` as the path to save the raw audio data 
+In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{RAW_OUTPUT_PATH}` as the path to save the raw audio data 
 
 `{AUDIO_DEVICE_INDEX}` defaults to -1 and `{RAW_OUTPUT_PATH}` can be empty if you wish to not save any data.
 
