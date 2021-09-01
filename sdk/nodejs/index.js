@@ -57,9 +57,9 @@ class PvRecorder {
      * Stops recording audio.
      */
     stop() {
-        const status = pvRecorder.read(this.handle);
+        const status = pvRecorder.stop(this.handle);
         if (status !== PvRecorderStatus.SUCCESS) {
-            throw PvRecorderStatusToException(status, "PvRecorder failed to start.");
+            throw PvRecorderStatusToException(status, "PvRecorder failed to stop.");
         }
     }
 
