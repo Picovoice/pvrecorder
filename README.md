@@ -22,7 +22,7 @@
 ## Compiling
 
 The variable `{OUTPUT_DIR}` will be used to select the directory to copy the shared object
-after a successful compilation. `{OUTPUT_DIR}` should be a directory **relative** to the root directory.
+after a successful compilation. `{OUTPUT_DIR}` should be a directory **relative** to the [lib](lib/) directory.
 
 Run the following commands to build and test (`{OUTPUT_DIR}` can be empty if you wish not to copy):
 

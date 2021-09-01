@@ -1,0 +1,20 @@
+{
+  "name": "@picovoice/pvrecorder-node",
+  "version": "1.0.0",
+  "description": "Audio recorder sdk for Nodejs.",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "node copy.js"
+  },
+  "keywords": [
+    "audio, audio recorder"
+  ],
+  "author": "Picovoice Inc.",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ncp": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}
