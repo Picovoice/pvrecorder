@@ -8,7 +8,7 @@ A cross platform audio recorder that captures single-channel audio at a sample r
 
 ## Compatibility
 
-- Windows (amd64)
+- Windows (x86_64)
 - macOS (x86_64)
 - Linux (x86_64)
 - Raspberry Pi:
@@ -34,7 +34,7 @@ const PvRecorder = require("@picovoice/pvrecorder-node");
 const devices = PvRecorder.getAudioDevices();
 ```
 
-To start recording initialize the instance and run start:
+To start recording initialize the instance and run `start`:
 
 ```javascript
 const recorder = new PvRecorder(/*sets to default device*/-1, /*frame length*/ 512);
@@ -65,7 +65,7 @@ recorder.release()
 
 ### Demo
 
-For more detailed information on how to use the pv_recorder Node.js sdk, please that a look at [demo/demo.js](demo/demo.js). 
+For more detailed information on how to use the pv_recorder Node.js sdk, see [demo/demo.js](demo/demo.js). 
 
 In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{RAW_OUTPUT_PATH}` as the path to save the raw audio data 
 
@@ -77,7 +77,7 @@ To show the available audio devices run:
 node demo/demo.js --show_audio_devices
 ```
 
-To run audio recorder run:
+To run the audio recorder:
 
 ```console
 node demo/demo.js --audio_device_index {AUDIO_DEVICE_INDEX} --raw_output_path {RAW_OUTPUT_PATH}

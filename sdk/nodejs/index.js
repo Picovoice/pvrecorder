@@ -20,7 +20,7 @@ const PvRecorderStatus = require("./pv_recorder_status_t");
 const PvRecorderStatusToException = require("./errors");
 
 /**
- * PvRecorder class to recorder audio.
+ * PvRecorder class to record audio.
  */
 class PvRecorder {
 
@@ -69,7 +69,7 @@ class PvRecorder {
      * @returns {Promise<Int16Array>} Pcm frames.
      */
     async read() {
-        let that = this;
+        const that = this;
         return new Promise(function (resolve, reject) {
             setTimeout(function () {
                 let pcm = new Int16Array(that.frameLength);

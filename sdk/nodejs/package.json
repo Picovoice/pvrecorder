@@ -9,7 +9,7 @@
   "keywords": [
     "audio, audio recorder"
   ],
-  "author": "Picovoice, Inc.",
+  "author": "Picovoice Inc.",
   "license": "Apache-2.0",
   "dependencies": {
     "ncp": "^2.0.0"
