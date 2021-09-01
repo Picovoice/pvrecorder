@@ -9,4 +9,4 @@
 # specific language governing permissions and limitations under the License.
 #
 
-from .pvrecorder import PVRecorder
+from .pvrecorder import PvRecorder

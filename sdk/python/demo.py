@@ -13,7 +13,7 @@
 import argparse
 import struct
 import wave
-from pvrecorder import PVRecorder
+from pvrecorder import PvRecorder
 
 
 def main():
@@ -38,14 +38,14 @@ def main():
     args = parser.parse_args()
 
     if args.show_audio_devices:
-        devices = PVRecorder.get_audio_devices()
+        devices = PvRecorder.get_audio_devices()
         for i in range(len(devices)):
             print(f"index: {i}, device name: {devices[i]}")
     else:
         device_index = args.audio_device_index
         output_path = args.output_path
 
-        recorder = PVRecorder(device_index=device_index, frame_length=512)
+        recorder = PvRecorder(device_index=device_index, frame_length=512)
         print(f"pvrecorder.py version: {recorder.version}")
 
         recorder.start()

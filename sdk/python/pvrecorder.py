@@ -17,14 +17,14 @@ from enum import Enum
 CALLBACK = CFUNCTYPE(None, POINTER(c_int16))
 
 
-class PVRecorder(object):
+class PvRecorder(object):
     """
-    A cross platform Python SDK for PV_Recorder to process audio recordings. It lists the available
+    A cross platform Python SDK for PvRecorder to process audio recordings. It lists the available
     input devices. Also given the audio device index and frame_length, processes the frame and runs
     a callback each time a frame_length is given.
     """
 
-    class PVRecorderStatuses(Enum):
+    class PvRecorderStatuses(Enum):
         SUCCESS = 0
         OUT_OF_MEMORY = 1
         INVALID_ARGUMENT = 2
@@ -36,17 +36,17 @@ class PVRecorder(object):
         RUNTIME_ERROR = 8
 
     _PVRECORDER_STATUS_TO_EXCEPTION = {
-        PVRecorderStatuses.OUT_OF_MEMORY: MemoryError,
-        PVRecorderStatuses.INVALID_ARGUMENT: ValueError,
-        PVRecorderStatuses.INVALID_STATE: ValueError,
-        PVRecorderStatuses.BACKEND_ERROR: SystemError,
-        PVRecorderStatuses.DEVICE_ALREADY_INITIALIZED: ValueError,
-        PVRecorderStatuses.DEVICE_NOT_INITIALIZED: ValueError,
-        PVRecorderStatuses.IO_ERROR: IOError,
-        PVRecorderStatuses.RUNTIME_ERROR: RuntimeError
+        PvRecorderStatuses.OUT_OF_MEMORY: MemoryError,
+        PvRecorderStatuses.INVALID_ARGUMENT: ValueError,
+        PvRecorderStatuses.INVALID_STATE: ValueError,
+        PvRecorderStatuses.BACKEND_ERROR: SystemError,
+        PvRecorderStatuses.DEVICE_ALREADY_INITIALIZED: ValueError,
+        PvRecorderStatuses.DEVICE_NOT_INITIALIZED: ValueError,
+        PvRecorderStatuses.IO_ERROR: IOError,
+        PvRecorderStatuses.RUNTIME_ERROR: RuntimeError
     }
 
-    class CPVRecorder(Structure):
+    class CPvRecorder(Structure):
         pass
 
     def __init__(self, device_index, frame_length, buffer_size_msec=1000, log_overflow=True):
@@ -55,7 +55,7 @@ class PVRecorder(object):
 
         :param device_index: The device index of the audio device to use. A (-1) will choose default audio device.
         :param frame_length: The length of the frame to receive at each read call.
-        :param buffer_size_msec: Time in milliseconds indication the total amount of time to store audio frames.
+        :param buffer_size_msec: Time in milliseconds indicating the total amount of time to store audio frames.
         :param log_overflow: Boolean variable to indicate to log overflow warnings. A log warning should indicate
         read is not being called fast enough from the callers point.
         """
@@ -66,38 +66,38 @@ class PVRecorder(object):
             c_int32,
             c_int32,
             c_bool,
-            POINTER(POINTER(self.CPVRecorder))
+            POINTER(POINTER(self.CPvRecorder))
         ]
-        init_func.restype = self.PVRecorderStatuses
+        init_func.restype = self.PvRecorderStatuses
 
-        self._handle = POINTER(self.CPVRecorder)()
+        self._handle = POINTER(self.CPvRecorder)()
         self._frame_length = frame_length
 
         status = init_func(device_index, frame_length, buffer_size_msec, log_overflow, byref(self._handle))
-        if status is not self.PVRecorderStatuses.SUCCESS:
+        if status is not self.PvRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to initialize pv_recorder.")
 
         self._delete_func = self._LIBRARY.pv_recorder_delete
-        self._delete_func.argtypes = [POINTER(self.CPVRecorder)]
+        self._delete_func.argtypes = [POINTER(self.CPvRecorder)]
         self._delete_func.restype = None
 
         self._start_func = self._LIBRARY.pv_recorder_start
-        self._start_func.argtypes = [POINTER(self.CPVRecorder)]
-        self._start_func.restype = self.PVRecorderStatuses
+        self._start_func.argtypes = [POINTER(self.CPvRecorder)]
+        self._start_func.restype = self.PvRecorderStatuses
 
         self._stop_func = self._LIBRARY.pv_recorder_stop
-        self._stop_func.argtypes = [POINTER(self.CPVRecorder)]
-        self._stop_func.restype = self.PVRecorderStatuses
+        self._stop_func.argtypes = [POINTER(self.CPvRecorder)]
+        self._stop_func.restype = self.PvRecorderStatuses
 
         self._read_func = self._LIBRARY.pv_recorder_read
-        self._read_func.argtypes = [POINTER(self.CPVRecorder), POINTER(c_int16)]
-        self._read_func.restype = self.PVRecorderStatuses
+        self._read_func.argtypes = [POINTER(self.CPvRecorder), POINTER(c_int16)]
+        self._read_func.restype = self.PvRecorderStatuses
 
         self._get_selected_device_func = self._LIBRARY.pv_recorder_get_selected_device
-        self._get_selected_device_func.argtypes = [POINTER(self.CPVRecorder)]
+        self._get_selected_device_func.argtypes = [POINTER(self.CPvRecorder)]
         self._get_selected_device_func.restype = c_char_p
 
-        self._version_func = PVRecorder._LIBRARY.pv_recorder_version
+        self._version_func = PvRecorder._LIBRARY.pv_recorder_version
         self._version_func.argtypes = None
         self._version_func.restype = c_char_p
 
@@ -110,14 +110,14 @@ class PVRecorder(object):
         """Starts recording audio."""
 
         status = self._start_func(self._handle)
-        if status is not self.PVRecorderStatuses.SUCCESS:
+        if status is not self.PvRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to start device.")
 
     def stop(self):
         """Stops recording audio."""
 
         status = self._stop_func(self._handle)
-        if status is not self.PVRecorderStatuses.SUCCESS:
+        if status is not self.PvRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to stop device.")
 
     def read(self):
@@ -125,7 +125,7 @@ class PVRecorder(object):
 
         pcm = (c_int16 * self._frame_length)()
         status = self._read_func(self._handle, pcm)
-        if status is not self.PVRecorderStatuses.SUCCESS:
+        if status is not self.PvRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to read from device.")
         return pcm[0:self._frame_length]
 
@@ -150,11 +150,11 @@ class PVRecorder(object):
         :return: A list of strings, indicating the names of audio devices.
         """
 
-        get_audio_devices_func = PVRecorder._LIBRARY.pv_recorder_get_audio_devices
+        get_audio_devices_func = PvRecorder._LIBRARY.pv_recorder_get_audio_devices
         get_audio_devices_func.argstype = [POINTER(c_int32), POINTER(POINTER(c_char_p))]
-        get_audio_devices_func.restype = PVRecorder.PVRecorderStatuses
+        get_audio_devices_func.restype = PvRecorder.PvRecorderStatuses
 
-        free_device_list_func = PVRecorder._LIBRARY.pv_recorder_free_device_list
+        free_device_list_func = PvRecorder._LIBRARY.pv_recorder_free_device_list
         free_device_list_func.argstype = [c_int32, POINTER(c_char_p)]
         free_device_list_func.restype = None
 
@@ -162,8 +162,8 @@ class PVRecorder(object):
         devices = POINTER(c_char_p)()
 
         status = get_audio_devices_func(byref(count), byref(devices))
-        if status is not PVRecorder.PVRecorderStatuses.SUCCESS:
-            raise PVRecorder._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to get device list")
+        if status is not PvRecorder.PvRecorderStatuses.SUCCESS:
+            raise PvRecorder._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to get device list")
 
         device_list = list()
         for i in range(count.value):
