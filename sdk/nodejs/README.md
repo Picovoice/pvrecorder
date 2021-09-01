@@ -20,7 +20,7 @@ A cross platform audio recorder that captures single-channel audio at a sample r
 ## Installation
 
 ```console
-yarn add pvrecorder
+yarn add @picovoice/pvrecorder-node
 ```
 
 ## Usage
