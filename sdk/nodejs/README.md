@@ -12,6 +12,7 @@ A cross platform audio recorder that captures single-channel audio at a sample r
 - macOS (x86_64)
 - Linux (x86_64)
 - Raspberry Pi:
+    - 2
     - 3 (32 and 64 bit)
     - 4 (32 and 64 bit)
 - NVIDIA Jetson Nano
@@ -36,9 +37,7 @@ const devices = PvRecorder.getAudioDevices();
 To start recording initialize the instance and run start:
 
 ```javascript
-const PvRecorder = require("@picovoice/pvrecorder-node");
-
-const recorder = new PvRecorder(/*sets to default*/-1, 512);
+const recorder = new PvRecorder(/*sets to default device*/-1, /*frame length*/ 512);
 recorder.start()
 ```
 
