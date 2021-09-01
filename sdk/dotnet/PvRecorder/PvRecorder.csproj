@@ -54,7 +54,7 @@
             <Link>lib\linux\x86_64\libpv_recorder.so</Link>
             <Visible>false</Visible>
         </Content>
-        <Content Include="..\..\..\lib\raspberry-pi\**\*" Exclude="..\..\..\lib\raspberry-pi\arm11\*;..\..\..\lib\raspberry-pi\cortex-a7\*">
+        <Content Include="..\..\..\lib\raspberry-pi\**\*" Exclude="..\..\..\lib\raspberry-pi\arm11\*;">
             <PackagePath>
                 build/netstandard2.0/lib/raspberry-pi;
                 build/netcoreapp3.1/lib/raspberry-pi
