@@ -73,7 +73,7 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Sound/Audio :: Speech"
+        "Topic :: Multimedia :: Sound/Audio :: Speech"
     ],
     python_requires='>=3',
     keywords="audio recorder",
