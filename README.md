@@ -54,5 +54,11 @@ the raw file, run:
 
 ## SDK
 
-coming soon.
+Checkout the available SDKs for pvrecorder:
+
+- [.NET](/sdk/dotnet)
+- [Go](/sdk/go)
+- [Node.js](/sdk/nodejs)
+- [Python](/sdk/python)
+- [Rust](/sdk/rust)
 
