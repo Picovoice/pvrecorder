@@ -96,7 +96,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pvrecorder"
+name = "pv_recorder"
 version = "1.0.0"
 dependencies = [
  "lazy_static",
@@ -111,7 +111,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "hound",
- "pvrecorder",
+ "pv_recorder",
 ]
 
 [[package]]

@@ -31,12 +31,6 @@ lazy_static! {
     };
 }
 
-#[cfg(target_family = "unix")]
-use libloading::os::unix::Symbol as RawSymbol;
-
-#[cfg(target_family = "windows")]
-use libloading::os::windows::Symbol as RawSymbol;
-
 use crate::util::*;
 
 #[repr(C)]
@@ -219,10 +213,10 @@ macro_rules! check_fn_call_status {
 }
 
 struct RecorderInnerVTable {
-    pv_recorder_delete: RawSymbol<PvRecorderDeleteFn>,
-    pv_recorder_start: RawSymbol<PvRecorderStartFn>,
-    pv_recorder_stop: RawSymbol<PvRecorderStopFn>,
-    pv_recorder_read: RawSymbol<PvRecorderReadFn>,
+    pv_recorder_delete: Symbol<'static, PvRecorderDeleteFn>,
+    pv_recorder_start: Symbol<'static, PvRecorderStartFn>,
+    pv_recorder_stop: Symbol<'static, PvRecorderStopFn>,
+    pv_recorder_read: Symbol<'static, PvRecorderReadFn>,
 }
 
 struct RecorderInner {
@@ -304,12 +298,11 @@ impl RecorderInner {
             let pv_recorder_stop: Symbol<PvRecorderStopFn> = load_library_fn(b"pv_recorder_stop")?;
             let pv_recorder_read: Symbol<PvRecorderReadFn> = load_library_fn(b"pv_recorder_read")?;
 
-            // Using the raw symbols means we have to ensure that "lib" outlives these refrences
             let vtable = RecorderInnerVTable {
-                pv_recorder_delete: pv_recorder_delete.into_raw(),
-                pv_recorder_start: pv_recorder_start.into_raw(),
-                pv_recorder_stop: pv_recorder_stop.into_raw(),
-                pv_recorder_read: pv_recorder_read.into_raw(),
+                pv_recorder_delete: pv_recorder_delete,
+                pv_recorder_start: pv_recorder_start,
+                pv_recorder_stop: pv_recorder_stop,
+                pv_recorder_read: pv_recorder_read,
             };
 
             return Ok(Self {
