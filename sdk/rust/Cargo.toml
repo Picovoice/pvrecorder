@@ -1,5 +1,5 @@
 [package]
-name = "pvrecorder"
+name = "pv_recorder"
 version = "1.0.0"
 edition = "2018"
 description = "Rust recorder library for Picovoice"
@@ -11,7 +11,7 @@ keywords = [
 publish = false
 
 [lib]
-name = "pvrecorder"
+name = "pv_recorder"
 path = "src/lib.rs"
 crate_type = ["lib"]
 
@@ -19,3 +19,4 @@ crate_type = ["lib"]
 libc = "0.2"
 libloading = "0.7"
 log = "0.4"
+lazy_static = "1.4.0"

@@ -9,14 +9,27 @@
     specific language governing permissions and limitations under the License.
 */
 
+use lazy_static::lazy_static;
 use libc::c_char;
 use libloading::{Library, Symbol};
 use std::cmp::PartialEq;
-use std::convert::AsRef;
 use std::ffi::CStr;
-use std::path::{Path, PathBuf};
 use std::ptr::addr_of_mut;
 use std::sync::Arc;
+
+lazy_static! {
+    static ref PV_RECORDER_LIB: Result<Library, RecorderError> = {
+        unsafe {
+            match Library::new(pv_library_path()) {
+                Ok(symbol) => Ok(symbol),
+                Err(err) => Err(RecorderError::new(
+                    RecorderErrorStatus::LibraryLoadError,
+                    &format!("Failed to load pvrecorder dynamic library: {}", err),
+                )),
+            }
+        }
+    };
+}
 
 #[cfg(target_family = "unix")]
 use libloading::os::unix::Symbol as RawSymbol;
@@ -61,7 +74,7 @@ type PvRecorderGetAudioDevicesFn =
     unsafe extern "C" fn(count: *mut i32, devices: *mut *mut *mut c_char) -> PvRecorderStatus;
 type PvRecorderFreeDeviceList = unsafe extern "C" fn(count: i32, devices: *mut *mut c_char);
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum RecorderErrorStatus {
     LibraryError(PvRecorderStatus),
     LibraryLoadError,
@@ -69,7 +82,7 @@ pub enum RecorderErrorStatus {
     OtherError,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct RecorderError {
     pub status: RecorderErrorStatus,
     pub message: Option<String>,
@@ -98,7 +111,6 @@ const DEFAULT_FRAME_LENGTH: i32 = 512;
 const DEFAULT_MILLISECONDS: i32 = 1000;
 
 pub struct RecorderBuilder {
-    library_path: PathBuf,
     device_index: i32,
     frame_length: i32,
     buffer_size_msec: i32,
@@ -108,17 +120,11 @@ pub struct RecorderBuilder {
 impl RecorderBuilder {
     pub fn new() -> Self {
         return Self {
-            library_path: pv_library_path(),
             device_index: DEFAULT_DEVICE_INDEX,
             frame_length: DEFAULT_FRAME_LENGTH,
             buffer_size_msec: DEFAULT_MILLISECONDS,
             log_overflow: false,
         };
-    }
-
-    pub fn library_path<'a, P: AsRef<Path>>(&'a mut self, library_path: P) -> &'a mut Self {
-        self.library_path = PathBuf::from(library_path.as_ref());
-        return self;
     }
 
     pub fn device_index<'a>(&'a mut self, device_index: i32) -> &'a mut Self {
@@ -141,13 +147,8 @@ impl RecorderBuilder {
         return self;
     }
 
-    pub fn get_audio_devices(&self) -> Result<Vec<String>, RecorderError> {
-        return RecorderInner::get_audio_devices(self.library_path.clone());
-    }
-
     pub fn init(&self) -> Result<Recorder, RecorderError> {
         let recorder_inner = RecorderInner::init(
-            self.library_path.clone(),
             self.device_index,
             self.frame_length,
             self.buffer_size_msec,
@@ -180,23 +181,27 @@ impl Recorder {
     pub fn frame_length(&self) -> usize {
         return self.inner.frame_length() as usize;
     }
+
+    pub fn get_audio_devices() -> Result<Vec<String>, RecorderError> {
+        return RecorderInner::get_audio_devices();
+    }
 }
 
-macro_rules! load_library_fn {
-    ($lib:ident, $function_name:literal) => {
-        match $lib.get($function_name) {
-            Ok(symbol) => symbol,
-            Err(err) => {
-                return Err(RecorderError::new(
+fn load_library_fn<T>(function_name: &[u8]) -> Result<Symbol<T>, RecorderError> {
+    match &*PV_RECORDER_LIB {
+        Ok(lib) => unsafe {
+            lib.get(function_name).map_err(|err| {
+                RecorderError::new(
                     RecorderErrorStatus::LibraryLoadError,
                     &format!(
                         "Failed to load function symbol from pvrecorder library: {}",
                         err
                     ),
-                ))
-            }
-        };
-    };
+                )
+            })
+        },
+        Err(err) => Err((*err).clone()),
+    }
 }
 
 macro_rules! check_fn_call_status {
@@ -222,14 +227,12 @@ struct RecorderInnerVTable {
 
 struct RecorderInner {
     cpvrecorder: *mut CPvRecorder,
-    _lib: Library,
     frame_length: i32,
     vtable: RecorderInnerVTable,
 }
 
 impl RecorderInner {
-    pub fn init<P: AsRef<Path>>(
-        library_path: P,
+    pub fn init(
         device_index: i32,
         frame_length: i32,
         buffer_size_msec: i32,
@@ -266,19 +269,18 @@ impl RecorderInner {
                 ));
             }
 
-            let lib = match Library::new(library_path.as_ref()) {
-                Ok(symbol) => symbol,
-                Err(err) => {
-                    return Err(RecorderError::new(
-                        RecorderErrorStatus::LibraryLoadError,
-                        &format!("Failed to load pvrecorder dynamic library: {}", err),
-                    ))
-                }
-            };
+            if buffer_size_msec < frame_length {
+                return Err(RecorderError::new(
+                    RecorderErrorStatus::ArgumentError,
+                    &format!(
+                        "buffer_size_msec value {} should be greater than the frame length {}",
+                        buffer_size_msec,
+                        frame_length
+                    ),
+                ));
+            }
 
-            let pv_recorder_init: Symbol<PvRecorderInitFn> =
-                load_library_fn!(lib, b"pv_recorder_init");
-
+            let pv_recorder_init: Symbol<PvRecorderInitFn> = load_library_fn(b"pv_recorder_init")?;
             let mut cpvrecorder = std::ptr::null_mut();
 
             let status = pv_recorder_init(
@@ -296,16 +298,11 @@ impl RecorderInner {
             }
 
             let pv_recorder_delete: Symbol<PvRecorderDeleteFn> =
-                load_library_fn!(lib, b"pv_recorder_delete");
-
+                load_library_fn(b"pv_recorder_delete")?;
             let pv_recorder_start: Symbol<PvRecorderStartFn> =
-                load_library_fn!(lib, b"pv_recorder_start");
-
-            let pv_recorder_stop: Symbol<PvRecorderStopFn> =
-                load_library_fn!(lib, b"pv_recorder_stop");
-
-            let pv_recorder_read: Symbol<PvRecorderReadFn> =
-                load_library_fn!(lib, b"pv_recorder_read");
+                load_library_fn(b"pv_recorder_start")?;
+            let pv_recorder_stop: Symbol<PvRecorderStopFn> = load_library_fn(b"pv_recorder_stop")?;
+            let pv_recorder_read: Symbol<PvRecorderReadFn> = load_library_fn(b"pv_recorder_read")?;
 
             // Using the raw symbols means we have to ensure that "lib" outlives these refrences
             let vtable = RecorderInnerVTable {
@@ -317,7 +314,6 @@ impl RecorderInner {
 
             return Ok(Self {
                 cpvrecorder,
-                _lib: lib,
                 frame_length,
                 vtable,
             });
@@ -356,28 +352,15 @@ impl RecorderInner {
         return Ok(());
     }
 
-    pub fn get_audio_devices<P: AsRef<Path>>(
-        library_path: P,
-    ) -> Result<Vec<String>, RecorderError> {
+    pub fn get_audio_devices() -> Result<Vec<String>, RecorderError> {
         let mut devices = Vec::new();
         let mut count = 0;
 
         unsafe {
-            let lib = match Library::new(library_path.as_ref()) {
-                Ok(symbol) => symbol,
-                Err(err) => {
-                    return Err(RecorderError::new(
-                        RecorderErrorStatus::LibraryLoadError,
-                        &format!("Failed to load pvrecorder dynamic library: {}", err),
-                    ))
-                }
-            };
-
             let pv_recorder_get_audio_devices: Symbol<PvRecorderGetAudioDevicesFn> =
-                load_library_fn!(lib, b"pv_recorder_get_audio_devices");
-
+                load_library_fn(b"pv_recorder_get_audio_devices")?;
             let pv_recorder_free_device_list: Symbol<PvRecorderFreeDeviceList> =
-                load_library_fn!(lib, b"pv_recorder_free_device_list");
+                load_library_fn(b"pv_recorder_free_device_list")?;
 
             let mut devices_ptr: *mut c_char = std::ptr::null_mut();
             let mut devices_ptr_ptr: *mut *mut c_char = addr_of_mut!(devices_ptr);

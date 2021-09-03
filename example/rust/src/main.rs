@@ -10,14 +10,14 @@
 */
 use clap::{App, Arg};
 use hound;
-use pvrecorder::RecorderBuilder;
+use pv_recorder::{Recorder, RecorderBuilder};
 
 const FRAME_LENGTH: usize = 512;
 const SAMPLE_RATE: usize = 16000;
 
 fn show_audio_devices() {
     println!("Printing audio devices...");
-    let audio_devices = RecorderBuilder::new().get_audio_devices();
+    let audio_devices = Recorder::get_audio_devices();
     match audio_devices {
         Ok(audio_devices) => {
             for (idx, device) in audio_devices.iter().enumerate() {
@@ -80,8 +80,9 @@ fn main() {
 
     println!("Initializing pvrecorder...");
     let recorder = RecorderBuilder::new()
-        .frame_length(FRAME_LENGTH as i32)
         .device_index(audio_device_index)
+        .frame_length(FRAME_LENGTH as i32)
+        .buffer_size_msec((recording_length * 1000) as i32)
         .init()
         .expect("Failed to initialize pvrecorder");
 
