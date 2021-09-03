@@ -63,7 +63,7 @@ recorder.stop()?;
 
 ### Demo
 
-For more detailed information on how to use the pv_recorder Rust sdk, see [example/rust](example/rust).
+For more detailed information on how to use the pv_recorder Rust sdk, see [examples/demo.rs](examples/demo.rs).
 
 In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{OUTPUT_PATH}` as the path to save the raw audio data
 
@@ -72,17 +72,17 @@ In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the i
 To show the available audio devices run:
 
 ```console
-cargo run --release -- --show_audio_devices
+cargo run --release --example demo -- --show_audio_devices
 ```
 
 To run the audio recorder:
 
 ```console
-cargo run --release -- --audio_device_index {AUDIO_DEVICE_INDEX} --output_path {OUTPUT_PATH}
+cargo run --release --example demo -- --audio_device_index {AUDIO_DEVICE_INDEX} --output_path {OUTPUT_PATH}
 ```
 
 See additional options by caalling `-h/--help`:
 
 ```console
-cargo run --release -- -h
+cargo run --release --example demo -- -h
 ```
