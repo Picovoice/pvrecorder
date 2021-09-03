@@ -1,4 +1,4 @@
-# PVRecorder Rust Binding
+# PvRecorder Rust Binding
 
 A cross platform audio recorder that captures single-channel audio at a sample rate of 16kHz.
 

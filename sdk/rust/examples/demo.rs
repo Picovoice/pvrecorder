@@ -9,11 +9,14 @@
     specific language governing permissions and limitations under the License.
 */
 use clap::{App, Arg};
+use ctrlc;
 use hound;
 use pv_recorder::{Recorder, RecorderBuilder};
+use std::sync::atomic::{AtomicBool, Ordering};
 
-const FRAME_LENGTH: usize = 512;
 const SAMPLE_RATE: usize = 16000;
+
+static LISTENING: AtomicBool = AtomicBool::new(false);
 
 fn show_audio_devices() {
     println!("Printing audio devices...");
@@ -40,14 +43,6 @@ fn main() {
                 .default_value("-1"),
         )
         .arg(
-            Arg::with_name("recording_length")
-                .long("recording_length")
-                .value_name("SECONDS")
-                .help("Length of test audio recording in seconds.")
-                .takes_value(true)
-                .default_value("5"),
-        )
-        .arg(
             Arg::with_name("output_path")
                 .long("output_path")
                 .value_name("PATH")
@@ -68,29 +63,26 @@ fn main() {
         .parse()
         .unwrap();
 
-    let recording_length: usize = matches
-        .value_of("recording_length")
-        .unwrap()
-        .parse()
-        .unwrap();
-
     let output_path = matches.value_of("output_path").unwrap();
-
-    let frames_to_rec: usize = recording_length * (SAMPLE_RATE / FRAME_LENGTH);
 
     println!("Initializing pvrecorder...");
     let recorder = RecorderBuilder::new()
         .device_index(audio_device_index)
-        .frame_length(FRAME_LENGTH as i32)
-        .buffer_size_msec((recording_length * 1000) as i32)
         .init()
         .expect("Failed to initialize pvrecorder");
 
+    ctrlc::set_handler(|| {
+        LISTENING.store(false, Ordering::SeqCst);
+    })
+    .expect("Unable to setup signal handler");
+
     println!("Start recording...");
     recorder.start().expect("Failed to start audio recording");
+    LISTENING.store(true, Ordering::SeqCst);
+
     let mut audio_data = Vec::new();
-    for _ in 0..frames_to_rec {
-        let mut frame_buffer: [i16; FRAME_LENGTH] = [0; FRAME_LENGTH];
+    while LISTENING.load(Ordering::SeqCst) {
+        let mut frame_buffer = vec![0; recorder.frame_length()];
         recorder
             .read(&mut frame_buffer)
             .expect("Failed to read audio frame");

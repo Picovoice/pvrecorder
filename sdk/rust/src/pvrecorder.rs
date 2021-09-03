@@ -268,8 +268,7 @@ impl RecorderInner {
                     RecorderErrorStatus::ArgumentError,
                     &format!(
                         "buffer_size_msec value {} should be greater than the frame length {}",
-                        buffer_size_msec,
-                        frame_length
+                        buffer_size_msec, frame_length
                     ),
                 ));
             }
