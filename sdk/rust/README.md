@@ -81,7 +81,7 @@ To run the audio recorder:
 cargo run --release --example demo -- --audio_device_index {AUDIO_DEVICE_INDEX} --output_path {OUTPUT_PATH}
 ```
 
-See additional options by caalling `-h/--help`:
+See additional options by calling `-h/--help`:
 
 ```console
 cargo run --release --example demo -- -h
