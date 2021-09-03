@@ -231,7 +231,13 @@ func extractLib() string {
         log.Fatalf("OS: %s is not supported.", runtime.GOOS)
     }
 
-    srcPath := fmt.Sprintf("embedded/lib/%s/%s/%s", osName, cpu, libFile)
+	var srcPath string;
+	if cpu == "" {
+		srcPath = fmt.Sprintf("embedded/lib/%s/%s", osName, libFile)
+	} else {
+		srcPath = fmt.Sprintf("embedded/lib/%s/%s/%s", osName, cpu, libFile)
+	}
+    
 
     return extractFile(srcPath, extractionDir)
 }
