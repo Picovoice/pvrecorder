@@ -8,7 +8,15 @@ keywords = [
     "audio",
     "recorder",
 ]
-publish = false
+publish = true
+include = [
+	".gitignore",
+	"build.rs",
+	"Cargo.toml",
+	"data/",
+	"README.md",
+	"src/",
+]
 
 [lib]
 name = "pv_recorder"
