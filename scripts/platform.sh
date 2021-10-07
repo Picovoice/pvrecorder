@@ -10,6 +10,7 @@ case $kernel in
     kernel="mac"
     case $arch in
       "x86_64") ;;
+      "arm64") ;;
       *) exit 1;;
     esac;;
   "Linux")

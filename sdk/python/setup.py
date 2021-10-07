@@ -44,6 +44,7 @@ include pvrecorder/lib/beaglebone/libpv_recorder.so
 recursive-include pvrecorder/lib/jetson *
 include pvrecorder/lib/linux/x86_64/libpv_recorder.so
 include pvrecorder/lib/mac/x86_64/libpv_recorder.dylib
+include pvrecorder/lib/mac/arm64/libpv_recorder.dylib
 recursive-include pvrecorder/lib/raspberry-pi *
 include pvrecorder/lib/windows/amd64/libpv_recorder.dll
 recursive-include pvrecorder/scripts *
@@ -57,7 +58,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md'), 'r') as f:
 
 setuptools.setup(
     name="pvrecorder",
-    version="1.0.0",
+    version="1.0.1",
     author="Picovoice",
     author_email="hello@picovoice.ai",
     description="Recorder library for Picovoice.",

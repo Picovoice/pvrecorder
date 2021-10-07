@@ -9,7 +9,9 @@ A cross platform audio recorder to read one channel and 16kHz samples.
 ## Compatibility
 
 - Windows (amd64)
-- macOS (x86_64)
+- macOS 
+    - x86_64
+    - arm64
 - Linux (x86_64)
 - Raspberry Pi:
     - Zero
