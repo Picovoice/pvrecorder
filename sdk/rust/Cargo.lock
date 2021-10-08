@@ -141,7 +141,7 @@ dependencies = [
 
 [[package]]
 name = "pv_recorder"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "clap",
  "ctrlc",
