@@ -11,6 +11,7 @@ cp ../../lib/windows/amd64/libpv_recorder.dll ./embedded/lib/windows/amd64/libpv
 
 echo "Copying macOS lib..."
 cp ../../lib/mac/x86_64/libpv_recorder.dylib ./embedded/lib/mac/x86_64/libpv_recorder.dylib
+cp ../../lib/mac/arm64/libpv_recorder.dylib ./embedded/lib/mac/arm64/libpv_recorder.dylib
 
 echo "Copying RPi lib..."
 cp -r ../../lib/raspberry-pi/* ./embedded/lib/raspberry-pi/
