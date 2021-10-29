@@ -9,7 +9,9 @@ A cross platform audio recorder that captures single-channel audio at a sample r
 ## Compatibility
 
 - Windows (x86_64)
-- macOS (x86_64)
+- macOS
+    - x86_64
+    - arm64
 - Linux (x86_64)
 - Raspberry Pi:
     - 2
