@@ -24,7 +24,7 @@ lazy_static! {
                 Ok(symbol) => Ok(symbol),
                 Err(err) => Err(RecorderError::new(
                     RecorderErrorStatus::LibraryLoadError,
-                    &format!("Failed to load pvrecorder dynamic library: {}", err),
+                    format!("Failed to load pvrecorder dynamic library: {}", err),
                 )),
             }
         }
@@ -78,25 +78,22 @@ pub enum RecorderErrorStatus {
 
 #[derive(Clone, Debug)]
 pub struct RecorderError {
-    pub status: RecorderErrorStatus,
-    pub message: Option<String>,
+    status: RecorderErrorStatus,
+    message: String,
 }
 
 impl RecorderError {
-    pub fn new(status: RecorderErrorStatus, message: &str) -> Self {
+    pub fn new(status: RecorderErrorStatus, message: impl Into<String>) -> Self {
         Self {
             status,
-            message: Some(message.to_string()),
+            message: message.into(),
         }
     }
 }
 
 impl std::fmt::Display for RecorderError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match &self.message {
-            Some(message) => write!(f, "{}: {:?}", message, self.status),
-            None => write!(f, "Recorder error: {:?}", self.status),
-        }
+        write!(f, "{}: {:?}", self.message, self.status)
     }
 }
 
@@ -193,7 +190,7 @@ fn load_library_fn<T>(function_name: &[u8]) -> Result<Symbol<T>, RecorderError> 
             lib.get(function_name).map_err(|err| {
                 RecorderError::new(
                     RecorderErrorStatus::LibraryLoadError,
-                    &format!(
+                    format!(
                         "Failed to load function symbol from pvrecorder library: {}",
                         err
                     ),
@@ -209,7 +206,7 @@ macro_rules! check_fn_call_status {
         if $status != PvRecorderStatus::SUCCESS {
             return Err(RecorderError::new(
                 RecorderErrorStatus::LibraryError($status),
-                &format!(
+                format!(
                     "Function '{}' in the pvrecorder library failed",
                     $function_name
                 ),
@@ -242,7 +239,7 @@ impl RecorderInner {
             if device_index < -1 {
                 return Err(RecorderError::new(
                     RecorderErrorStatus::ArgumentError,
-                    &format!(
+                    format!(
                         "device_index value {} should be greater than zero",
                         device_index
                     ),
@@ -252,7 +249,7 @@ impl RecorderInner {
             if frame_length < 0 {
                 return Err(RecorderError::new(
                     RecorderErrorStatus::ArgumentError,
-                    &format!(
+                    format!(
                         "frame_length value {} should be greater than zero",
                         frame_length
                     ),
@@ -262,7 +259,7 @@ impl RecorderInner {
             if buffer_size_msec < 0 {
                 return Err(RecorderError::new(
                     RecorderErrorStatus::ArgumentError,
-                    &format!(
+                    format!(
                         "buffer_size_msec value {} should be greater than zero",
                         buffer_size_msec
                     ),
@@ -272,7 +269,7 @@ impl RecorderInner {
             if buffer_size_msec < frame_length {
                 return Err(RecorderError::new(
                     RecorderErrorStatus::ArgumentError,
-                    &format!(
+                    format!(
                         "buffer_size_msec value {} should be greater than the frame length {}",
                         buffer_size_msec, frame_length
                     ),
@@ -292,7 +289,7 @@ impl RecorderInner {
             if status != PvRecorderStatus::SUCCESS {
                 return Err(RecorderError::new(
                     RecorderErrorStatus::LibraryLoadError,
-                    &format!("Failed to initialize the pvrecorder library ({:?})", status),
+                    format!("Failed to initialize the pvrecorder library ({:?})", status),
                 ));
             }
 
@@ -336,7 +333,7 @@ impl RecorderInner {
         if pcm.len() < self.frame_length as usize {
             return Err(RecorderError::new(
                 RecorderErrorStatus::ArgumentError,
-                &format!(
+                format!(
                     "PCM buffer needs to be at least the frame_size {}, currently {}",
                     self.frame_length,
                     pcm.len()
