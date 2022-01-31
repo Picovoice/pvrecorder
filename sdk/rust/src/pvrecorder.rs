@@ -202,18 +202,20 @@ unsafe fn load_library_fn<T>(
         })
 }
 
-macro_rules! check_fn_call_status {
-    ($status:ident, $function_name:literal) => {
-        if $status != PvRecorderStatus::SUCCESS {
-            return Err(RecorderError::new(
-                RecorderErrorStatus::LibraryError($status),
-                format!(
-                    "Function '{}' in the pvrecorder library failed",
-                    $function_name
-                ),
-            ));
-        }
-    };
+fn check_fn_call_status(
+    status: PvRecorderStatus,
+    function_name: &str,
+) -> Result<(), RecorderError> {
+    match status {
+        PvRecorderStatus::SUCCESS => Ok(()),
+        _ => Err(RecorderError::new(
+            RecorderErrorStatus::LibraryError(status),
+            format!(
+                "Function '{}' in the pvrecorder library failed",
+                function_name
+            ),
+        )),
+    }
 }
 
 struct RecorderInnerVTable {
@@ -342,16 +344,12 @@ impl RecorderInner {
 
     fn start(&self) -> Result<(), RecorderError> {
         let status = unsafe { (self.vtable.pv_recorder_start)(self.cpvrecorder) };
-        check_fn_call_status!(status, "pv_recorder_start");
-
-        Ok(())
+        check_fn_call_status(status, "pv_recorder_start")
     }
 
     fn stop(&self) -> Result<(), RecorderError> {
         let status = unsafe { (self.vtable.pv_recorder_stop)(self.cpvrecorder) };
-        check_fn_call_status!(status, "pv_recorder_stop");
-
-        Ok(())
+        check_fn_call_status(status, "pv_recorder_stop")
     }
 
     pub fn read(&self, pcm: &mut [i16]) -> Result<(), RecorderError> {
@@ -367,9 +365,7 @@ impl RecorderInner {
         }
 
         let status = unsafe { (self.vtable.pv_recorder_read)(self.cpvrecorder, pcm.as_mut_ptr()) };
-        check_fn_call_status!(status, "pv_recorder_read");
-
-        Ok(())
+        check_fn_call_status(status, "pv_recorder_read")
     }
 
     pub fn get_audio_devices(&self) -> Result<Vec<String>, RecorderError> {
@@ -384,7 +380,7 @@ impl RecorderInner {
                 addr_of_mut!(count),
                 addr_of_mut!(devices_ptr_ptr),
             );
-            check_fn_call_status!(status, "pv_recorder_get_audio_devices");
+            check_fn_call_status(status, "pv_recorder_get_audio_devices")?;
 
             for i in 0..count as usize {
                 let device = CStr::from_ptr(*devices_ptr_ptr.add(i));
