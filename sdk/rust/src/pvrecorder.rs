@@ -327,12 +327,7 @@ impl RecorderInner {
                 log_overflow,
                 addr_of_mut!(cpvrecorder),
             );
-            if status != PvRecorderStatus::SUCCESS {
-                return Err(RecorderError::new(
-                    RecorderErrorStatus::LibraryLoadError,
-                    format!("Failed to initialize the pvrecorder library ({:?})", status),
-                ));
-            }
+            check_fn_call_status(status, "pv_recorder_init")?;
         }
 
         Ok(Self {
