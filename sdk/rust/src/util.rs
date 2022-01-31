@@ -48,27 +48,27 @@ fn find_machine_type() -> String {
         _ => "unsupported",
     };
 
-    return String::from(machine);
+    String::from(machine)
 }
 
 #[cfg(all(target_os = "macos", target_arch = "x86_64"))]
 fn base_library_path() -> PathBuf {
-    return PathBuf::from("mac/x86_64/libpv_recorder.dylib");
+    PathBuf::from("mac/x86_64/libpv_recorder.dylib")
 }
 
 #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
 fn base_library_path() -> PathBuf {
-    return PathBuf::from("mac/arm64/libpv_recorder.dylib");
+    PathBuf::from("mac/arm64/libpv_recorder.dylib")
 }
 
 #[cfg(target_os = "windows")]
 fn base_library_path() -> PathBuf {
-    return PathBuf::from("windows/amd64/libpv_recorder.dll");
+    PathBuf::from("windows/amd64/libpv_recorder.dll")
 }
 
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 fn base_library_path() -> PathBuf {
-    return PathBuf::from("linux/x86_64/libpv_recorder.so");
+    PathBuf::from("linux/x86_64/libpv_recorder.so")
 }
 
 #[cfg(all(target_os = "linux", any(target_arch = "arm", target_arch = "aarch64")))]
@@ -77,7 +77,7 @@ fn base_library_path() -> PathBuf {
     const JETSON_MACHINES: [&str; 1] = ["cortex-a57"];
 
     let machine = find_machine_type();
-    return match machine.as_str() {
+    match machine.as_str() {
         machine if RPI_MACHINES.contains(&machine) => {
             if cfg!(target_arch = "aarch64") {
                 PathBuf::from(format!(
@@ -96,11 +96,11 @@ fn base_library_path() -> PathBuf {
             eprintln!("WARNING: Please be advised that this device is not officially supported by Picovoice.\nFalling back to the armv6-based (Raspberry Pi Zero) library. This is not tested nor optimal.\nFor the model, use Raspberry Pi's models");
             PathBuf::from("raspberry-pi/arm11/libpv_recorder.so")
         }
-    };
+    }
 }
 
 pub fn pv_library_path() -> PathBuf {
-    return PathBuf::from(env!("OUT_DIR"))
+    PathBuf::from(env!("OUT_DIR"))
         .join(DEFAULT_RELATIVE_LIBRARY_DIR)
-        .join(base_library_path());
+        .join(base_library_path())
 }

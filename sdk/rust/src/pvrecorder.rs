@@ -31,7 +31,7 @@ lazy_static! {
     };
 }
 
-use crate::util::*;
+use crate::util::pv_library_path;
 
 #[repr(C)]
 struct CPvRecorder {}
@@ -84,7 +84,7 @@ pub struct RecorderError {
 
 impl RecorderError {
     pub fn new(status: RecorderErrorStatus, message: &str) -> Self {
-        RecorderError {
+        Self {
             status,
             message: Some(message.to_string()),
         }
@@ -111,34 +111,40 @@ pub struct RecorderBuilder {
     log_overflow: bool,
 }
 
+impl Default for RecorderBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RecorderBuilder {
     pub fn new() -> Self {
-        return Self {
+        Self {
             device_index: DEFAULT_DEVICE_INDEX,
             frame_length: DEFAULT_FRAME_LENGTH,
             buffer_size_msec: DEFAULT_MILLISECONDS,
             log_overflow: false,
-        };
+        }
     }
 
-    pub fn device_index<'a>(&'a mut self, device_index: i32) -> &'a mut Self {
+    pub fn device_index(&mut self, device_index: i32) -> &mut Self {
         self.device_index = device_index;
-        return self;
+        self
     }
 
-    pub fn frame_length<'a>(&'a mut self, frame_length: i32) -> &'a mut Self {
+    pub fn frame_length(&mut self, frame_length: i32) -> &mut Self {
         self.frame_length = frame_length;
-        return self;
+        self
     }
 
-    pub fn buffer_size_msec<'a>(&'a mut self, buffer_size_msec: i32) -> &'a mut Self {
+    pub fn buffer_size_msec(&mut self, buffer_size_msec: i32) -> &mut Self {
         self.buffer_size_msec = buffer_size_msec;
-        return self;
+        self
     }
 
-    pub fn log_overflow<'a>(&'a mut self, log_overflow: bool) -> &'a mut Self {
+    pub fn log_overflow(&mut self, log_overflow: bool) -> &mut Self {
         self.log_overflow = log_overflow;
-        return self;
+        self
     }
 
     pub fn init(&self) -> Result<Recorder, RecorderError> {
@@ -148,9 +154,9 @@ impl RecorderBuilder {
             self.buffer_size_msec,
             self.log_overflow,
         );
-        return recorder_inner.map(|inner| Recorder {
+        recorder_inner.map(|inner| Recorder {
             inner: Arc::new(inner),
-        });
+        })
     }
 }
 
@@ -161,23 +167,23 @@ pub struct Recorder {
 
 impl Recorder {
     pub fn start(&self) -> Result<(), RecorderError> {
-        return self.inner.start();
+        self.inner.start()
     }
 
     pub fn stop(&self) -> Result<(), RecorderError> {
-        return self.inner.stop();
+        self.inner.stop()
     }
 
     pub fn read(&self, buffer: &mut [i16]) -> Result<(), RecorderError> {
-        return self.inner.read(buffer);
+        self.inner.read(buffer)
     }
 
     pub fn frame_length(&self) -> usize {
-        return self.inner.frame_length() as usize;
+        self.inner.frame_length() as usize
     }
 
     pub fn get_audio_devices() -> Result<Vec<String>, RecorderError> {
-        return RecorderInner::get_audio_devices();
+        RecorderInner::get_audio_devices()
     }
 }
 
@@ -298,17 +304,17 @@ impl RecorderInner {
             let pv_recorder_read: Symbol<PvRecorderReadFn> = load_library_fn(b"pv_recorder_read")?;
 
             let vtable = RecorderInnerVTable {
-                pv_recorder_delete: pv_recorder_delete,
-                pv_recorder_start: pv_recorder_start,
-                pv_recorder_stop: pv_recorder_stop,
-                pv_recorder_read: pv_recorder_read,
+                pv_recorder_delete,
+                pv_recorder_start,
+                pv_recorder_stop,
+                pv_recorder_read,
             };
 
-            return Ok(Self {
+            Ok(Self {
                 cpvrecorder,
                 frame_length,
                 vtable,
-            });
+            })
         }
     }
 
@@ -316,14 +322,14 @@ impl RecorderInner {
         let status = unsafe { (self.vtable.pv_recorder_start)(self.cpvrecorder) };
         check_fn_call_status!(status, "pv_recorder_start");
 
-        return Ok(());
+        Ok(())
     }
 
     fn stop(&self) -> Result<(), RecorderError> {
         let status = unsafe { (self.vtable.pv_recorder_stop)(self.cpvrecorder) };
         check_fn_call_status!(status, "pv_recorder_stop");
 
-        return Ok(());
+        Ok(())
     }
 
     pub fn read(&self, pcm: &mut [i16]) -> Result<(), RecorderError> {
@@ -341,7 +347,7 @@ impl RecorderInner {
         let status = unsafe { (self.vtable.pv_recorder_read)(self.cpvrecorder, pcm.as_mut_ptr()) };
         check_fn_call_status!(status, "pv_recorder_read");
 
-        return Ok(());
+        Ok(())
     }
 
     pub fn get_audio_devices() -> Result<Vec<String>, RecorderError> {
@@ -368,16 +374,16 @@ impl RecorderInner {
                         RecorderErrorStatus::OtherError,
                         "Failed to convert device strings",
                     )
-                })?))
+                })?));
             }
 
             pv_recorder_free_device_list(count, devices_ptr_ptr);
         }
-        return Ok(devices);
+        Ok(devices)
     }
 
     pub fn frame_length(&self) -> i32 {
-        return self.frame_length;
+        self.frame_length
     }
 }
 
