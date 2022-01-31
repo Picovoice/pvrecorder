@@ -4,6 +4,7 @@ version = "1.0.1"
 edition = "2018"
 description = "Rust recorder library for Picovoice"
 license = "Apache-2.0"
+repository = "https://github.com/Picovoice/pvrecorder"
 keywords = [
     "audio",
     "recorder",
