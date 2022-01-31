@@ -27,7 +27,6 @@ crate_type = ["lib"]
 [dependencies]
 libc = "0.2"
 libloading = "0.7"
-lazy_static = "1.4.0"
 
 [dev-dependencies]
 hound = "3.4.0"

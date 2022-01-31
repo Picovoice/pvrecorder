@@ -11,7 +11,7 @@
 use clap::{App, Arg};
 use ctrlc;
 use hound;
-use pv_recorder::{Recorder, RecorderBuilder};
+use pv_recorder::RecorderBuilder;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 const SAMPLE_RATE: usize = 16000;
@@ -20,7 +20,11 @@ static LISTENING: AtomicBool = AtomicBool::new(false);
 
 fn show_audio_devices() {
     println!("Printing audio devices...");
-    let audio_devices = Recorder::get_audio_devices();
+
+    let recorder = RecorderBuilder::default()
+        .init()
+        .expect("Can't create recorder");
+    let audio_devices = recorder.get_audio_devices();
     match audio_devices {
         Ok(audio_devices) => {
             for (idx, device) in audio_devices.iter().enumerate() {
