@@ -89,6 +89,8 @@ impl std::fmt::Display for RecorderError {
     }
 }
 
+impl std::error::Error for RecorderError {}
+
 const DEFAULT_DEVICE_INDEX: i32 = -1;
 const DEFAULT_FRAME_LENGTH: i32 = 512;
 const DEFAULT_MILLISECONDS: i32 = 1000;
