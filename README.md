@@ -29,6 +29,7 @@ after a successful compilation. `{OUTPUT_DIR}` should be a directory **relative*
 Run the following commands to build and test (`{OUTPUT_DIR}` can be empty if you wish not to copy):
 
 ```console
+git submodule update --init --recursive
 mkdir build && cd build
 cmake .. -DOUTPUT_DIR={OUTPUT_DIR}
 cmake --build .
