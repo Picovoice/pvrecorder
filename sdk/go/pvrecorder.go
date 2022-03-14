@@ -1,4 +1,4 @@
-// Copyright 2021 Picovoice Inc.
+// Copyright 2021-2022 Picovoice Inc.
 //
 // You may not use this file except in compliance with the license. A copy of the license is
 // located in the "LICENSE" file accompanying this source.
@@ -114,7 +114,6 @@ type nativePvRecorderType struct {}
 
 // private vars
 var (
-    extractionDir = filepath.Join(os.TempDir(), "pvrecorder")
     libName = extractLib()
     nativePvRecorder = nativePvRecorderType{}
 )
@@ -204,6 +203,8 @@ func Version() string {
 }
 
 func extractLib() string {
+    extractionDir := filepath.Join(os.TempDir(), "pvrecorder")
+
     var scriptPath string
     if runtime.GOOS == "windows" {
         scriptPath = "embedded/scripts/platform.bat"
