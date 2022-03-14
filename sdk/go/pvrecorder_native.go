@@ -1,4 +1,4 @@
-// Copyright 2021 Picovoice Inc.
+// Copyright 2021-2022 Picovoice Inc.
 //
 // You may not use this file except in compliance with the license. A copy of the license is
 // located in the "LICENSE" file accompanying this source.
@@ -14,10 +14,48 @@
 package pvrecorder
 
 /*
-#cgo LDFLAGS: -lpthread -ldl -lm
-#include <dlfcn.h>
+#cgo linux LDFLAGS: -lpthread -ldl -lm
+#cgo darwin LDFLAGS: -lpthread -ldl -lm
 #include <stdlib.h>
 #include <stdint.h>
+
+#if defined(_WIN32) || defined(_WIN64)
+
+    #include <windows.h>
+
+#else
+
+    #include <dlfcn.h>
+
+#endif
+
+static void *open_dl(const char *dl_path) {
+
+#if defined(_WIN32) || defined(_WIN64)
+
+    return LoadLibrary((LPCSTR) dl_path);
+
+#else
+
+    return dlopen(dl_path, RTLD_NOW);
+
+#endif
+
+}
+
+static void *load_symbol(void *handle, const char *symbol) {
+
+#if defined(_WIN32) || defined(_WIN64)
+
+    return GetProcAddress((HMODULE) handle, symbol);
+
+#else
+
+    return dlsym(handle, symbol);
+
+#endif
+
+}
 
 typedef int32_t (*pv_recorder_init_func)(int32_t, int32_t, int32_t, int32_t, void **);
 
@@ -82,17 +120,17 @@ import (
 
 // private vars
 var (
-    lib = C.dlopen(C.CString(libName), C.RTLD_NOW)
+    lib = C.open_dl(C.CString(libName))
 
-    pv_recorder_init_ptr                = C.dlsym(lib, C.CString("pv_recorder_init"))
-    pv_recorder_delete_ptr              = C.dlsym(lib, C.CString("pv_recorder_delete"))
-    pv_recorder_start_ptr               = C.dlsym(lib, C.CString("pv_recorder_start"))
-    pv_recorder_stop_ptr                = C.dlsym(lib, C.CString("pv_recorder_stop"))
-    pv_recorder_read_ptr                = C.dlsym(lib, C.CString("pv_recorder_read"))
-    pv_recorder_get_selected_device_ptr = C.dlsym(lib, C.CString("pv_recorder_get_selected_device"))
-    pv_recorder_get_audio_devices_ptr   = C.dlsym(lib, C.CString("pv_recorder_get_audio_devices"))
-    pv_recorder_free_device_list_ptr    = C.dlsym(lib, C.CString("pv_recorder_free_device_list"))
-    pv_recorder_version_ptr             = C.dlsym(lib, C.CString("pv_recorder_version"))
+    pv_recorder_init_ptr                = C.load_symbol(lib, C.CString("pv_recorder_init"))
+    pv_recorder_delete_ptr              = C.load_symbol(lib, C.CString("pv_recorder_delete"))
+    pv_recorder_start_ptr               = C.load_symbol(lib, C.CString("pv_recorder_start"))
+    pv_recorder_stop_ptr                = C.load_symbol(lib, C.CString("pv_recorder_stop"))
+    pv_recorder_read_ptr                = C.load_symbol(lib, C.CString("pv_recorder_read"))
+    pv_recorder_get_selected_device_ptr = C.load_symbol(lib, C.CString("pv_recorder_get_selected_device"))
+    pv_recorder_get_audio_devices_ptr   = C.load_symbol(lib, C.CString("pv_recorder_get_audio_devices"))
+    pv_recorder_free_device_list_ptr    = C.load_symbol(lib, C.CString("pv_recorder_free_device_list"))
+    pv_recorder_version_ptr             = C.load_symbol(lib, C.CString("pv_recorder_version"))
 )
 
 func (np nativePvRecorderType) nativeInit(pvrecorder *PvRecorder) PvRecorderStatus {

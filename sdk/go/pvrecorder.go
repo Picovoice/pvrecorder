@@ -1,4 +1,4 @@
-// Copyright 2021 Picovoice Inc.
+// Copyright 2021-2022 Picovoice Inc.
 //
 // You may not use this file except in compliance with the license. A copy of the license is
 // located in the "LICENSE" file accompanying this source.
@@ -22,7 +22,10 @@ int16_t *malloc_cgo(int32_t length) {
 */
 import "C"
 import (
+    "crypto/sha256"
     "embed"
+    "encoding/hex"
+    "errors"
     "fmt"
     "io/ioutil"
     "log"
@@ -111,7 +114,6 @@ type nativePvRecorderType struct {}
 
 // private vars
 var (
-    extractionDir = filepath.Join(os.TempDir(), "pvrecorder")
     libName = extractLib()
     nativePvRecorder = nativePvRecorderType{}
 )
@@ -201,6 +203,8 @@ func Version() string {
 }
 
 func extractLib() string {
+    extractionDir := filepath.Join(os.TempDir(), "pvrecorder")
+
     var scriptPath string
     if runtime.GOOS == "windows" {
         scriptPath = "embedded/scripts/platform.bat"
@@ -238,8 +242,14 @@ func extractLib() string {
 		srcPath = fmt.Sprintf("embedded/lib/%s/%s/%s", osName, cpu, libFile)
 	}
     
-
-    return extractFile(srcPath, extractionDir)
+    srcHash := sha256sum(srcPath)
+    hashedExtractionDir := filepath.Join(extractionDir, srcHash)
+    destPath := filepath.Join(hashedExtractionDir, srcPath)
+    if _, err := os.Stat(destPath); errors.Is(err, os.ErrNotExist) {
+        return extractFile(srcPath, hashedExtractionDir)
+    } else {
+        return destPath
+    }
 }
 
 func extractFile(srcFile string, dstDir string) string {
@@ -255,4 +265,14 @@ func extractFile(srcFile string, dstDir string) string {
         log.Fatalf("%v", writeErr)
     }
     return extractedFilepath
+}
+
+func sha256sum(filePath string) string {
+    bytes, readErr := embeddedFS.ReadFile(filePath)
+    if readErr != nil {
+        log.Fatalf("%v", readErr)
+    }
+
+    sum := sha256.Sum256(bytes)
+    return hex.EncodeToString(sum[:])
 }
