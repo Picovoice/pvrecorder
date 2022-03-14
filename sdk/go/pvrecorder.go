@@ -22,7 +22,10 @@ int16_t *malloc_cgo(int32_t length) {
 */
 import "C"
 import (
+    "crypto/sha256"
     "embed"
+    "encoding/hex"
+    "errors"
     "fmt"
     "io/ioutil"
     "log"
@@ -238,8 +241,14 @@ func extractLib() string {
 		srcPath = fmt.Sprintf("embedded/lib/%s/%s/%s", osName, cpu, libFile)
 	}
     
-
-    return extractFile(srcPath, extractionDir)
+    srcHash := sha256sum(srcPath)
+    hashedExtractionDir := filepath.Join(extractionDir, srcHash)
+    destPath := filepath.Join(hashedExtractionDir, srcPath)
+    if _, err := os.Stat(destPath); errors.Is(err, os.ErrNotExist) {
+        return extractFile(srcPath, hashedExtractionDir)
+    } else {
+        return destPath
+    }
 }
 
 func extractFile(srcFile string, dstDir string) string {
@@ -255,4 +264,14 @@ func extractFile(srcFile string, dstDir string) string {
         log.Fatalf("%v", writeErr)
     }
     return extractedFilepath
+}
+
+func sha256sum(filePath string) string {
+    bytes, readErr := embeddedFS.ReadFile(filePath)
+    if readErr != nil {
+        log.Fatalf("%v", readErr)
+    }
+
+    sum := sha256.Sum256(bytes)
+    return hex.EncodeToString(sum[:])
 }
