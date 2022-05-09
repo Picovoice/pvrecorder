@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Picovoice Inc.
+    Copyright 2021-2022 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -24,6 +24,18 @@
 
 static const int32_t READ_RETRY_COUNT = 500;
 static const int32_t READ_SLEEP_MILLI_SECONDS = 2;
+
+#ifdef __linux__
+
+static const ma_backend backends[] = { ma_backend_alsa };
+static const int32_t backend_count = sizeof(backends) / sizeof(backends[0]);
+
+#else
+
+static const ma_backend *backends = NULL;
+static const int32_t backend_count = 0;
+
+#endif
 
 struct pv_recorder {
     ma_context context;
@@ -80,7 +92,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
         return PV_RECORDER_STATUS_OUT_OF_MEMORY;
     }
 
-    ma_result result = ma_context_init(NULL, 0, NULL, &(o->context));
+    ma_result result = ma_context_init(backends, backend_count, NULL, &(o->context));
     if (result != MA_SUCCESS) {
         pv_recorder_delete(o);
         if ((result == MA_NO_BACKEND) || (result == MA_FAILED_TO_INIT_BACKEND)) {
@@ -262,7 +274,7 @@ PV_API pv_recorder_status_t pv_recorder_get_audio_devices(int32_t *count, char *
     }
 
     ma_context context;
-    ma_result result = ma_context_init(NULL, 0, NULL, &context);
+    ma_result result = ma_context_init(backends, backend_count, NULL, &context);
     if (result != MA_SUCCESS) {
         if ((result == MA_NO_BACKEND) || (result == MA_FAILED_TO_INIT_BACKEND)) {
             return PV_RECORDER_STATUS_BACKEND_ERROR;
