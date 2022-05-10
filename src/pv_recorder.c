@@ -27,7 +27,7 @@ static const int32_t READ_SLEEP_MILLI_SECONDS = 2;
 
 #ifdef __linux__
 
-static const ma_backend backends[] = { ma_backend_alsa };
+static const ma_backend backends[] = { ma_backend_pulseaudio };
 static const int32_t backend_count = sizeof(backends) / sizeof(backends[0]);
 
 #else
@@ -58,6 +58,10 @@ static void pv_recorder_ma_callback(ma_device *device, void *output, const void 
         fprintf(stdout, "Overflow - reader is not reading fast enough.\n");
     }
     ma_mutex_unlock(&object->mutex);
+}
+
+static ma_uint32 pv_recorder_ma_enum_back(ma_context* pContext, ma_device_type deviceType, const ma_device_info* pInfo, void* pUserData) {
+    printf("name: %s, default: %d, type: %d\n", pInfo->name, pInfo->isDefault, deviceType);
 }
 
 PV_API pv_recorder_status_t pv_recorder_init(
@@ -273,8 +277,12 @@ PV_API pv_recorder_status_t pv_recorder_get_audio_devices(int32_t *count, char *
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
 
+    ma_context_config config = ma_context_config_init();
+    config.alsa.useVerboseDeviceEnumeration = 0;
+    config.pulse.tryAutoSpawn = 1;
+
     ma_context context;
-    ma_result result = ma_context_init(backends, backend_count, NULL, &context);
+    ma_result result = ma_context_init(backends, backend_count, &config, &context);
     if (result != MA_SUCCESS) {
         if ((result == MA_NO_BACKEND) || (result == MA_FAILED_TO_INIT_BACKEND)) {
             return PV_RECORDER_STATUS_BACKEND_ERROR;
@@ -296,6 +304,8 @@ PV_API pv_recorder_status_t pv_recorder_get_audio_devices(int32_t *count, char *
             return PV_RECORDER_STATUS_INVALID_STATE;
         }
     }
+
+    ma_context_enumerate_devices(&context, pv_recorder_ma_enum_back, NULL);
 
     char **d = calloc(capture_count, sizeof(char *));
     if (!d) {
