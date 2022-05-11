@@ -47,7 +47,7 @@ typedef enum {
  * @param frame_length The length of audio frame to get for each read call.
  * @param buffer_size_msec Time in milliseconds to store audio frames to a temporary buffer.
  * @param log_overflow Boolean variable to enable overflow logs. This will enable warning logs when buffer overflow occurs.
- * @param log_silence Boolean variable to enable silence logs. This will log when continuous 0 value buffers are read.
+ * @param log_silence Boolean variable to enable silence logs. This will log when continuous values within ABSOLUTE_SILENCE_THRESHOLD buffers are read.
  * @param[out] object Audio Recorder object to initialize.
  * @return Status Code. PV_RECORDER_STATUS_INVALID_ARGUMENT, PV_RECORDER_STATUS_BACKEND_ERROR,
  * PV_RECORDER_STATUS_DEVICE_INITIALIZED or PV_RECORDER_STATUS_OUT_OF_MEMORY on failure.
