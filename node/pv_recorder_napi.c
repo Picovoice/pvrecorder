@@ -26,8 +26,12 @@ napi_value napi_pv_recorder_init(napi_env env, napi_callback_info info) {
     status = napi_get_value_bool(env, args[3], &log_overflow);
     assert(status == napi_ok);
 
+    bool log_silence;
+    status = napi_get_value_bool(env, args[3], &log_silence);
+    assert(status == napi_ok);
+
     pv_recorder_t *handle = NULL;
-    pv_recorder_status_t pv_recorder_status = pv_recorder_init(device_index, frame_length, buffer_size_msec, log_overflow, &handle);
+    pv_recorder_status_t pv_recorder_status = pv_recorder_init(device_index, frame_length, buffer_size_msec, log_overflow, log_silence, &handle);
     if (pv_recorder_status != PV_RECORDER_STATUS_SUCCESS) {
         handle = NULL;
     }

@@ -75,7 +75,7 @@ int32_t pv_circular_buffer_read(pv_circular_buffer_t *object, void *buffer, int3
     if (!length) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
-    if ((length <= 0) || (length >= object->capacity)) {
+    if ((length <= 0) || (length > object->capacity)) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
 
@@ -112,7 +112,7 @@ pv_circular_buffer_status_t pv_circular_buffer_write(pv_circular_buffer_t *objec
     if (!buffer) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
-    if ((length <= 0) || (length >= object->capacity)) {
+    if ((length <= 0) || (length > object->capacity)) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
 

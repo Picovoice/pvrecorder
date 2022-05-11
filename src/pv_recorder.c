@@ -24,26 +24,18 @@
 
 static const int32_t READ_RETRY_COUNT = 500;
 static const int32_t READ_SLEEP_MILLI_SECONDS = 2;
-
-#ifdef __linux__
-
-static const ma_backend backends[] = { ma_backend_pulseaudio };
-static const int32_t backend_count = sizeof(backends) / sizeof(backends[0]);
-
-#else
-
-static const ma_backend *backends = NULL;
-static const int32_t backend_count = 0;
-
-#endif
+static const int32_t MAX_SILENCE_BUFFER_SIZE = 2 * 16000;
+static const int32_t ABSOLUTE_SILENCE_THRESHOLD = 2;
 
 struct pv_recorder {
     ma_context context;
     ma_device device;
     pv_circular_buffer_t *buffer;
     int32_t frame_length;
+    int32_t current_silent_samples;
     bool is_started;
     bool log_overflow;
+    bool log_silence;
     ma_mutex mutex;
 };
 
@@ -55,13 +47,10 @@ static void pv_recorder_ma_callback(ma_device *device, void *output, const void 
     ma_mutex_lock(&object->mutex);
     pv_circular_buffer_status_t status = pv_circular_buffer_write(object->buffer, input, (int32_t) frame_count);
     if ((status == PV_CIRCULAR_BUFFER_STATUS_WRITE_OVERFLOW) && (object->log_overflow)) {
-        fprintf(stdout, "Overflow - reader is not reading fast enough.\n");
+        fprintf(stdout, "[WARN] Overflow - reader is not reading fast enough.\n");
     }
-    ma_mutex_unlock(&object->mutex);
-}
 
-static ma_uint32 pv_recorder_ma_enum_back(ma_context* pContext, ma_device_type deviceType, const ma_device_info* pInfo, void* pUserData) {
-    printf("name: %s, default: %d, type: %d\n", pInfo->name, pInfo->isDefault, deviceType);
+    ma_mutex_unlock(&object->mutex);
 }
 
 PV_API pv_recorder_status_t pv_recorder_init(
@@ -69,6 +58,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
         int32_t frame_length,
         int32_t buffer_size_msec,
         bool log_overflow,
+        bool log_silence,
         pv_recorder_t **object) {
     if (device_index < PV_RECORDER_DEFAULT_DEVICE_INDEX) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
@@ -96,7 +86,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
         return PV_RECORDER_STATUS_OUT_OF_MEMORY;
     }
 
-    ma_result result = ma_context_init(backends, backend_count, NULL, &(o->context));
+    ma_result result = ma_context_init(NULL, 0, NULL, &(o->context));
     if (result != MA_SUCCESS) {
         pv_recorder_delete(o);
         if ((result == MA_NO_BACKEND) || (result == MA_FAILED_TO_INIT_BACKEND)) {
@@ -169,6 +159,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
 
     o->frame_length = frame_length;
     o->log_overflow = log_overflow;
+    o->log_silence = log_silence;
 
     *object = o;
 
@@ -249,6 +240,23 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
 
         if (processed == object->frame_length) {
             ma_mutex_unlock(&object->mutex);
+
+            if (object->log_silence) {
+                for (int32_t j = 0; j < object->frame_length; j++) {
+                    if ((pcm[j] >= ABSOLUTE_SILENCE_THRESHOLD) || (pcm[j] <= -ABSOLUTE_SILENCE_THRESHOLD)) {
+                        object->current_silent_samples = 0;
+                        goto done;
+                    }
+                }
+                object->current_silent_samples += object->frame_length;
+
+                if (object->current_silent_samples >= MAX_SILENCE_BUFFER_SIZE) {
+                    fprintf(stdout, "[WARN] Input device might be muted or volume level is set to 0.\n");
+                    object->current_silent_samples = 0;
+                }
+            }
+
+            done:
             return PV_RECORDER_STATUS_SUCCESS;
         }
 
@@ -277,12 +285,8 @@ PV_API pv_recorder_status_t pv_recorder_get_audio_devices(int32_t *count, char *
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
 
-    ma_context_config config = ma_context_config_init();
-    config.alsa.useVerboseDeviceEnumeration = 0;
-    config.pulse.tryAutoSpawn = 1;
-
     ma_context context;
-    ma_result result = ma_context_init(backends, backend_count, &config, &context);
+    ma_result result = ma_context_init(NULL, 0, NULL, &context);
     if (result != MA_SUCCESS) {
         if ((result == MA_NO_BACKEND) || (result == MA_FAILED_TO_INIT_BACKEND)) {
             return PV_RECORDER_STATUS_BACKEND_ERROR;
@@ -304,8 +308,6 @@ PV_API pv_recorder_status_t pv_recorder_get_audio_devices(int32_t *count, char *
             return PV_RECORDER_STATUS_INVALID_STATE;
         }
     }
-
-    ma_context_enumerate_devices(&context, pv_recorder_ma_enum_back, NULL);
 
     char **d = calloc(capture_count, sizeof(char *));
     if (!d) {
