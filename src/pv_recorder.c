@@ -25,7 +25,7 @@
 static const int32_t READ_RETRY_COUNT = 500;
 static const int32_t READ_SLEEP_MILLI_SECONDS = 2;
 static const int32_t MAX_SILENCE_BUFFER_SIZE = 2 * 16000;
-static const int32_t ABSOLUTE_SILENCE_THRESHOLD = 2;
+static const int32_t ABSOLUTE_SILENCE_THRESHOLD = 1;
 
 struct pv_recorder {
     ma_context context;
@@ -243,7 +243,7 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
 
             if (object->log_silence) {
                 for (int32_t j = 0; j < object->frame_length; j++) {
-                    if ((pcm[j] >= ABSOLUTE_SILENCE_THRESHOLD) || (pcm[j] <= -ABSOLUTE_SILENCE_THRESHOLD)) {
+                    if ((pcm[j] > ABSOLUTE_SILENCE_THRESHOLD) || (pcm[j] < -ABSOLUTE_SILENCE_THRESHOLD)) {
                         object->current_silent_samples = 0;
                         goto done;
                     }
