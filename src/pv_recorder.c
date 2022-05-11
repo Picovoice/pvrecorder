@@ -245,7 +245,7 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
                 for (int32_t j = 0; j < object->frame_length; j++) {
                     if ((pcm[j] > ABSOLUTE_SILENCE_THRESHOLD) || (pcm[j] < -ABSOLUTE_SILENCE_THRESHOLD)) {
                         object->current_silent_samples = 0;
-                        goto done;
+                        return PV_RECORDER_STATUS_SUCCESS;
                     }
                 }
                 object->current_silent_samples += object->frame_length;
@@ -256,7 +256,6 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
                 }
             }
 
-            done:
             return PV_RECORDER_STATUS_SUCCESS;
         }
 
