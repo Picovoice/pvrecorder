@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Picovoice Inc.
+    Copyright 2021-2022 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -75,7 +75,7 @@ int32_t pv_circular_buffer_read(pv_circular_buffer_t *object, void *buffer, int3
     if (!length) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
-    if ((length <= 0) || (length >= object->capacity)) {
+    if ((length <= 0) || (length > object->capacity)) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
 
@@ -112,7 +112,7 @@ pv_circular_buffer_status_t pv_circular_buffer_write(pv_circular_buffer_t *objec
     if (!buffer) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
-    if ((length <= 0) || (length >= object->capacity)) {
+    if ((length <= 0) || (length > object->capacity)) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
 

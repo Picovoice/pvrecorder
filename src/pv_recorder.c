@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Picovoice Inc.
+    Copyright 2021-2022 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -24,14 +24,18 @@
 
 static const int32_t READ_RETRY_COUNT = 500;
 static const int32_t READ_SLEEP_MILLI_SECONDS = 2;
+static const int32_t MAX_SILENCE_BUFFER_SIZE = 2 * 16000;
+static const int32_t ABSOLUTE_SILENCE_THRESHOLD = 1;
 
 struct pv_recorder {
     ma_context context;
     ma_device device;
     pv_circular_buffer_t *buffer;
     int32_t frame_length;
+    int32_t current_silent_samples;
     bool is_started;
     bool log_overflow;
+    bool log_silence;
     ma_mutex mutex;
 };
 
@@ -43,8 +47,9 @@ static void pv_recorder_ma_callback(ma_device *device, void *output, const void 
     ma_mutex_lock(&object->mutex);
     pv_circular_buffer_status_t status = pv_circular_buffer_write(object->buffer, input, (int32_t) frame_count);
     if ((status == PV_CIRCULAR_BUFFER_STATUS_WRITE_OVERFLOW) && (object->log_overflow)) {
-        fprintf(stdout, "Overflow - reader is not reading fast enough.\n");
+        fprintf(stdout, "[WARN] Overflow - reader is not reading fast enough.\n");
     }
+
     ma_mutex_unlock(&object->mutex);
 }
 
@@ -53,6 +58,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
         int32_t frame_length,
         int32_t buffer_size_msec,
         bool log_overflow,
+        bool log_silence,
         pv_recorder_t **object) {
     if (device_index < PV_RECORDER_DEFAULT_DEVICE_INDEX) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
@@ -153,6 +159,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
 
     o->frame_length = frame_length;
     o->log_overflow = log_overflow;
+    o->log_silence = log_silence;
 
     *object = o;
 
@@ -233,6 +240,22 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *pcm
 
         if (processed == object->frame_length) {
             ma_mutex_unlock(&object->mutex);
+
+            if (object->log_silence) {
+                for (int32_t j = 0; j < object->frame_length; j++) {
+                    if ((pcm[j] > ABSOLUTE_SILENCE_THRESHOLD) || (pcm[j] < -ABSOLUTE_SILENCE_THRESHOLD)) {
+                        object->current_silent_samples = 0;
+                        return PV_RECORDER_STATUS_SUCCESS;
+                    }
+                }
+                object->current_silent_samples += object->frame_length;
+
+                if (object->current_silent_samples >= MAX_SILENCE_BUFFER_SIZE) {
+                    fprintf(stdout, "[WARN] Input device might be muted or volume level is set to 0.\n");
+                    object->current_silent_samples = 0;
+                }
+            }
+
             return PV_RECORDER_STATUS_SUCCESS;
         }
 

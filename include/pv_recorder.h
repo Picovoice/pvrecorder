@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Picovoice Inc.
+    Copyright 2021-2022 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -47,6 +47,7 @@ typedef enum {
  * @param frame_length The length of audio frame to get for each read call.
  * @param buffer_size_msec Time in milliseconds to store audio frames to a temporary buffer.
  * @param log_overflow Boolean variable to enable overflow logs. This will enable warning logs when buffer overflow occurs.
+ * @param log_silence Boolean variable to enable silence logs. This will log when continuous audio buffers are detected as silent.
  * @param[out] object Audio Recorder object to initialize.
  * @return Status Code. PV_RECORDER_STATUS_INVALID_ARGUMENT, PV_RECORDER_STATUS_BACKEND_ERROR,
  * PV_RECORDER_STATUS_DEVICE_INITIALIZED or PV_RECORDER_STATUS_OUT_OF_MEMORY on failure.
@@ -56,6 +57,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
         int32_t frame_length,
         int32_t buffer_size_msec,
         bool log_overflow,
+        bool log_silence,
         pv_recorder_t **object);
 
 /**

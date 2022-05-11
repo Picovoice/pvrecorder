@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Picovoice Inc.
+    Copyright 2021-2022 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -164,6 +164,49 @@ static void test_pv_circular_buffer_read_write_one_by_one(void) {
     pv_circular_buffer_delete(cb);
 }
 
+static void test_pv_circular_buffer_zeros(void) {
+    pv_circular_buffer_t *cb;
+    pv_circular_buffer_status_t status = pv_circular_buffer_init(100, sizeof(int16_t), &cb);
+    check_condition(status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS, __FUNCTION__ , __LINE__, "Failed to initialize buffer.");
+
+    int32_t in_size = 100;
+    int16_t in_buffer[in_size];
+    for (int32_t i = 0; i < in_size; i++) {
+        in_buffer[i] = 0;
+    }
+
+    int32_t out_size = in_size;
+    int16_t *out_buffer = malloc(out_size * sizeof(int16_t));
+    check_condition(out_buffer != NULL, __FUNCTION__, __LINE__, "Failed to allocate memory.");
+
+    for (int32_t i = 0; i < in_size; i++) {
+        out_buffer[i] = (int16_t) 9999;
+    }
+
+    status = pv_circular_buffer_write(cb, in_buffer, 40);
+    check_condition(status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS, __FUNCTION__ , __LINE__, "Failed to write to buffer.");
+
+    int32_t length = pv_circular_buffer_read(cb, out_buffer, 40);
+    check_condition(length == 40, __FUNCTION__ , __LINE__, "Buffer read received incorrect output length.");
+
+    for (int32_t i = 0; i < 40; i++) {
+        check_condition(out_buffer[i] == 0, __FUNCTION__ , __LINE__, "Buffer have incorrect values at %d.", i);
+    }
+
+    status = pv_circular_buffer_write(cb, in_buffer, in_size);
+    check_condition(status == PV_CIRCULAR_BUFFER_STATUS_SUCCESS, __FUNCTION__ , __LINE__, "Failed to write to buffer.");
+
+    length = pv_circular_buffer_read(cb, out_buffer, out_size);
+    check_condition(length == out_size, __FUNCTION__ , __LINE__, "Buffer read received incorrect output length.");
+
+    for (int32_t i = 0; i < out_size; i++) {
+        check_condition(out_buffer[i] == 0, __FUNCTION__ , __LINE__, "Buffer have incorrect values at %d.", i);
+    }
+
+    free(out_buffer);
+    pv_circular_buffer_delete(cb);
+}
+
 int main() {
     srand(time(NULL));
 
@@ -172,6 +215,7 @@ int main() {
     test_pv_circular_buffer_write_overflow();
     test_pv_circular_buffer_read_write();
     test_pv_circular_buffer_read_write_one_by_one();
+    test_pv_circular_buffer_zeros();
 
     return 0;
 }
