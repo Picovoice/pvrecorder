@@ -1,5 +1,5 @@
 #
-# Copyright 2021 Picovoice Inc.
+# Copyright 2021-2022 Picovoice Inc.
 #
 # You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
 # file accompanying this source.
@@ -58,7 +58,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md'), 'r') as f:
 
 setuptools.setup(
     name="pvrecorder",
-    version="1.0.2",
+    version="1.0.3",
     author="Picovoice",
     author_email="hello@picovoice.ai",
     description="Recorder library for Picovoice.",
@@ -66,7 +66,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Picovoice/pvrecorder",
     packages=["pvrecorder"],
-    install_requires=["enum34"],
+    install_requires=[],
     include_package_data=True,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -76,6 +76,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Topic :: Multimedia :: Sound/Audio :: Speech"
     ],
-    python_requires='>=3',
+    python_requires='>=3.5',
     keywords="audio recorder",
 )

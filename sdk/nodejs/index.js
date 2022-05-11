@@ -31,14 +31,20 @@ class PvRecorder {
      * @param frameLength Length of the audio frames to receive per read call.
      * @param bufferSizeMSec Time in milliseconds to store the audio frames received.
      * @param logOverflow Boolean indicator to log warnings if the pcm frames buffer received an overflow.
+     * @param logSilence Boolean variable to enable silence logs. This will log when continuous audio buffers are detected as silent.
      */
-    constructor(deviceIndex, frameLength, bufferSizeMSec = 1000, logOverflow = true) {
-        const packed = pvRecorder.init(deviceIndex, frameLength, bufferSizeMSec, logOverflow);
-        const status = Number(packed % 10n);
+    constructor(deviceIndex, frameLength, bufferSizeMSec = 1000, logOverflow = true, logSilence = true) {
+        let porcupineHandleAndStatus;
+        try {
+            porcupineHandleAndStatus = pvRecorder.init(deviceIndex, frameLength, bufferSizeMSec, logOverflow, logSilence);
+        } catch (err) {
+            PvRecorderStatusToException(err.code, err);
+        }
+        const status = porcupineHandleAndStatus.status;
         if (status !== PvRecorderStatus.SUCCESS) {
             throw PvRecorderStatusToException(status, "PvRecorder failed to initialize.");
         }
-        this.handle = packed / 10n;
+        this.handle = porcupineHandleAndStatus.handle;
         this.frameLength = frameLength;
         this.version = pvRecorder.version();
     }

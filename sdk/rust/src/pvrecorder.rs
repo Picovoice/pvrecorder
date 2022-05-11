@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Picovoice Inc.
+    Copyright 2021-2022 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -49,6 +49,7 @@ type PvRecorderInitFn = unsafe extern "C" fn(
     frame_length: i32,
     buffer_size_msec: i32,
     log_overflow: bool,
+    log_silence: bool,
     object: *mut *mut CPvRecorder,
 ) -> PvRecorderStatus;
 type PvRecorderDeleteFn = unsafe extern "C" fn(object: *mut CPvRecorder);
@@ -100,6 +101,7 @@ pub struct RecorderBuilder {
     frame_length: i32,
     buffer_size_msec: i32,
     log_overflow: bool,
+    log_silence: bool,
     library_path: PathBuf,
 }
 
@@ -116,6 +118,7 @@ impl RecorderBuilder {
             frame_length: DEFAULT_FRAME_LENGTH,
             buffer_size_msec: DEFAULT_MILLISECONDS,
             log_overflow: false,
+            log_silence: true,
             library_path: pv_library_path(),
         }
     }
@@ -140,6 +143,11 @@ impl RecorderBuilder {
         self
     }
 
+    pub fn log_silence(&mut self, log_silence: bool) -> &mut Self {
+        self.log_silence = log_silence;
+        self
+    }
+
     pub fn library_path(&mut self, library_path: &Path) -> &mut Self {
         self.library_path = library_path.into();
         self
@@ -151,6 +159,7 @@ impl RecorderBuilder {
             self.frame_length,
             self.buffer_size_msec,
             self.log_overflow,
+            self.log_silence,
             &self.library_path,
         );
         recorder_inner.map(|inner| Recorder {
@@ -267,6 +276,7 @@ impl RecorderInner {
         frame_length: i32,
         buffer_size_msec: i32,
         log_overflow: bool,
+        log_silence: bool,
         library_path: &Path,
     ) -> Result<Self, RecorderError> {
         if device_index < -1 {
@@ -327,6 +337,7 @@ impl RecorderInner {
                 frame_length,
                 buffer_size_msec,
                 log_overflow,
+                log_silence,
                 addr_of_mut!(cpvrecorder),
             );
             check_fn_call_status(status, "pv_recorder_init")?;

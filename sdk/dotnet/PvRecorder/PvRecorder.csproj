@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>netcoreapp3.1;netstandard2.0</TargetFrameworks>
-        <Version>1.0.0</Version>
+        <Version>1.0.1</Version>
         <Authors>Picovoice</Authors>
         <Company />
         <Product>PvRecorder</Product>
@@ -12,7 +12,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>audio, audio recorder</PackageTags>
         <PackageReleaseNotes>See https://github.com/Picovoice/pvrecorder/ </PackageReleaseNotes>
-        <Copyright>Picovoice 2021</Copyright>
+        <Copyright>Picovoice 2021-2022</Copyright>
         <Description>
             PvRecorder is a library for .NET to record and capture audio frames.
         </Description>
