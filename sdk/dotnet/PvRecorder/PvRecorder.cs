@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2021 Picovoice Inc.
+    Copyright 2021-2022 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -58,7 +58,7 @@ namespace Pv
         }
 #endif
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        private static extern PvRecorderStatus pv_recorder_init(int deviceIndex, int frameLength, int bufferSizeMSec, bool logOverflow, out IntPtr handle);
+        private static extern PvRecorderStatus pv_recorder_init(int deviceIndex, int frameLength, int bufferSizeMSec, bool logOverflow, bool logSilence, out IntPtr handle);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern void pv_recorder_delete(IntPtr handle);
@@ -99,10 +99,13 @@ namespace Pv
         /// <param name="logOverflow">
         /// Boolean value representing if buffer overflow warnings should be logged.
         /// </param>
+        /// <param name="logSilence">
+        /// Boolean variable to enable silence logs. This will log when continuous audio buffers are detected as silent.
+        /// </param>
         /// <returns>An instance of PvRecorder.</returns>
-        public static PvRecorder Create(int deviceIndex, int frameLength, int bufferSizeMSec = 1000, bool logOverflow = true)
+        public static PvRecorder Create(int deviceIndex, int frameLength, int bufferSizeMSec = 1000, bool logOverflow = true, bool logSilence = true)
         {
-            return new PvRecorder(deviceIndex, frameLength, bufferSizeMSec, logOverflow);
+            return new PvRecorder(deviceIndex, frameLength, bufferSizeMSec, logOverflow, logSilence);
         }
 
         /// <summary>
@@ -119,9 +122,13 @@ namespace Pv
         /// </param>
         /// <param name="logOverflow">
         /// Boolean value representing if buffer overflow warnings should be logged.
-        private PvRecorder(int deviceIndex, int frameLength, int bufferSizeMSec, bool logOverflow)
+        /// </param>
+        /// <param name="logSilence">
+        /// Boolean variable to enable silence logs. This will log when continuous audio buffers are detected as silent.
+        /// </param>
+        private PvRecorder(int deviceIndex, int frameLength, int bufferSizeMSec, bool logOverflow, bool logSilence)
         {
-            PvRecorderStatus status = pv_recorder_init(deviceIndex, frameLength, bufferSizeMSec, logOverflow, out _libraryPointer);
+            PvRecorderStatus status = pv_recorder_init(deviceIndex, frameLength, bufferSizeMSec, logOverflow, logSilence, out _libraryPointer);
             if (status != PvRecorderStatus.SUCCESS)
             {
                 throw PvRecorderStatusToException(status);

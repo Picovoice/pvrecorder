@@ -1,5 +1,5 @@
 #
-# Copyright 2021 Picovoice Inc.
+# Copyright 2021-2022 Picovoice Inc.
 #
 # You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
 # file accompanying this source.
@@ -49,7 +49,7 @@ class PvRecorder(object):
     class CPvRecorder(Structure):
         pass
 
-    def __init__(self, device_index, frame_length, buffer_size_msec=1000, log_overflow=True):
+    def __init__(self, device_index, frame_length, buffer_size_msec=1000, log_overflow=True, log_silence=True):
         """
         Constructor
 
@@ -58,6 +58,8 @@ class PvRecorder(object):
         :param buffer_size_msec: Time in milliseconds indicating the total amount of time to store audio frames.
         :param log_overflow: Boolean variable to indicate to log overflow warnings. A log warning should indicate
         read is not being called fast enough from the callers point.
+        :param log_silence: Boolean variable to enable silence logs. This will log when continuous audio buffers
+        are detected as silent.
         """
 
         init_func = self._LIBRARY.pv_recorder_init
@@ -66,6 +68,7 @@ class PvRecorder(object):
             c_int32,
             c_int32,
             c_bool,
+            c_bool,
             POINTER(POINTER(self.CPvRecorder))
         ]
         init_func.restype = self.PvRecorderStatuses
@@ -73,7 +76,7 @@ class PvRecorder(object):
         self._handle = POINTER(self.CPvRecorder)()
         self._frame_length = frame_length
 
-        status = init_func(device_index, frame_length, buffer_size_msec, log_overflow, byref(self._handle))
+        status = init_func(device_index, frame_length, buffer_size_msec, log_overflow, log_silence, byref(self._handle))
         if status is not self.PvRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to initialize pv_recorder.")
 
