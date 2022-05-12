@@ -364,5 +364,5 @@ PV_API const char *pv_recorder_status_to_string(pv_recorder_status_t status) {
 }
 
 PV_API const char *pv_recorder_version(void) {
-    return "v1.0.0";
+    return "v1.1.0";
 }
