@@ -34,7 +34,7 @@ target_include_directories(demo PUBLIC include)
 
 if (NOT WIN32)
     target_link_libraries(demo pv_recorder pthread dl m)
-    if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
+    if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm") AND (UNIX AND NOT APPLE))
         target_link_libraries(demo pv_recorder atomic)
     endif()
 else()
