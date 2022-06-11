@@ -4,12 +4,12 @@ A cross platform audio recorder that captures single-channel audio at a sample r
 
 ## Requirements
 
-- .NET Standard 2.0, .NET Core 3.1
+- .NET Standard 2.0, .NET Core 3.1, .NET 6.0
 
 ## Compatibility
 
 - Windows (amd64)
-- macOS (x86_64)
+- macOS (x86_64, arm64)
 - Linux (x86_64)
 - Raspberry Pi:
     - 2
@@ -78,9 +78,9 @@ using(PvRecorder recorder = PvRecorder.Create(deviceIndex: -1, frameLength: 512)
 
 **NOTE**: The demo is built on .Net Core 3.1.
 
-For more detailed information on how to use the pv_recorder .NET sdk, please that a look at [Demo/Demo.cs](Demo/Demo.cs). 
+For more detailed information on how to use the pv_recorder .NET sdk, please that a look at [Demo/Demo.cs](Demo/Demo.cs).
 
-In the following instructions we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{RAW_OUTPUT_PATH}` as the path to save the raw audio data 
+In the following instructions we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{RAW_OUTPUT_PATH}` as the path to save the raw audio data
 
 `{AUDIO_DEVICE_INDEX}` defaults to -1 and `{RAW_OUTPUT_PATH}` can be empty if you wish to not save any data.
 

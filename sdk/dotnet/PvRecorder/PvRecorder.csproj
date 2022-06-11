@@ -1,7 +1,7 @@
 ﻿    <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netcoreapp3.1;netstandard2.0</TargetFrameworks>
+        <TargetFrameworks>net6.0;netcoreapp3.1;netstandard2.0</TargetFrameworks>
         <Version>1.1.0</Version>
         <Authors>Picovoice</Authors>
         <Company />
@@ -23,32 +23,36 @@
         <Content Include="PvRecorder.targets">
             <PackagePath>
                 build/netstandard2.0;
-                build/netcoreapp3.1
+                build/netcoreapp3.1;
+                build/net6.0;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
         <Content Include="..\..\..\lib\windows\amd64\libpv_recorder.dll">
             <PackagePath>
                 build/netstandard2.0/lib/windows/amd64/libpv_recorder.dll;
-                build/netcoreapp3.1/lib/windows/amd64/libpv_recorder.dll
+                build/netcoreapp3.1/lib/windows/amd64/libpv_recorder.dll;
+                build/net6.0/lib/windows/amd64/libpv_recorder.dll;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\windows\amd64\libpv_recorder.dll</Link>
             <Visible>false</Visible>
         </Content>
-        <Content Include="..\..\..\lib\mac\x86_64\libpv_recorder.dylib">
+        <Content Include="..\..\..\lib\mac\**\*">
             <PackagePath>
-                build/netstandard2.0/lib/mac/x86_64/libpv_recorder.dylib;
-                build/netcoreapp3.1/lib/mac/x86_64/libpv_recorder.dylib;
+                build/netstandard2.0/lib/mac;
+                build/netcoreapp3.1/lib/mac;
+                build/net6.0/lib/mac;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>lib\mac\x86_64\libpv_recorder.dylib</Link>
+            <Link>lib\mac\%(RecursiveDir)%(Filename)%(Extension)</Link>
             <Visible>false</Visible>
         </Content>
         <Content Include="..\..\..\lib\linux\x86_64\libpv_recorder.so">
             <PackagePath>
                 build/netstandard2.0/lib/linux/x86_64/libpv_recorder.so;
-                build/netcoreapp3.1/lib/linux/x86_64/libpv_recorder.so
+                build/netcoreapp3.1/lib/linux/x86_64/libpv_recorder.so;
+                build/net6.0/lib/linux/x86_64/libpv_recorder.so;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\linux\x86_64\libpv_recorder.so</Link>
@@ -57,7 +61,8 @@
         <Content Include="..\..\..\lib\raspberry-pi\**\*" Exclude="..\..\..\lib\raspberry-pi\arm11\*;">
             <PackagePath>
                 build/netstandard2.0/lib/raspberry-pi;
-                build/netcoreapp3.1/lib/raspberry-pi
+                build/netcoreapp3.1/lib/raspberry-pi;
+                build/net6.0/lib/raspberry-pi;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\raspberry-pi\%(RecursiveDir)%(Filename)%(Extension)</Link>
@@ -66,7 +71,8 @@
         <Content Include="..\..\..\lib\jetson\cortex-a57-aarch64\libpv_recorder.so">
             <PackagePath>
                 build/netstandard2.0/lib/jetson/cortex-a57-aarch64/libpv_recorder.so;
-                build/netcoreapp3.1/lib/jetson/cortex-a57-aarch64/libpv_recorder.so
+                build/netcoreapp3.1/lib/jetson/cortex-a57-aarch64/libpv_recorder.so;
+                build/net6.0/lib/jetson/cortex-a57-aarch64/libpv_recorder.so;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\jetson\cortex-a57-aarch64\libpv_recorder.so</Link>
@@ -75,7 +81,8 @@
         <Content Include="..\..\..\lib\beaglebone\libpv_recorder.so">
             <PackagePath>
                 build/netstandard2.0/lib/beaglebone/libpv_recorder.so;
-                build/netcoreapp3.1/lib/beaglebone/libpv_recorder.so
+                build/netcoreapp3.1/lib/beaglebone/libpv_recorder.so;
+                build/net6.0/lib/beaglebone/libpv_recorder.so;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\beaglebone\libpv_recorder.so</Link>
@@ -85,6 +92,7 @@
             <PackagePath>
                 build/netstandard2.0/scripts;
                 build/netcoreapp3.1/scripts;
+                build/net6.0/scripts;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>scripts\%(Filename)%(Extension)</Link>
