@@ -44,12 +44,12 @@ namespace Pv
 
         static PvRecorder()
         {
-#if NETCOREAPP3_1
+#if NETCOREAPP3_1_OR_GREATER
             NativeLibrary.SetDllImportResolver(typeof(PvRecorder).Assembly, ImportResolver);
 #endif
         }
 
-#if NETCOREAPP3_1
+#if NETCOREAPP3_1_OR_GREATER
         private static IntPtr ImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
         {
             IntPtr libHandle = IntPtr.Zero;
@@ -164,7 +164,7 @@ namespace Pv
         }
 
         /// <summary>
-        /// Reads audio frames. 
+        /// Reads audio frames.
         /// </summary>
         /// <returns>An array of audio frames with length ${frameLength} provided in the factory method,</returns>
         public short[] Read()
@@ -293,7 +293,7 @@ namespace Pv
             if (osName == "windows")
             {
                 libName = $"{LIBRARY}.dll";
-            } 
+            }
             else if (osName == "mac")
             {
                 libName = $"{LIBRARY}.dylib";
