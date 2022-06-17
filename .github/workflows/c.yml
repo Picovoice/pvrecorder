@@ -33,7 +33,7 @@ jobs:
         submodules: recursive
 
     - name: Rust dependencies
-      run: pactl -l
+      run: aplay -l
       if: matrix.os == 'ubuntu-latest'
 
     - name: Create build directory
