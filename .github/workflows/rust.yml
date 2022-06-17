@@ -69,6 +69,13 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Install stable toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+
     - name: Build
       run: cargo build --verbose
 
