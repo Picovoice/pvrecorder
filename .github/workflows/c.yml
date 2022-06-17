@@ -32,6 +32,10 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Rust dependencies
+      run: pactl -l
+      if: matrix.os == 'ubuntu-latest'
+
     - name: Create build directory
       run: cmake -B ./build
 
