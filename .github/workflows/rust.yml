@@ -47,7 +47,7 @@ jobs:
 
     - name: Rust dependencies
       run: sudo apt install libasound2-dev
-      if: ${{ matrix.os }} == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-latest'
 
     - name: Rust pre-build
       run: bash copy.sh
