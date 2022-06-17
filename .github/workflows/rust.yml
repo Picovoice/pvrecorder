@@ -46,11 +46,12 @@ jobs:
         submodules: recursive
 
     - name: Rust pre-build
-      run: bash copy.sh
+      run: bash copy.sh && pulseaudio -D --start
 
     - name: Install stable toolchain
       uses: actions-rs/toolchain@v1
       with:
+        profile: minimal
         toolchain: stable
         override: true
 
@@ -78,7 +79,7 @@ jobs:
     - name: Install stable toolchain
       uses: actions-rs/toolchain@v1
       with:
-        profile: nightly
+        toolchain: nightly
         override: true
 
     - name: Build
