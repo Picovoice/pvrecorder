@@ -46,7 +46,7 @@ jobs:
         submodules: recursive
 
     - name: Rust dependencies
-      run: pactl list
+      run: sudo apt install pulseaudio
       if: matrix.os == 'ubuntu-latest'
 
     - name: Rust pre-build
