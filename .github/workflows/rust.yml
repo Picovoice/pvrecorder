@@ -46,7 +46,7 @@ jobs:
         submodules: recursive
 
     - name: Rust dependencies
-      run: aplay -l
+      run: arecord -l
       if: matrix.os == 'ubuntu-latest'
 
     - name: Rust pre-build
