@@ -27,6 +27,9 @@ on:
       - 'lib/windows/**'
       - '.github/workflows/rust.yml'
 
+env:
+  SDL_AUDIODRIVER: "disk"
+
 defaults:
   run:
     working-directory: sdk/rust
