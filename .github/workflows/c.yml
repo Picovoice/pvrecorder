@@ -9,7 +9,7 @@ on:
       - 'src/**'
       - 'node/**'
       - 'CMakeLists.txt'
-      - '.github/workflows/c-demos.yml'
+      - '.github/workflows/c.yml'
   pull_request:
     branches: [ main ]
     paths:
@@ -17,7 +17,7 @@ on:
       - 'src/**'
       - 'node/**'
       - 'CMakeLists.txt'
-      - '.github/workflows/c-demos.yml'
+      - '.github/workflows/c.yml'
 
 jobs:
   build-github-hosted:
