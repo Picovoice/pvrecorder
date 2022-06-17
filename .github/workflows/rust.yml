@@ -45,8 +45,12 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Rust dependencies
+      run: sudo apt install libasound2-dev
+      if: ${{ matrix.os }} == 'ubuntu-latest'
+
     - name: Rust pre-build
-      run: bash copy.sh && pulseaudio -D --start
+      run: bash copy.sh
 
     - name: Install stable toolchain
       uses: actions-rs/toolchain@v1
