@@ -50,11 +50,14 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Pre-build
+      run: pip3 install wheel
+
     - name: Build
-      run: python setup.py sdist bdist_wheel
+      run: python3 setup.py sdist bdist_wheel
 
     - name: Run get audio devices
-      run: python demo.py --show_audio_devices
+      run: python3 demo.py --show_audio_devices
 
   build-self-hosted:
     runs-on: ${{ matrix.machine }}
