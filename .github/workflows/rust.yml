@@ -45,10 +45,6 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Rust dependencies
-      run: arecord -l
-      if: matrix.os == 'ubuntu-latest'
-
     - name: Rust pre-build
       run: bash copy.sh
 
