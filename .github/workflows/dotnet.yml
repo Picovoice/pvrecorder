@@ -3,7 +3,7 @@ name: .NET
 on:
   workflow_dispatch:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - 'sdk/dotnet/**'
       - '!sdk/dotnet/README.md'
@@ -15,7 +15,7 @@ on:
       - 'lib/windows/**'
       - '.github/workflows/dotnet.yml'
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
       - 'sdk/dotnet/**'
       - '!sdk/dotnet/README.md'
       - 'lib/beaglebone/**'

@@ -3,7 +3,7 @@ name: C
 on:
   workflow_dispatch:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - 'example/**'
       - 'src/**'
@@ -11,7 +11,7 @@ on:
       - 'CMakeLists.txt'
       - '.github/workflows/c-demos.yml'
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - 'example/**'
       - 'src/**'
