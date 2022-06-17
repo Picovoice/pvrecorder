@@ -16,6 +16,7 @@ on:
       - '.github/workflows/rust.yml'
   pull_request:
     branches: [ main ]
+    paths:
       - 'sdk/rust/**'
       - '!sdk/rust/README.md'
       - 'lib/beaglebone/**'

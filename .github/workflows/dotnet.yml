@@ -16,6 +16,7 @@ on:
       - '.github/workflows/dotnet.yml'
   pull_request:
     branches: [ main ]
+    paths:
       - 'sdk/dotnet/**'
       - '!sdk/dotnet/README.md'
       - 'lib/beaglebone/**'

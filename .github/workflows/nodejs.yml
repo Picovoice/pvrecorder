@@ -11,6 +11,7 @@ on:
       - '.github/workflows/nodejs.yml'
   pull_request:
     branches: [ main ]
+    paths:
       - 'sdk/nodejs/**'
       - '!sdk/nodejs/README.md'
       - 'lib/node/**'

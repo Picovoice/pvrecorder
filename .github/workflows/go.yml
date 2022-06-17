@@ -16,6 +16,7 @@ on:
       - '.github/workflows/go.yml'
   pull_request:
     branches: [ main ]
+    paths:
       - 'sdk/go/**'
       - '!sdk/go/README.md'
       - 'lib/beaglebone/**'
