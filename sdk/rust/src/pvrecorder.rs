@@ -166,6 +166,10 @@ impl RecorderBuilder {
             inner: Arc::new(inner),
         })
     }
+
+    pub fn get_audio_devices(&self) -> Result<Vec<String>, RecorderError> {
+        RecorderInner::get_audio_devices(&self.library_path)
+    }
 }
 
 #[derive(Clone)]
@@ -188,10 +192,6 @@ impl Recorder {
 
     pub fn frame_length(&self) -> usize {
         self.inner.frame_length() as usize
-    }
-
-    pub fn get_audio_devices(&self) -> Result<Vec<String>, RecorderError> {
-        self.inner.get_audio_devices()
     }
 }
 
@@ -376,7 +376,16 @@ impl RecorderInner {
         check_fn_call_status(status, "pv_recorder_read")
     }
 
-    pub fn get_audio_devices(&self) -> Result<Vec<String>, RecorderError> {
+    pub fn get_audio_devices(library_path: &Path) -> Result<Vec<String>, RecorderError> {
+        let lib = unsafe { Library::new(library_path) }.map_err(|err| {
+            RecorderError::new(
+                RecorderErrorStatus::LibraryLoadError,
+                format!("Failed to load pvrecorder dynamic library: {}", err),
+            )
+        })?;
+
+        let vtable = RecorderInnerVTable::new(lib)?;
+
         let mut devices = Vec::new();
         let mut count = 0;
 
@@ -384,7 +393,7 @@ impl RecorderInner {
             let mut devices_ptr: *mut c_char = std::ptr::null_mut();
             let mut devices_ptr_ptr: *mut *mut c_char = addr_of_mut!(devices_ptr);
 
-            let status = (self.vtable.pv_recorder_get_audio_devices)(
+            let status = (vtable.pv_recorder_get_audio_devices)(
                 addr_of_mut!(count),
                 addr_of_mut!(devices_ptr_ptr),
             );
@@ -400,7 +409,7 @@ impl RecorderInner {
                 })?));
             }
 
-            (self.vtable.pv_recorder_free_device_list)(count, devices_ptr_ptr);
+            (vtable.pv_recorder_free_device_list)(count, devices_ptr_ptr);
         }
         Ok(devices)
     }

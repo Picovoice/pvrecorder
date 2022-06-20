@@ -1,5 +1,5 @@
 /*
-    Copyright 2021 Picovoice Inc.
+    Copyright 2021-2022 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -21,10 +21,7 @@ static LISTENING: AtomicBool = AtomicBool::new(false);
 fn show_audio_devices() {
     println!("Printing audio devices...");
 
-    let recorder = RecorderBuilder::default()
-        .init()
-        .expect("Can't create recorder");
-    let audio_devices = recorder.get_audio_devices();
+    let audio_devices = RecorderBuilder::default().get_audio_devices();
     match audio_devices {
         Ok(audio_devices) => {
             for (idx, device) in audio_devices.iter().enumerate() {
