@@ -1,0 +1,71 @@
+name: Node.js
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'sdk/nodejs/**'
+      - '!sdk/nodejs/README.md'
+      - 'lib/node/**'
+      - '.github/workflows/nodejs.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'sdk/nodejs/**'
+      - '!sdk/nodejs/README.md'
+      - 'lib/node/**'
+      - '.github/workflows/nodejs.yml'
+
+defaults:
+  run:
+    working-directory: sdk/nodejs
+
+jobs:
+  build-github-hosted:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [14.x, 16.x]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Pre-build dependencies
+      run: npm install yarn
+
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Run get audio devices
+      run: node demo/demo.js --show_audio_devices
+
+  build-self-hosted:
+    runs-on: ${{ matrix.machine }}
+
+    strategy:
+      matrix:
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Pre-build dependencies
+      run: npm install yarn
+
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Run get audio devices
+      run: node demo/demo.js --show_audio_devices

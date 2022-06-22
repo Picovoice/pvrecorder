@@ -1,0 +1,80 @@
+name: .NET
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'sdk/dotnet/**'
+      - '!sdk/dotnet/README.md'
+      - 'lib/beaglebone/**'
+      - 'lib/linux/**'
+      - 'lib/jetson/**'
+      - 'lib/mac/**'
+      - 'lib/raspberry-pi/**'
+      - 'lib/windows/**'
+      - '.github/workflows/dotnet.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'sdk/dotnet/**'
+      - '!sdk/dotnet/README.md'
+      - 'lib/beaglebone/**'
+      - 'lib/linux/**'
+      - 'lib/jetson/**'
+      - 'lib/mac/**'
+      - 'lib/raspberry-pi/**'
+      - 'lib/windows/**'
+      - '.github/workflows/dotnet.yml'
+
+defaults:
+  run:
+    working-directory: sdk/dotnet
+
+jobs:
+  build-github-hosted:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Setup .NET 6.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build -c Release --no-restore
+
+    - name: Run get audio devices
+      run: dotnet run --project Demo -c Release -- --show_audio_devices
+
+  build-self-hosted:
+    runs-on: ${{ matrix.machine }}
+
+    strategy:
+      matrix:
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build -c Release --no-restore
+
+    - name: Run get audio devices
+      run: dotnet run --project Demo -c Release -- --show_audio_devices

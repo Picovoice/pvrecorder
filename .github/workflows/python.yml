@@ -1,0 +1,78 @@
+name: Python
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'sdk/python/**'
+      - '!sdk/python/README.md'
+      - 'lib/beaglebone/**'
+      - 'lib/linux/**'
+      - 'lib/jetson/**'
+      - 'lib/mac/**'
+      - 'lib/raspberry-pi/**'
+      - 'lib/windows/**'
+      - '.github/workflows/python.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'sdk/python/**'
+      - '!sdk/python/README.md'
+      - 'lib/beaglebone/**'
+      - 'lib/linux/**'
+      - 'lib/jetson/**'
+      - 'lib/mac/**'
+      - 'lib/raspberry-pi/**'
+      - 'lib/windows/**'
+      - '.github/workflows/python.yml'
+
+defaults:
+  run:
+    working-directory: sdk/python
+
+jobs:
+  build-github-hosted:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: [3.6, 3.7, 3.8, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Pre-build
+      run: pip3 install wheel
+
+    - name: Build
+      run: python3 setup.py sdist bdist_wheel
+
+    - name: Run get audio devices
+      run: python3 demo.py --show_audio_devices
+
+  build-self-hosted:
+    runs-on: ${{ matrix.machine }}
+
+    strategy:
+      matrix:
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Build
+      run: python3 setup.py sdist bdist_wheel
+
+    - name: Run get audio devices
+      run: python3 demo.py --show_audio_devices

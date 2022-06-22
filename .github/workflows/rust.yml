@@ -1,0 +1,92 @@
+name: Rust
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'sdk/rust/**'
+      - '!sdk/rust/README.md'
+      - 'lib/beaglebone/**'
+      - 'lib/linux/**'
+      - 'lib/jetson/**'
+      - 'lib/mac/**'
+      - 'lib/raspberry-pi/**'
+      - 'lib/windows/**'
+      - '.github/workflows/rust.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'sdk/rust/**'
+      - '!sdk/rust/README.md'
+      - 'lib/beaglebone/**'
+      - 'lib/linux/**'
+      - 'lib/jetson/**'
+      - 'lib/mac/**'
+      - 'lib/raspberry-pi/**'
+      - 'lib/windows/**'
+      - '.github/workflows/rust.yml'
+
+env:
+  SDL_AUDIODRIVER: "disk"
+
+defaults:
+  run:
+    working-directory: sdk/rust
+    shell: bash
+
+jobs:
+  build-github-hosted:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Rust pre-build
+      run: bash copy.sh
+
+    - name: Install stable toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+
+    - name: Build
+      run: cargo build --verbose
+
+    - name: Run get audio devices
+      run: cargo run --release --example demo -- --show_audio_devices
+
+  build-self-hosted:
+    runs-on: ${{ matrix.machine }}
+
+    strategy:
+      matrix:
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Rust pre-build
+      run: bash copy.sh
+
+    - name: Install nightly toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+        override: true
+
+    - name: Build
+      run: cargo build --verbose
+
+    - name: Run get audio devices
+      run: cargo run --release --example demo -- --show_audio_devices

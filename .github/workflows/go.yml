@@ -1,0 +1,87 @@
+name: Go
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'sdk/go/**'
+      - '!sdk/go/README.md'
+      - 'lib/beaglebone/**'
+      - 'lib/linux/**'
+      - 'lib/jetson/**'
+      - 'lib/mac/**'
+      - 'lib/raspberry-pi/**'
+      - 'lib/windows/**'
+      - '.github/workflows/go.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'sdk/go/**'
+      - '!sdk/go/README.md'
+      - 'lib/beaglebone/**'
+      - 'lib/linux/**'
+      - 'lib/jetson/**'
+      - 'lib/mac/**'
+      - 'lib/raspberry-pi/**'
+      - 'lib/windows/**'
+      - '.github/workflows/go.yml'
+
+defaults:
+  run:
+    working-directory: sdk/go
+
+jobs:
+  build-github-hosted:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        go: [ '1.16', '1.17' ]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Setup go
+      uses: actions/setup-go@v1
+      with:
+        go-version: ${{ matrix.go }}
+
+    - name: Pre-build dependencies
+      run: ./copy.sh
+
+    - name: Install dependencies
+      run: go get
+
+    - name: Build
+      run: go build
+
+    - name: Run get audio devices
+      run: go run demo/demo.go --show_audio_devices
+
+  build-self-hosted:
+    runs-on: ${{ matrix.machine }}
+
+    strategy:
+      matrix:
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Pre-build dependencies
+      run: ./copy.sh
+
+    - name: Install dependencies
+      run: go get
+
+    - name: Build
+      run: go build
+
+    - name: Run get audio devices
+      run: go run demo/demo.go --show_audio_devices
