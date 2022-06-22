@@ -79,7 +79,7 @@ jobs:
     - name: Rust pre-build
       run: bash copy.sh
 
-    - name: Install stable toolchain
+    - name: Install nightly toolchain
       uses: actions-rs/toolchain@v1
       with:
         toolchain: nightly
