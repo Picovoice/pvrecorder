@@ -198,6 +198,6 @@ class PvRecorder(object):
         else:
             extension = "so"
 
-        return os.path.join(os.path.dirname(__file__), "lib", os_name, cpu, f"libpv_recorder.{extension}")
+        return os.path.join(os.path.dirname(__file__), "lib", os_name, cpu, "libpv_recorder.%s" % extension)
 
     _LIBRARY = cdll.LoadLibrary(_lib_path.__func__())

@@ -40,16 +40,16 @@ def main():
     if args.show_audio_devices:
         devices = PvRecorder.get_audio_devices()
         for i in range(len(devices)):
-            print(f"index: {i}, device name: {devices[i]}")
+            print("index: %d, device name: %s" % (i, devices[i]))
     else:
         device_index = args.audio_device_index
         output_path = args.output_path
 
         recorder = PvRecorder(device_index=device_index, frame_length=512)
-        print(f"pvrecorder.py version: {recorder.version}")
+        print("pvrecorder.py version: %s" % recorder.version)
 
         recorder.start()
-        print(f"Using device: {recorder.selected_device}")
+        print("Using device: %s" % recorder.selected_device)
 
         if output_path is not None:
             wavfile = wave.open(output_path, "w")
