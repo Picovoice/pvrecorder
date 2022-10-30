@@ -30,9 +30,9 @@ pip3 install pvrecorder
 Getting the list of input devices does not require an instance:
 
 ```python
-from pvrecorder import PVRecorder
+from pvrecorder import PvRecorder
 
-devices = PVRecorder.get_audio_devices()
+devices = PvRecorder.get_audio_devices()
 ```
 
 To start recording initialize the instance and run start:
