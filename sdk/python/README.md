@@ -1,6 +1,6 @@
 # PV_Recorder
 
-A cross platform audio recorder to read one channel and 16kHz samples.
+A cross-platform audio recorder to read one channel and 16kHz samples.
 
 ## Requirements
 
@@ -30,9 +30,9 @@ pip3 install pvrecorder
 Getting the list of input devices does not require an instance:
 
 ```python
-from pvrecorder import PVRecorder
+from pvrecorder import PvRecorder
 
-devices = PVRecorder.get_audio_devices()
+devices = PvRecorder.get_audio_devices()
 ```
 
 To start recording initialize the instance and run start:
@@ -65,7 +65,7 @@ recorder.delete()
 
 ### Demo
 
-For more detailed information on how to use the pv_recorder python sdk, please that a look at [demo.py](demo/demo.js).
+For more detailed information on how to use the pv_recorder python sdk, please that a look at [demo.py](demo.py).
 
 In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{OUTPUT_PATH}` as the path to save the audio data in `wav` format.
 
