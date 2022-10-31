@@ -1,5 +1,5 @@
 #
-# Copyright 2021 Picovoice Inc.
+# Copyright 2021-2022 Picovoice Inc.
 #
 # You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
 # file accompanying this source.
@@ -13,6 +13,7 @@
 import argparse
 import struct
 import wave
+
 from pvrecorder import PvRecorder
 
 
@@ -51,21 +52,24 @@ def main():
         recorder.start()
         print("Using device: %s" % recorder.selected_device)
 
-        if output_path is not None:
-            wavfile = wave.open(output_path, "w")
-            wavfile.setparams((1, 2, 16000, 512, "NONE", "NONE"))
+        wavfile = None
 
         try:
+            if output_path is not None:
+                wavfile = wave.open(output_path, "w")
+                # noinspection PyTypeChecker
+                wavfile.setparams((1, 2, 16000, 512, "NONE", "NONE"))
+
             while True:
                 pcm = recorder.read()
-                if output_path is not None:
+                if wavfile is not None:
                     wavfile.writeframes(struct.pack("h" * len(pcm), *pcm))
 
         except KeyboardInterrupt:
             print("Stopping...")
         finally:
             recorder.delete()
-            if output_path is not None:
+            if wavfile is not None:
                 wavfile.close()
 
 

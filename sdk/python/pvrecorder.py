@@ -8,6 +8,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 #
+
 import os
 import platform
 import subprocess
@@ -19,7 +20,7 @@ CALLBACK = CFUNCTYPE(None, POINTER(c_int16))
 
 class PvRecorder(object):
     """
-    A cross platform Python SDK for PvRecorder to process audio recordings. It lists the available
+    A cross-platform Python SDK for PvRecorder to process audio recordings. It lists the available
     input devices. Also given the audio device index and frame_length, processes the frame and runs
     a callback each time a frame_length is given.
     """
