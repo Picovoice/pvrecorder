@@ -46,6 +46,12 @@ jobs:
     - name: Install dependencies
       run: yarn install
 
+    - name: Setup build
+      run: yarn prepare
+
+    - name: Build 
+      run: yarn build
+
     - name: Run get audio devices
       run: node demo/demo.js --show_audio_devices
 
