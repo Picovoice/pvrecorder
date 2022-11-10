@@ -23,6 +23,8 @@ dylib
 fvisibility
 gendef
 jetson
+libc
+libloading
 libpv
 lpthread
 malloc
