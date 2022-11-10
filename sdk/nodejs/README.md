@@ -4,7 +4,7 @@ A cross platform audio recorder that captures single-channel audio at a sample r
 
 ## Requirements
 
-- Node.js 12+
+- Node.js 14+
 
 ## Compatibility
 
@@ -31,7 +31,7 @@ yarn add @picovoice/pvrecorder-node
 Getting the list of input devices does not require an instance:
 
 ```javascript
-const PvRecorder = require("@picovoice/pvrecorder-node");
+const { PvRecorder } = require("@picovoice/pvrecorder-node");
 
 const devices = PvRecorder.getAudioDevices();
 ```
