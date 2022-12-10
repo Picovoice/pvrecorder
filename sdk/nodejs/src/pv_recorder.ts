@@ -165,7 +165,7 @@ class PvRecorder {
       scriptPath = path.resolve(__dirname, "..", "scripts", "platform.sh")
     }
 
-    let output = execSync(scriptPath).toString();
+    let output = execSync(`"${scriptPath}"`).toString();
     let [osName, cpu] = output.split(" ");
 
     return path.resolve(__dirname, "..", "lib", osName, cpu, "pv_recorder.node");
