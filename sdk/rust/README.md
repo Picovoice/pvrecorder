@@ -32,9 +32,9 @@ pv_recorder = "*"
 Getting the list of input devices does not require an instance:
 
 ```rust
-use pv_recorder::Recorder
+use pv_recorder::RecorderBuilder
 
-let audio_devices = RecorderBuilder::default().get_audio_devices();
+let audio_devices = RecorderBuilder::default().get_audio_devices()?;
 ```
 
 To start recording initialize an instance using the builder and run `start`:
