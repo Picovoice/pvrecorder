@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2022 Picovoice Inc.
+    Copyright 2021-2023 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -40,8 +40,7 @@ pub enum PvRecorderStatus {
     DEVICE_ALREADY_INITIALIZED = 5,
     DEVICE_NOT_INITIALIZED = 6,
     IO_ERROR = 7,
-    BUFFER_OVERFLOW = 8,
-    RUNTIME_ERROR = 9,
+    RUNTIME_ERROR = 8,
 }
 
 type PvRecorderInitFn = unsafe extern "C" fn(
