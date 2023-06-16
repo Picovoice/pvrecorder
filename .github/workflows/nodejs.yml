@@ -31,12 +31,12 @@ jobs:
         node-version: [14.x, 16.x]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
 
@@ -49,7 +49,7 @@ jobs:
     - name: Setup build
       run: yarn prepare
 
-    - name: Build 
+    - name: Build
       run: yarn build
 
     - name: Run get audio devices
@@ -63,7 +63,7 @@ jobs:
         machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -76,7 +76,7 @@ jobs:
     - name: Setup build
       run: yarn prepare
 
-    - name: Build 
+    - name: Build
       run: yarn build
 
     - name: Run get audio devices
