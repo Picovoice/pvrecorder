@@ -38,3 +38,5 @@ stdlib
 typedarray
 vtable
 wavfile
+bitwidth
+getconf
