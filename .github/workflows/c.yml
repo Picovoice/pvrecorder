@@ -25,8 +25,14 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
         include:
+          - os: macos-latest
+            pv-platform: mac-arm64
+            output-dir: mac/arm64
+          - os: macos-latest
+            pv-platform: mac-x86_64
+            output-dir: mac/x86_64
           - os: ubuntu-latest
             pv-platform: linux
             output-dir: linux/x86_64
@@ -57,41 +63,41 @@ jobs:
           lib/node/${{matrix.output-dir}}/pv_recorder.node
         retention-days: 3
 
-  build-self-hosted-macos:
-    runs-on: pv-ios
-
-    strategy:
-      matrix:
-        pv-platform: [mac-arm64, mac-x86_64]
-        include:
-          - pv-platform: mac-arm64
-            output-dir: mac/arm64
-          - pv-platform: mac-x86_64
-            output-dir: mac/x86_64
-
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: recursive
-
-    - name: Create build directory
-      run: cmake -B ./build -S . -DPV_PLATFORM="${{ matrix.pv-platform }}" -DOUTPUT_DIR="${{ matrix.output-dir }}"
-
-    - name: Build
-      run: cmake --build ./build
-
-    - name: Run get audio devices
-      run: ./demo --show_audio_devices
-      working-directory: build
-
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ matrix.pv-platform }}
-        path: |
-          lib/${{matrix.output-dir}}/libpv_recorder.*
-          lib/node/${{matrix.output-dir}}/pv_recorder.node
-        retention-days: 3
+#  build-self-hosted-macos:
+#    runs-on: pv-ios
+#
+#    strategy:
+#      matrix:
+#        pv-platform: [mac-arm64, mac-x86_64]
+#        include:
+#          - pv-platform: mac-arm64
+#            output-dir: mac/arm64
+#          - pv-platform: mac-x86_64
+#            output-dir: mac/x86_64
+#
+#    steps:
+#    - uses: actions/checkout@v3
+#      with:
+#        submodules: recursive
+#
+#    - name: Create build directory
+#      run: cmake -B ./build -S . -DPV_PLATFORM="${{ matrix.pv-platform }}" -DOUTPUT_DIR="${{ matrix.output-dir }}"
+#
+#    - name: Build
+#      run: cmake --build ./build
+#
+#    - name: Run get audio devices
+#      run: ./demo --show_audio_devices
+#      working-directory: build
+#
+#    - name: Upload build artifacts
+#      uses: actions/upload-artifact@v3
+#      with:
+#        name: ${{ matrix.pv-platform }}
+#        path: |
+#          lib/${{matrix.output-dir}}/libpv_recorder.*
+#          lib/node/${{matrix.output-dir}}/pv_recorder.node
+#        retention-days: 3
 
   build-self-hosted:
     runs-on: ${{ matrix.machine }}
