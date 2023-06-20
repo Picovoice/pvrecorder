@@ -119,13 +119,13 @@ jobs:
 #          !build/libpv_recorder.*.*
 #          build/node/pv_recorder.node
 #        retention-days: 3
-#
-#  collect-artifacts:
-#    runs-on: ubuntu-latest
-#    needs: [build-github-hosted, build-self-hosted]
+
+  collect-artifacts:
+    runs-on: ubuntu-latest
+    needs: [build-github-hosted]
 #    strategy:
 #      matrix:
-#        machine: [ubuntu-latest, windows-latest, macos-arm64, macos-x86_64, rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+#        machine: [ubuntu-latest, windows-latest]
 #        include:
 #          - machine: ubuntu-latest
 #            output-dir: linux/x86_64
@@ -149,10 +149,10 @@ jobs:
 #            output-dir: jetson/cortex-a57-aarch64
 #          - machine: beaglebone
 #            output-dir: beaglebone
-#
-#    steps:
-#      - name: Download artifacts
-#        uses: actions/download-artifact@v3
-#
-#      - name: Display structure of downloaded files
-#        run: ls -R
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Display structure of downloaded files
+        run: ls -R
