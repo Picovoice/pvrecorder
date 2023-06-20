@@ -57,8 +57,8 @@ jobs:
           lib/node/${{matrix.output-dir}}/pv_recorder.node
         retention-days: 3
 
-  build-github-hosted-mac:
-    runs-on: macos-latest
+  build-self-hosted-mac:
+    runs-on: pv-ios
 
     strategy:
       matrix:
@@ -104,9 +104,6 @@ jobs:
             pv-platform: raspberry-pi2
             output-dir: raspberry-pi/cortex-a7
           - machine: rpi3-32
-            pv-platform: raspberry-pi
-            output-dir: raspberry-pi/arm11
-          - machine: rpi3-32
             pv-platform: raspberry-pi3
             output-dir: raspberry-pi/cortex-a53
           - machine: rpi3-64
@@ -151,7 +148,7 @@ jobs:
 
   collect-artifacts:
     runs-on: ubuntu-latest
-    needs: [build-github-hosted, build-self-hosted]
+    needs: [build-github-hosted, build-self-hosted, build-self-hosted-mac]
 
     steps:
       - name: Download artifacts
