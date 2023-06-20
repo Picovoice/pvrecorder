@@ -153,6 +153,20 @@ jobs:
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v3
+        path: artifacts
 
-      - name: Display structure of downloaded files
-        run: ls -R
+      - name: Make collection directory
+        run: mkdir lib
+
+      - name: Collect artifacts
+        shell: bash
+        run: |
+          for DIR in artifacts/*; do cp -a $DIR/* lib/; done
+
+      - name: Upload all artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: pvrecorder
+          path: |
+            lib
+          retention-days: 3
