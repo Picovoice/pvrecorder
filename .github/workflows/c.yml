@@ -26,11 +26,14 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
+        arch: [arm64, x86_64]
         include:
           - os: macos-latest
+            arch: arm64
             pv-platform: mac-arm64
             output-dir: mac/arm64
           - os: macos-latest
+            arch: x86_64
             pv-platform: mac-x86_64
             output-dir: mac/x86_64
           - os: ubuntu-latest
