@@ -476,7 +476,7 @@ napi_value Init(napi_env env, napi_value exports) {
     status = napi_define_properties(env, exports, 1, &desc);
     assert(status == napi_ok);
 
-    desc = DECLARE_NAPI_METHOD("get_available_devices", napi_pv_recorder_get_audio_devices);
+    desc = DECLARE_NAPI_METHOD("get_available_devices", napi_pv_recorder_get_available_devices);
     status = napi_define_properties(env, exports, 1, &desc);
     assert(status == napi_ok);
 
