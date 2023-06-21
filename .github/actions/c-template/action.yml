@@ -7,6 +7,7 @@ inputs:
     required: true
 
 runs:
+  using: "composite"
   steps:
     - name: Create build directory
       run: cmake -B ./build -S . -DPV_PLATFORM="${{ inputs.pv_platform }}" -DOUTPUT_DIR="${{ inputs.output_dir }}"
