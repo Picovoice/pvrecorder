@@ -48,7 +48,7 @@ jobs:
     runs-on: ${{ matrix.machine }}
     strategy:
       matrix:
-        machine: [rpi2, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
         include:
           - machine: rpi2
             pv_platform: raspberry-pi2
@@ -87,7 +87,7 @@ jobs:
     runs-on: pv-ios
     strategy:
       matrix:
-        pv-platform: [mac-arm64, mac-x86_64]
+        pv_platform: [mac-arm64, mac-x86_64]
         include:
           - pv_platform: mac-arm64
             output_dir: mac/arm64
