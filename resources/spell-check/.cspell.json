@@ -12,6 +12,7 @@
   ],
   "ignorePaths": [
     "../../CMakeLists.txt",
+    "../../Preload.CMake",
     "../../node/CMakeLists.txt",
 
     // submodules
