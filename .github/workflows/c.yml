@@ -5,19 +5,23 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'example/**'
-      - 'src/**'
-      - 'node/**'
-      - 'CMakeLists.txt'
+      - 'demo/c/**'
+      - 'project/**'
+      - '!project/README.md'
       - '.github/workflows/c.yml'
+      - '.github/actions/c/action.yml'
   pull_request:
     branches: [ main ]
     paths:
-      - 'example/**'
-      - 'src/**'
-      - 'node/**'
-      - 'CMakeLists.txt'
+      - 'demo/c/**'
+      - 'project/**'
+      - '!project/README.md'
       - '.github/workflows/c.yml'
+      - '.github/actions/c/action.yml'
+
+defaults:
+  run:
+    working-directory: project
 
 jobs:
   build-github-hosted:

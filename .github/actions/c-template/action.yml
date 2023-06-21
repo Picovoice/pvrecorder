@@ -18,8 +18,8 @@ runs:
       shell: bash
 
     - name: Run get audio devices
-      run: ./demo --show_audio_devices
-      working-directory: build
+      run: ./pv_recorder_demo --show_audio_devices
+      working-directory: project/build
       shell: bash
 
     - name: Upload build artifacts

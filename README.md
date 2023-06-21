@@ -42,7 +42,7 @@ PvRecorder is an easy-to-use cross-platform audio recorder designed for real-tim
 ## Source Code
 
 If you are interested in building PvRecorder from source or integrating it into an existing C project, the PvRecorder
-source code is located under [/project](./project).
+source code is located under the [/project](./project) directory.
 
 ## Demos
 

@@ -82,21 +82,21 @@ if(DEFINED OUTPUT_DIR)
     add_custom_command(TARGET pv_recorder POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:${PROJECT_NAME}>
-            "${CMAKE_SOURCE_DIR}/lib/${OUTPUT_DIR}/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
+            "${CMAKE_SOURCE_DIR}/../lib/${OUTPUT_DIR}/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
             COMMENT "Copying to output directory.")
 endif()
 
-add_executable(../demo ../demo/c/demo.c)
+add_executable(pv_recorder_demo ../demo/c/pv_recorder_demo.c)
 
-target_include_directories(../demo PUBLIC include)
+target_include_directories(pv_recorder_demo PUBLIC include)
 
 if (NOT ${PV_RECORDER_PLATFORM} STREQUAL "windows")
-    target_link_libraries(../demo pv_recorder pthread dl m)
+    target_link_libraries(pv_recorder_demo pv_recorder pthread dl m)
     if(PV_LINK_ATOMIC)
-        target_link_libraries(../demo pv_recorder atomic)
+        target_link_libraries(pv_recorder_demo pv_recorder atomic)
     endif()
 else()
-    target_link_libraries(../demo pv_recorder)
+    target_link_libraries(pv_recorder_demo pv_recorder)
 endif()
 
 enable_testing()
