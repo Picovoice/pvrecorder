@@ -18,7 +18,7 @@
 ## Compiling
 
 The variable `{OUTPUT_DIR}` will be used to select the directory to copy the shared object
-after a successful compilation. `{OUTPUT_DIR}` should be a directory **relative** to the [lib](lib) directory.
+after a successful compilation. `{OUTPUT_DIR}` should be a directory **relative** to the [lib](../lib) directory.
 
 Run the following commands to build and test (`{OUTPUT_DIR}` can be empty if you wish not to copy):
 
@@ -115,4 +115,4 @@ pv_recorder_free_device_list(count, devices);
 
 The index of the device in the returned list can be used in `pv_recorder_init()` to select that device for recording.
 
-Refer to [example/demo.c](demo/c/demo.c) for a full example of how to use `pv_recorder` to capture audio in C.
+Refer to [pv_recorder_demo.c](../demo/c/pv_recorder_demo.c) for a full example of how to use `pv_recorder` to capture audio in C.
