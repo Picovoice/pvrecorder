@@ -11,6 +11,8 @@
     }
   ],
   "ignorePaths": [
+    "../../CMakeLists.txt",
+
     // submodules
     "../../src/miniaudio",
 
