@@ -67,7 +67,7 @@ recorder.release()
 
 ### Demo
 
-For more detailed information on how to use the pv_recorder Node.js sdk, see [demo/demo.js](demo/demo.js). 
+For more detailed information on how to use the pv_recorder Node.js sdk, see [demo/demo.js](../../demo/nodejs/demo.js). 
 
 In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{RAW_OUTPUT_PATH}` as the path to save the raw audio data 
 

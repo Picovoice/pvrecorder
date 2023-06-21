@@ -83,7 +83,7 @@ recorder.Delete()
 
 ### Demo
 
-For more detailed information on how to use the pv_recorder go sdk, please that a look at [demo/demo.go](demo/demo.go). 
+For more detailed information on how to use the pv_recorder go sdk, please that a look at [demo/demo.go](../../demo/go/demo.go). 
 
 To run the demo:
 

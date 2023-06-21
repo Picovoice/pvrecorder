@@ -30,7 +30,7 @@ pip3 install pvrecorder
 Getting the list of input devices does not require an instance:
 
 ```python
-from pvrecorder import PvRecorder
+from project import PvRecorder
 
 devices = PvRecorder.get_audio_devices()
 ```
@@ -38,7 +38,7 @@ devices = PvRecorder.get_audio_devices()
 To start recording initialize the instance and run start:
 
 ```python
-from pvrecorder import PvRecorder
+from project import PvRecorder
 
 recorder = PvRecorder(device_index=-1, frame_length=512)
 recorder.start()
@@ -65,7 +65,7 @@ recorder.delete()
 
 ### Demo
 
-For more detailed information on how to use the pv_recorder python sdk, please that a look at [demo.py](demo.py).
+For more detailed information on how to use the pv_recorder python sdk, please that a look at [demo.py](../../demo/python/demo.py).
 
 In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{OUTPUT_PATH}` as the path to save the audio data in `wav` format.
 

@@ -64,7 +64,7 @@ recorder.stop()?;
 
 ### Demo
 
-For more detailed information on how to use the pv_recorder Rust sdk, see [examples/demo.rs](examples/demo.rs).
+For more detailed information on how to use the pv_recorder Rust sdk, see [examples/demo.rs](../../demo/rust/demo.rs).
 
 In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{OUTPUT_PATH}` as the path to save the raw audio data
 

@@ -78,7 +78,7 @@ using(PvRecorder recorder = PvRecorder.Create(deviceIndex: -1, frameLength: 512)
 
 **NOTE**: The demo is built on .Net Core 3.1.
 
-For more detailed information on how to use the pv_recorder .NET sdk, please that a look at [Demo/Demo.cs](Demo/Demo.cs).
+For more detailed information on how to use the pv_recorder .NET sdk, please that a look at [Demo/Demo.cs](../../demo/dotnet/Demo.cs).
 
 In the following instructions we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{RAW_OUTPUT_PATH}` as the path to save the raw audio data
 

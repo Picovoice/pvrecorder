@@ -86,17 +86,17 @@ if(DEFINED OUTPUT_DIR)
             COMMENT "Copying to output directory.")
 endif()
 
-add_executable(demo example/demo.c)
+add_executable(../demo ../demo/c/demo.c)
 
-target_include_directories(demo PUBLIC include)
+target_include_directories(../demo PUBLIC include)
 
 if (NOT ${PV_RECORDER_PLATFORM} STREQUAL "windows")
-    target_link_libraries(demo pv_recorder pthread dl m)
+    target_link_libraries(../demo pv_recorder pthread dl m)
     if(PV_LINK_ATOMIC)
-        target_link_libraries(demo pv_recorder atomic)
+        target_link_libraries(../demo pv_recorder atomic)
     endif()
 else()
-    target_link_libraries(demo pv_recorder)
+    target_link_libraries(../demo pv_recorder)
 endif()
 
 enable_testing()

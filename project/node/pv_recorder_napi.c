@@ -1,5 +1,5 @@
 #include <assert.h>
-#include <node_api.h>
+#include "node_api.h"
 
 #include "pv_recorder.h"
 
