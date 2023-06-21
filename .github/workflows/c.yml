@@ -19,10 +19,6 @@ on:
       - '.github/workflows/c.yml'
       - '.github/actions/c/action.yml'
 
-defaults:
-  run:
-    working-directory: project
-
 jobs:
   build-github-hosted:
     runs-on: ${{ matrix.os }}
