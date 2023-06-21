@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2022 Picovoice Inc.
+    Copyright 2021-2023 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -24,10 +24,10 @@ struct pv_circular_buffer {
 };
 
 pv_circular_buffer_status_t pv_circular_buffer_init(
-        int32_t capacity,
+        int32_t element_count,
         int32_t element_size,
         pv_circular_buffer_t **object) {
-    if (capacity <= 0) {
+    if (element_count <= 0) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
     if (element_size <= 0) {
@@ -44,13 +44,13 @@ pv_circular_buffer_status_t pv_circular_buffer_init(
         return PV_CIRCULAR_BUFFER_STATUS_OUT_OF_MEMORY;
     }
 
-    o->buffer = malloc(capacity * element_size);
+    o->buffer = malloc(element_count * element_size);
     if (!(o->buffer)) {
         pv_circular_buffer_delete(o);
         return PV_CIRCULAR_BUFFER_STATUS_OUT_OF_MEMORY;
     }
 
-    o->capacity = capacity;
+    o->capacity = element_count;
     o->element_size = element_size;
 
     *object = o;
@@ -65,17 +65,20 @@ void pv_circular_buffer_delete(pv_circular_buffer_t *object) {
     }
 }
 
-int32_t pv_circular_buffer_read(pv_circular_buffer_t *object, void *buffer, int32_t length) {
+int32_t pv_circular_buffer_read(
+        pv_circular_buffer_t *object,
+        void *buffer,
+        int32_t buffer_length) {
     if (!object) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
     if (!buffer) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
-    if (!length) {
+    if (!buffer_length) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
-    if ((length <= 0) || (length > object->capacity)) {
+    if ((buffer_length <= 0) || (buffer_length > object->capacity)) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
 
@@ -83,7 +86,7 @@ int32_t pv_circular_buffer_read(pv_circular_buffer_t *object, void *buffer, int3
     const void *src_ptr = (char *) object->buffer + (object->read_index * object->element_size);
 
     const int32_t available = object->capacity - object->read_index;
-    const int32_t max_copy = (object->count < length) ? object->count : length;
+    const int32_t max_copy = (object->count < buffer_length) ? object->count : buffer_length;
     const int32_t to_copy = (max_copy < available) ? max_copy : available;
 
     memcpy(dst_ptr, src_ptr, to_copy * object->element_size);
@@ -105,14 +108,17 @@ int32_t pv_circular_buffer_read(pv_circular_buffer_t *object, void *buffer, int3
     return max_copy;
 }
 
-pv_circular_buffer_status_t pv_circular_buffer_write(pv_circular_buffer_t *object, const void *buffer, int32_t length) {
+pv_circular_buffer_status_t pv_circular_buffer_write(
+        pv_circular_buffer_t *object,
+        const void *buffer,
+        int32_t buffer_length) {
     if (!object) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
     if (!buffer) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
-    if ((length <= 0) || (length > object->capacity)) {
+    if ((buffer_length <= 0) || (buffer_length > object->capacity)) {
         return PV_CIRCULAR_BUFFER_STATUS_INVALID_ARGUMENT;
     }
 
@@ -122,14 +128,14 @@ pv_circular_buffer_status_t pv_circular_buffer_write(pv_circular_buffer_t *objec
     const void *src_ptr = buffer;
 
     const int32_t available = object->capacity - object->write_index;
-    const int32_t to_copy = (length < available) ? length : available;
+    const int32_t to_copy = (buffer_length < available) ? buffer_length : available;
 
     memcpy(dst_ptr, src_ptr, to_copy * object->element_size);
 
     object->write_index = (object->write_index + to_copy) % object->capacity;
     object->count += to_copy;
 
-    const int32_t remaining = length - to_copy;
+    const int32_t remaining = buffer_length - to_copy;
     if (remaining > 0) {
         dst_ptr = object->buffer;
         src_ptr = (char *) buffer + (to_copy * object->element_size);

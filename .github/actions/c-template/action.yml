@@ -1,7 +1,7 @@
 name: C Template
 
 inputs:
-  pv_platform:
+  pv_recorder_platform:
     required: true
   output_dir:
     required: true
@@ -10,7 +10,7 @@ runs:
   using: "composite"
   steps:
     - name: Create build directory
-      run: cmake -B ./build -S . -DPV_PLATFORM="${{ inputs.pv_platform }}" -DOUTPUT_DIR="${{ inputs.output_dir }}"
+      run: cmake -B ./build -S . -DPV_RECORDER_PLATFORM="${{ inputs.pv_recorder_platform }}" -DOUTPUT_DIR="${{ inputs.output_dir }}"
       shell: bash
 
     - name: Build
@@ -25,7 +25,7 @@ runs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ inputs.pv_platform }}
+        name: ${{ inputs.pv_recorder_platform }}
         path: |
           lib/${{ inputs.output_dir }}/libpv_recorder.*
           lib/node/${{ inputs.output_dir }}/pv_recorder.node

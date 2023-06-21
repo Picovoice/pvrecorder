@@ -3,7 +3,7 @@ project(pv_recorder_napi)
 
 include(ExternalProject)
 
-set(NODE_VERSION 14.17.5)
+set(NODE_VERSION 18.16.1)
 
 ExternalProject_Add(node_headers
   URL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-headers.tar.xz
@@ -14,7 +14,7 @@ ExternalProject_Add(node_headers
 ExternalProject_Get_Property(node_headers SOURCE_DIR)
 set(NODE_INCLUDE_DIR ${SOURCE_DIR}/include/node/)
 
-if (WIN32)
+if (${PV_RECORDER_PLATFORM} STREQUAL "windows")
   set(NODE_WIN_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/node_win_lib )
   ExternalProject_Add(node_win_lib
     URL https://nodejs.org/dist/v${NODE_VERSION}/win-x64/node.exe 
@@ -38,7 +38,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 add_dependencies(${PROJECT_NAME} node_headers)
 
-if (WIN32)
+if (${PV_RECORDER_PLATFORM} STREQUAL "windows")
     add_dependencies(${PROJECT_NAME} node_win_lib)
 endif()
 
@@ -47,7 +47,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} ${NODE_LIB})
 
-if (APPLE)
+if (${PV_RECORDER_PLATFORM} STREQUAL "mac-x86_64" OR ${PV_RECORDER_PLATFORM} STREQUAL "mac-arm64")
     target_link_options(${PROJECT_NAME} PRIVATE "-undefined" "dynamic_lookup")
 endif()
 

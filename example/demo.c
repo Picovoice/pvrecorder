@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2022 Picovoice Inc.
+    Copyright 2021-2023 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -38,22 +38,24 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, interrupt_handler);
 
     if (strcmp(argv[1], "--show_audio_devices") == 0) {
-        char **devices = NULL;
-        int32_t count = 0;
+        char **device_list = NULL;
+        int32_t device_list_length = 0;
 
         // List devices
-        pv_recorder_status_t status = pv_recorder_get_audio_devices(&count, &devices);
+        pv_recorder_status_t status = pv_recorder_get_available_devices(
+                &device_list_length,
+                &device_list);
         if (status != PV_RECORDER_STATUS_SUCCESS) {
             fprintf(stderr, "Failed to get audio devices with: %s.\n", pv_recorder_status_to_string(status));
             exit(1);
         }
 
         fprintf(stdout, "Printing devices...\n");
-        for (int32_t i = 0; i < count; i++) {
-            fprintf(stdout, "index: %d, name: %s\n", i, devices[i]);
+        for (int32_t i = 0; i < device_list_length; i++) {
+            fprintf(stdout, "index: %d, name: %s\n", i, device_list[i]);
         }
 
-        pv_recorder_free_device_list(count, devices);
+        pv_recorder_free_available_devices(device_list_length, device_list);
         return 0;
     }
 
@@ -69,11 +71,17 @@ int main(int argc, char *argv[]) {
 
     const int32_t frame_length = 512;
     pv_recorder_t *recorder = NULL;
-    pv_recorder_status_t status = pv_recorder_init(device_index, frame_length, 100, true, true, &recorder);
+    pv_recorder_status_t status = pv_recorder_init(
+            device_index,
+            frame_length,
+            10,
+            &recorder);
     if (status != PV_RECORDER_STATUS_SUCCESS) {
         fprintf(stderr, "Failed to initialize device with %s.\n", pv_recorder_status_to_string(status));
         exit(1);
     }
+
+    pv_recorder_set_debug_logging(recorder, true);
 
     const char *selected_device = pv_recorder_get_selected_device(recorder);
     fprintf(stdout, "Selected device: %s.\n", selected_device);

@@ -1,5 +1,5 @@
 //
-// Copyright 2022 Picovoice Inc.
+// Copyright 2022-2023 Picovoice Inc.
 //
 // You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
 // file accompanying this source.
@@ -18,13 +18,14 @@ import PvRecorderStatus from "./pv_recorder_status_t";
 import PvRecorderStatusToException from "./errors";
 
 /**
- * PvRecorder class to record audio.
+ * PvRecorder class for recording audio.
  */
 class PvRecorder {
   private static _pvRecorder = require(PvRecorder._getLibraryPath());
 
   private readonly _handle: number;
   private readonly _frameLength: number;
+  private readonly _sampleRate: number;
   private readonly _version: string;
 
   /**
@@ -32,20 +33,18 @@ class PvRecorder {
    *
    * @param deviceIndex The audio device index to use to record audio. A value of (-1) will use machine's default audio device.
    * @param frameLength Length of the audio frames to receive per read call.
-   * @param bufferSizeMSec Time in milliseconds to store the audio frames received.
-   * @param logOverflow Boolean indicator to log warnings if the pcm frames buffer received an overflow.
-   * @param logSilence Boolean variable to enable silence logs. This will log when continuous audio buffers are detected as silent.
+   * @param bufferedFramesCount The number of audio frames buffered internally for reading - i.e. internal circular buffer
+   * will be of size `frameLength` * `bufferedFramesCount`. If this value is too low, buffer overflows could occur
+   * and audio frames could be dropped. A higher value will increase memory usage.
    */
   constructor(
     deviceIndex: number,
     frameLength: number,
-    bufferSizeMSec = 1000,
-    logOverflow = true,
-    logSilence = true
+    bufferedFramesCount = 32,
   ) {
     let porcupineHandleAndStatus;
     try {
-      porcupineHandleAndStatus = PvRecorder._pvRecorder.init(deviceIndex, frameLength, bufferSizeMSec, logOverflow, logSilence);
+      porcupineHandleAndStatus = PvRecorder._pvRecorder.init(deviceIndex, frameLength, bufferedFramesCount);
     } catch (err: any) {
       PvRecorderStatusToException(err.code, err);
     }
@@ -55,6 +54,7 @@ class PvRecorder {
     }
     this._handle = porcupineHandleAndStatus.handle;
     this._frameLength = frameLength;
+    this._sampleRate = PvRecorder._pvRecorder.sample_rate();
     this._version = PvRecorder._pvRecorder.version();
   }
 
@@ -63,6 +63,13 @@ class PvRecorder {
    */
   get frameLength(): number {
     return this._frameLength;
+  }
+
+  /**
+   * @returns Audio sample rate used by PvRecorder.
+   */
+  get sampleRate(): number {
+    return this._sampleRate;
   }
 
   /**
@@ -93,9 +100,9 @@ class PvRecorder {
   }
 
   /**
-   * Asynchronous call to read pcm frames.
+   * Asynchronous call to read a frame of audio data.
    *
-   * @returns {Promise<Int16Array>} Pcm frames.
+   * @returns {Promise<Int16Array>} Audio data frame.
    */
   public async read(): Promise<Int16Array> {
     return new Promise<Int16Array>((resolve, reject) => {
@@ -103,7 +110,7 @@ class PvRecorder {
         let pcm = new Int16Array(this._frameLength);
         const status = PvRecorder._pvRecorder.read(this._handle, pcm);
         if (status !== PvRecorderStatus.SUCCESS) {
-          reject(PvRecorderStatusToException(status, "PvRecorder failed to read pcm frames."));
+          reject(PvRecorderStatusToException(status, "PvRecorder failed to read audio data frame."));
         }
         resolve(pcm);
       })
@@ -111,17 +118,27 @@ class PvRecorder {
   }
 
   /**
-   * Synchronous call to read pcm frames.
+   * Synchronous call to read a frame of audio data.
    *
-   * @returns {Int16Array} Pcm frames.
+   * @returns {Int16Array} Audio data frame.
    */
   public readSync(): Int16Array {
     let pcm = new Int16Array(this._frameLength);
     const status = PvRecorder._pvRecorder.read(this._handle, pcm);
     if (status !== PvRecorderStatus.SUCCESS) {
-      throw PvRecorderStatusToException(status, "PvRecorder failed to read pcm frames.");
+      throw PvRecorderStatusToException(status, "PvRecorder failed to read audio data frame.");
     }
     return pcm;
+  }
+
+  /**
+   * Enable or disable debug logging for PvRecorder. Debug logs will indicate when there are overflows in the internal
+   * frame buffer and when an audio source is generating frames of silence.
+   *
+   * @param isDebugLoggingEnabled Boolean indicating whether the debug logging is enabled or disabled.
+   */
+  public setDebugLogging(isDebugLoggingEnabled: boolean): void {
+    PvRecorder._pvRecorder.set_debug_logging(this._handle, isDebugLoggingEnabled);
   }
 
   /**
@@ -138,19 +155,19 @@ class PvRecorder {
   }
 
   /**
-   * Destructor. Releases any resources used by PvRecorder.
+   * Destructor. Releases resources acquired by PvRecorder.
    */
   public release(): void {
     PvRecorder._pvRecorder.delete(this._handle);
   }
 
   /**
-   * Helper function to get the available devices.
+   * Helper function to get the list of available audio devices.
    *
-   * @returns {Array<string>} An array of the device names.
+   * @returns {Array<string>} An array of the available device names.
    */
   public static getAudioDevices() {
-    const devices = PvRecorder._pvRecorder.get_audio_devices();
+    const devices = PvRecorder._pvRecorder.get_available_devices();
     if ((devices === undefined) || (devices === null)) {
       throw new Error("Failed to get audio devices.");
     }

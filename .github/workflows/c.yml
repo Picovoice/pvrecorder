@@ -28,10 +28,10 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         include:
           - os: ubuntu-latest
-            pv_platform: linux
+            pv_recorder_platform: linux
             output_dir: linux/x86_64
           - os: windows-latest
-            pv_platform: windows
+            pv_recorder_platform: windows
             output_dir: windows/amd64
     steps:
       - uses: actions/checkout@v3
@@ -41,7 +41,7 @@ jobs:
       - uses: ./.github/actions/c-template
         name: Build and test
         with:
-          pv_platform: ${{ matrix.pv_platform }}
+          pv_recorder_platform: ${{ matrix.pv_recorder_platform }}
           output_dir: ${{ matrix.output_dir }}
 
   build-self-hosted:
@@ -51,25 +51,25 @@ jobs:
         machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
         include:
           - machine: rpi2
-            pv_platform: raspberry-pi2
+            pv_recorder_platform: raspberry-pi2
             output_dir: raspberry-pi/cortex-a7
           - machine: rpi3-32
-            pv_platform: raspberry-pi3
+            pv_recorder_platform: raspberry-pi3
             output_dir: raspberry-pi/cortex-a53
           - machine: rpi3-64
-            pv_platform: raspberry-pi3-64
+            pv_recorder_platform: raspberry-pi3-64
             output_dir: raspberry-pi/cortex-a53-aarch64
           - machine: rpi4-32
-            pv_platform: raspberry-pi4
+            pv_recorder_platform: raspberry-pi4
             output_dir: raspberry-pi/cortex-a72
           - machine: rpi4-64
-            pv_platform: raspberry-pi4-64
+            pv_recorder_platform: raspberry-pi4-64
             output_dir: raspberry-pi/cortex-a72-aarch64
           - machine: jetson
-            pv_platform: jetson-nano
+            pv_recorder_platform: jetson-nano
             output_dir: jetson/cortex-a57-aarch64
           - machine: beaglebone
-            pv_platform: beaglebone
+            pv_recorder_platform: beaglebone
             output_dir: beaglebone
 
     steps:
@@ -80,18 +80,18 @@ jobs:
       - uses: ./.github/actions/c-template
         name: Build and test
         with:
-          pv_platform: ${{ matrix.pv_platform }}
+          pv_recorder_platform: ${{ matrix.pv_recorder_platform }}
           output_dir: ${{ matrix.output_dir }}
 
   build-mac:
     runs-on: pv-ios
     strategy:
       matrix:
-        pv_platform: [mac-arm64, mac-x86_64]
+        pv_recorder_platform: [mac-arm64, mac-x86_64]
         include:
-          - pv_platform: mac-arm64
+          - pv_recorder_platform: mac-arm64
             output_dir: mac/arm64
-          - pv_platform: mac-x86_64
+          - pv_recorder_platform: mac-x86_64
             output_dir: mac/x86_64
     steps:
       - uses: actions/checkout@v3
@@ -101,7 +101,7 @@ jobs:
       - uses: ./.github/actions/c-template
         name: Build and test
         with:
-          pv_platform: ${{ matrix.pv_platform }}
+          pv_recorder_platform: ${{ matrix.pv_recorder_platform }}
           output_dir: ${{ matrix.output_dir }}
 
   build-rpi0:
@@ -114,7 +114,7 @@ jobs:
       - uses: ./.github/actions/c-template
         name: Build and test
         with:
-          pv_platform: raspberry-pi
+          pv_recorder_platform: raspberry-pi
           output_dir: raspberry-pi/arm11
 
   collect-artifacts:

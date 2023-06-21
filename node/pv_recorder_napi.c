@@ -4,8 +4,8 @@
 #include "pv_recorder.h"
 
 napi_value napi_pv_recorder_init(napi_env env, napi_callback_info info) {
-    size_t argc = 4;
-    napi_value args[4];
+    size_t argc = 3;
+    napi_value args[3];
     napi_status status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
     if (status != napi_ok) {
         napi_throw_error(
@@ -35,38 +35,22 @@ napi_value napi_pv_recorder_init(napi_env env, napi_callback_info info) {
         return NULL;
     }
 
-    int32_t buffer_size_msec;
-    status = napi_get_value_int32(env, args[2], &buffer_size_msec);
+    int32_t buffered_frames_count;
+    status = napi_get_value_int32(env, args[2], &buffered_frames_count);
     if (status != napi_ok) {
         napi_throw_error(
                 env,
                 pv_recorder_status_to_string(PV_RECORDER_STATUS_INVALID_ARGUMENT),
-                "Unable to get the buffer size");
-        return NULL;
-    }
-
-    bool log_overflow;
-    status = napi_get_value_bool(env, args[3], &log_overflow);
-    if (status != napi_ok) {
-        napi_throw_error(
-                env,
-                pv_recorder_status_to_string(PV_RECORDER_STATUS_INVALID_ARGUMENT),
-                "Unable to get the log overflow flag");
-        return NULL;
-    }
-
-    bool log_silence;
-    status = napi_get_value_bool(env, args[3], &log_silence);
-    if (status != napi_ok) {
-        napi_throw_error(
-                env,
-                pv_recorder_status_to_string(PV_RECORDER_STATUS_INVALID_ARGUMENT),
-                "Unable to get the log silence flag");
+                "Unable to get the buffered frames count");
         return NULL;
     }
 
     pv_recorder_t *handle = NULL;
-    pv_recorder_status_t pv_recorder_status = pv_recorder_init(device_index, frame_length, buffer_size_msec, log_overflow, log_silence, &handle);
+    pv_recorder_status_t pv_recorder_status = pv_recorder_init(
+            device_index,
+            frame_length,
+            buffered_frames_count,
+            &handle);
     if (pv_recorder_status != PV_RECORDER_STATUS_SUCCESS) {
         handle = NULL;
     }
@@ -249,10 +233,10 @@ napi_value napi_pv_recorder_read(napi_env env, napi_callback_info info) {
 
     napi_typedarray_type arr_type = -1;
     size_t length = 0;
-    void *data = NULL;
+    void *frame = NULL;
     napi_value arr_value = NULL;
     size_t offset = 0;
-    status = napi_get_typedarray_info(env, args[1], &arr_type, &length, &data, &arr_value, &offset);
+    status = napi_get_typedarray_info(env, args[1], &arr_type, &length, &frame, &arr_value, &offset);
     if (status != napi_ok) {
         napi_throw_error(
                 env,
@@ -264,7 +248,7 @@ napi_value napi_pv_recorder_read(napi_env env, napi_callback_info info) {
         napi_throw_error(
                 env,
                 pv_recorder_status_to_string(PV_RECORDER_STATUS_INVALID_ARGUMENT),
-                "Invalid type of input pcm buffer. The input frame has to be 'Int16Array'");
+                "Invalid type of input frame. The input frame has to be 'Int16Array'");
         return NULL;
     }
     if (length == 0) {
@@ -283,7 +267,9 @@ napi_value napi_pv_recorder_read(napi_env env, napi_callback_info info) {
     }
 
 
-    pv_recorder_status_t pv_recorder_status = pv_recorder_read((pv_recorder_t *)(uintptr_t) object_id, (int16_t *) data);
+    pv_recorder_status_t pv_recorder_status = pv_recorder_read(
+            (pv_recorder_t *)(uintptr_t) object_id,
+            (int16_t *) frame);
 
     napi_value result;
     status = napi_create_int32(env, pv_recorder_status, &result);
@@ -297,6 +283,44 @@ napi_value napi_pv_recorder_read(napi_env env, napi_callback_info info) {
 
     return result;
 }
+
+napi_value napi_pv_recorder_set_debug_logging(napi_env env, napi_callback_info info) {
+    size_t argc = 2;
+    napi_value args[2];
+    napi_status status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
+    if (status != napi_ok) {
+        napi_throw_error(
+                env,
+                pv_recorder_status_to_string(PV_RECORDER_STATUS_RUNTIME_ERROR),
+                "Unable to get input arguments");
+        return NULL;
+    }
+
+    uint64_t object_id = 0;
+    bool lossless = false;
+    status = napi_get_value_bigint_uint64(env, args[0], &object_id, &lossless);
+    if ((status != napi_ok) || !lossless) {
+        napi_throw_error(
+                env,
+                pv_recorder_status_to_string(PV_RECORDER_STATUS_RUNTIME_ERROR),
+                "Unable to get the address of the instance of PvRecorder properly");
+        return NULL;
+    }
+
+    bool is_debug_logging_enabled;
+    status = napi_get_value_bool(env, args[1], &is_debug_logging_enabled);
+    if (status != napi_ok) {
+        napi_throw_error(
+                env,
+                pv_recorder_status_to_string(PV_RECORDER_STATUS_INVALID_ARGUMENT),
+                "Unable to get the log overflow flag");
+        return NULL;
+    }
+
+    pv_recorder_set_debug_logging((pv_recorder_t *)(uintptr_t) object_id, is_debug_logging_enabled);
+    return NULL;
+}
+
 
 napi_value napi_pv_recorder_get_selected_device(napi_env env, napi_callback_info info) {
     size_t argc = 1;
@@ -334,7 +358,7 @@ napi_value napi_pv_recorder_get_selected_device(napi_env env, napi_callback_info
     return result;
 }
 
-napi_value napi_pv_recorder_get_audio_devices(napi_env env, napi_callback_info info) {
+napi_value napi_pv_recorder_get_available_devices(napi_env env, napi_callback_info info) {
     size_t argc = 0;
     napi_status status = napi_get_cb_info(env, info, &argc, NULL, NULL, NULL);
     if (status != napi_ok) {
@@ -345,16 +369,16 @@ napi_value napi_pv_recorder_get_audio_devices(napi_env env, napi_callback_info i
         return NULL;
     }
 
-    int32_t count = 0;
-    char **devices = NULL;
-    pv_recorder_status_t pv_recorder_status = pv_recorder_get_audio_devices(&count, &devices);
+    int32_t device_list_length = 0;
+    char **device_list = NULL;
+    pv_recorder_status_t pv_recorder_status = pv_recorder_get_available_devices(&device_list_length, &device_list);
 
     if (pv_recorder_status != PV_RECORDER_STATUS_SUCCESS) {
         return NULL;
     }
 
     napi_value result;
-    status = napi_create_array_with_length(env, count, &result);
+    status = napi_create_array_with_length(env, device_list_length, &result);
     if (status != napi_ok) {
         napi_throw_error(
                 env,
@@ -363,9 +387,9 @@ napi_value napi_pv_recorder_get_audio_devices(napi_env env, napi_callback_info i
         return NULL;
     }
 
-    for (int32_t i = 0; i < count; i++) {
+    for (int32_t i = 0; i < device_list_length; i++) {
         napi_value device_name;
-        status = napi_create_string_utf8(env, devices[i], NAPI_AUTO_LENGTH, &device_name);
+        status = napi_create_string_utf8(env, device_list[i], NAPI_AUTO_LENGTH, &device_name);
         if (status != napi_ok) {
             napi_throw_error(
                     env,
@@ -384,9 +408,26 @@ napi_value napi_pv_recorder_get_audio_devices(napi_env env, napi_callback_info i
         }
     }
 
-    pv_recorder_free_device_list(count, devices);
+    pv_recorder_free_available_devices(device_list_length, device_list);
     return result;
 }
+
+napi_value napi_pv_recorder_sample_rate(napi_env env, napi_callback_info info) {
+    (void) info;
+
+    napi_value result;
+    napi_status status = napi_create_int32(env, pv_recorder_sample_rate(), &result);
+    if (status != napi_ok) {
+        napi_throw_error(
+                env,
+                pv_recorder_status_to_string(PV_RECORDER_STATUS_RUNTIME_ERROR),
+                "Unable to get input arguments");
+        return NULL;
+    }
+
+    return result;
+}
+
 
 napi_value napi_pv_recorder_version(napi_env env, napi_callback_info info) {
     (void)(info);
@@ -427,11 +468,19 @@ napi_value Init(napi_env env, napi_value exports) {
     status = napi_define_properties(env, exports, 1, &desc);
     assert(status == napi_ok);
 
+    desc = DECLARE_NAPI_METHOD("set_debug_logging", napi_pv_recorder_set_debug_logging);
+    status = napi_define_properties(env, exports, 1, &desc);
+    assert(status == napi_ok);
+
     desc = DECLARE_NAPI_METHOD("get_selected_device", napi_pv_recorder_get_selected_device);
     status = napi_define_properties(env, exports, 1, &desc);
     assert(status == napi_ok);
 
-    desc = DECLARE_NAPI_METHOD("get_audio_devices", napi_pv_recorder_get_audio_devices);
+    desc = DECLARE_NAPI_METHOD("get_available_devices", napi_pv_recorder_get_audio_devices);
+    status = napi_define_properties(env, exports, 1, &desc);
+    assert(status == napi_ok);
+
+    desc = DECLARE_NAPI_METHOD("sample_rate", napi_pv_recorder_sample_rate);
     status = napi_define_properties(env, exports, 1, &desc);
     assert(status == napi_ok);
 
