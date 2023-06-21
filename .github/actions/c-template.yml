@@ -1,0 +1,28 @@
+name: C Template
+
+inputs:
+  pv_platform:
+    required: true
+  output_dir:
+    required: true
+
+runs:
+  steps:
+    - name: Create build directory
+      run: cmake -B ./build -S . -DPV_PLATFORM="${{ inputs.pv_platform }}" -DOUTPUT_DIR="${{ inputs.output_dir }}"
+
+    - name: Build
+      run: cmake --build ./build
+
+    - name: Run get audio devices
+      run: ./demo --show_audio_devices
+      working-directory: build
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ inputs.pv_platform }}
+        path: |
+          lib/${{ inputs.output_dir }}/libpv_recorder.*
+          lib/node/${{ inputs.output_dir }}/pv_recorder.node
+        retention-days: 3
