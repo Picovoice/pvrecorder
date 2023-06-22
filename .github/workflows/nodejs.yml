@@ -5,15 +5,15 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'sdk/nodejs/**'
-      - '!sdk/nodejs/README.md'
+      - 'binding/nodejs/**'
+      - '!binding/nodejs/README.md'
       - 'lib/node/**'
       - '.github/workflows/nodejs.yml'
   pull_request:
-    branches: [ main ]
+    branches: [ main, 'v[0-9]+.[0-9]+' ]
     paths:
-      - 'sdk/nodejs/**'
-      - '!sdk/nodejs/README.md'
+      - 'binding/nodejs/**'
+      - '!binding/nodejs/README.md'
       - 'lib/node/**'
       - '.github/workflows/nodejs.yml'
 

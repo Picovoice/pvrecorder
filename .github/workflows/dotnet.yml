@@ -5,8 +5,8 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'sdk/dotnet/**'
-      - '!sdk/dotnet/README.md'
+      - 'binding/dotnet/**'
+      - '!binding/dotnet/README.md'
       - 'lib/beaglebone/**'
       - 'lib/linux/**'
       - 'lib/jetson/**'
@@ -15,10 +15,10 @@ on:
       - 'lib/windows/**'
       - '.github/workflows/dotnet.yml'
   pull_request:
-    branches: [ main ]
+    branches: [ main, 'v[0-9]+.[0-9]+' ]
     paths:
-      - 'sdk/dotnet/**'
-      - '!sdk/dotnet/README.md'
+      - 'binding/dotnet/**'
+      - '!binding/dotnet/README.md'
       - 'lib/beaglebone/**'
       - 'lib/linux/**'
       - 'lib/jetson/**'

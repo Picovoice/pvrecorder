@@ -5,8 +5,8 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'sdk/python/**'
-      - '!sdk/python/README.md'
+      - 'binding/python/**'
+      - '!binding/python/README.md'
       - 'lib/beaglebone/**'
       - 'lib/linux/**'
       - 'lib/jetson/**'
@@ -15,10 +15,10 @@ on:
       - 'lib/windows/**'
       - '.github/workflows/python.yml'
   pull_request:
-    branches: [ main ]
+    branches: [ main, 'v[0-9]+.[0-9]+' ]
     paths:
-      - 'sdk/python/**'
-      - '!sdk/python/README.md'
+      - 'binding/python/**'
+      - '!binding/python/README.md'
       - 'lib/beaglebone/**'
       - 'lib/linux/**'
       - 'lib/jetson/**'
