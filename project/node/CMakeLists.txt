@@ -28,31 +28,29 @@ if (${PV_RECORDER_PLATFORM} STREQUAL "windows")
   set(NODE_LIB ${NODE_WIN_LIB_DIR}/node.a)
 endif()
 
-add_library(${PROJECT_NAME} SHARED pv_recorder_napi.c $<TARGET_OBJECTS:pv_recorder_object>)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES
+add_library(pv_recorder_napi SHARED pv_recorder_napi.c $<TARGET_OBJECTS:pv_recorder>)
+set_target_properties(pv_recorder_napi PROPERTIES
     PREFIX ""
     OUTPUT_NAME "pv_recorder"
     SUFFIX ".node"
 )
-
-add_dependencies(${PROJECT_NAME} node_headers)
+add_dependencies(pv_recorder_napi node_headers)
 
 if (${PV_RECORDER_PLATFORM} STREQUAL "windows")
-    add_dependencies(${PROJECT_NAME} node_win_lib)
+    add_dependencies(pv_recorder_napi node_win_lib)
 endif()
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/../include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_INCLUDE_DIR})
+target_include_directories(pv_recorder_napi PUBLIC ${PROJECT_SOURCE_DIR}/../include)
+target_include_directories(pv_recorder_napi PRIVATE ${NODE_INCLUDE_DIR})
 
-target_link_libraries(${PROJECT_NAME} ${NODE_LIB})
+target_link_libraries(pv_recorder_napi ${NODE_LIB})
 
 if (${PV_RECORDER_PLATFORM} STREQUAL "mac-x86_64" OR ${PV_RECORDER_PLATFORM} STREQUAL "mac-arm64")
-    target_link_options(${PROJECT_NAME} PRIVATE "-undefined" "dynamic_lookup")
+    target_link_options(pv_recorder_napi PRIVATE "-undefined" "dynamic_lookup")
 endif()
 
 if(DEFINED OUTPUT_DIR)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    add_custom_command(TARGET pv_recorder_napi POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:${PROJECT_NAME}>
             "${CMAKE_SOURCE_DIR}/../lib/node/${OUTPUT_DIR}/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
