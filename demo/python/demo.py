@@ -14,7 +14,7 @@ import argparse
 import struct
 import wave
 
-from project import PvRecorder
+from pvrecorder import PvRecorder
 
 
 def main():
