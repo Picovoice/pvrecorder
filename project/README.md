@@ -1,4 +1,4 @@
-# PvRecorder Project
+# PvRecorder Source Project
 
 ## Requirements
 
@@ -17,17 +17,20 @@
 
 ## Compiling
 
-The variable `{OUTPUT_DIR}` will be used to select the directory to copy the shared object
-after a successful compilation. `{OUTPUT_DIR}` should be a directory **relative** to the [lib](../lib) directory.
-
 Run the following commands to build and test (`{OUTPUT_DIR}` can be empty if you wish not to copy):
 
 ```console
 git submodule update --init --recursive
 mkdir build && cd build
-cmake .. -DOUTPUT_DIR={OUTPUT_DIR}
+cmake .. -DOUTPUT_DIR={OUTPUT_DIR} -DPV_RECORDER_PLATFORM={PV_RECORDER_PLATFORM}
 cmake --build .
 ```
+
+The variable `{OUTPUT_DIR}` will be used to select the directory to copy the shared object
+after a successful compilation. `{OUTPUT_DIR}` should be a directory **relative** to the [lib](../lib) directory.
+
+The `{PV_RECORDER_PLATFORM}` variable will set the compilation flags for the given platform. Exclude this variable
+to get a list of possible values.
 
 ## Usage
 1. Create a PvRecorder object:
@@ -36,17 +39,13 @@ cmake --build .
 
 const int32_t device_index = -1; // -1 == default device
 const int32_t frame_length = 512;
-const int32_t buffer_size_msec = 100;
-const bool log_overflow = true;
-const bool log_silence = false;
+const int32_t buffered_frame_count = 10;
 
 pv_recorder_t *recorder = NULL;
 pv_recorder_status_t status = pv_recorder_init(
         device_index, 
         frame_length, 
-        buffer_size_msec, 
-        log_overflow, 
-        log_silence, 
+        buffered_frame_count, 
         &recorder);
 if (status != PV_RECORDER_STATUS_SUCCESS) {
     // handle PvRecorder init error
@@ -97,20 +96,20 @@ free(frame);
 
 To print a list of available audio devices:
 ```c
-char **devices = NULL;
-int32_t count = 0;
+char **device_list = NULL;
+int32_t device_list_length = 0;
 
-pv_recorder_status_t status = pv_recorder_get_audio_devices(&count, &devices);
+pv_recorder_status_t status = pv_recorder_get_available_devices(&device_list_length, &device_list);
 if (status != PV_RECORDER_STATUS_SUCCESS) {
     // handle PvRecorder get audio devices error
 }
 
 fprintf(stdout, "Printing devices...\n");
-for (int32_t i = 0; i < count; i++) {
-    fprintf(stdout, "index: %d, name: %s\n", i, devices[i]);
+for (int32_t i = 0; i < device_list_length; i++) {
+    fprintf(stdout, "index: %d, name: %s\n", i, device_list[i]);
 }
 
-pv_recorder_free_device_list(count, devices);
+pv_recorder_free_available_devices(device_list_length, device_list);
 ```
 
 The index of the device in the returned list can be used in `pv_recorder_init()` to select that device for recording.
