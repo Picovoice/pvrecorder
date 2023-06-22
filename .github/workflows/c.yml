@@ -9,7 +9,7 @@ on:
       - 'project/**'
       - '!project/README.md'
       - '.github/workflows/c.yml'
-      - '.github/actions/c/action.yml'
+      - '.github/actions/c-template/action.yml'
   pull_request:
     branches: [ main, 'v[0-9]+.[0-9]+' ]
     paths:
@@ -17,7 +17,7 @@ on:
       - 'project/**'
       - '!project/README.md'
       - '.github/workflows/c.yml'
-      - '.github/actions/c/action.yml'
+      - '.github/actions/c-template/action.yml'
 
 jobs:
   build-github-hosted:
