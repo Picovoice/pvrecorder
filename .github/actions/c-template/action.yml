@@ -19,11 +19,6 @@ runs:
       working-directory: project
       shell: bash
 
-    - name: Run get audio devices
-      run: ./pv_recorder_demo --show_audio_devices
-      working-directory: project/build
-      shell: bash
-
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
