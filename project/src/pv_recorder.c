@@ -67,7 +67,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
     if (frame_length <= 0) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
-    if (buffered_frames_count <= 1) {
+    if (buffered_frames_count < 1) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
     if (!object) {

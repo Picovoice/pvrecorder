@@ -93,20 +93,37 @@ target_link_libraries(pv_recorder_demo pv_recorder)
 enable_testing()
 
 add_executable(test_circular_buffer test/test_pv_circular_buffer.c src/pv_circular_buffer.c)
-
 target_include_directories(test_circular_buffer PUBLIC include)
-
 add_test(
         NAME test_circular_buffer
         COMMAND test_circular_buffer
 )
-
 add_custom_command(
         TARGET test_circular_buffer
-        COMMENT "Run Tests"
+        COMMENT "Run pv_circular_buffer tests"
         POST_BUILD
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIGURATION> -R "^test_circular_buffer" --output-on-failures
+)
+
+add_executable(test_recorder test/test_pv_recorder.c src/pv_recorder.c src/pv_circular_buffer.c)
+target_include_directories(test_recorder PUBLIC include src/miniaudio)
+if (NOT ${PV_RECORDER_PLATFORM} STREQUAL "windows")
+    target_link_libraries(test_recorder PRIVATE pthread dl m)
+    if(PV_LINK_ATOMIC)
+        target_link_libraries(test_recorder PRIVATE atomic)
+    endif()
+endif()
+add_test(
+        NAME test_recorder
+        COMMAND test_recorder
+)
+add_custom_command(
+        TARGET test_recorder
+        COMMENT "Run pv_recorder tests"
+        POST_BUILD
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIGURATION> -R "^test_recorder" --output-on-failures
 )
 
 add_subdirectory(node)
