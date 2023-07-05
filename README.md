@@ -2,7 +2,6 @@
 
 [![GitHub release](https://img.shields.io/github/release/Picovoice/pvrecorder.svg)](https://github.com/Picovoice/pvrecorder/releases)
 [![GitHub](https://img.shields.io/github/license/Picovoice/pvrecorder)](https://github.com/Picovoice/pvrecorder/)
-[![GitHub language count](https://img.shields.io/github/languages/count/Picovoice/pvrecorder)](https://github.com/Picovoice/pvrecorder/)
 
 <!-- markdown-link-check-disable -->
 [![PyPI](https://img.shields.io/pypi/v/pvrecorder)](https://pypi.org/project/pvrecorder/)
