@@ -21,7 +21,7 @@ runs:
 
     - name: Test
       run: ctest --output-on-failure
-      working-directory: project
+      working-directory: project/build
       shell: bash
 
     - name: Upload build artifacts
