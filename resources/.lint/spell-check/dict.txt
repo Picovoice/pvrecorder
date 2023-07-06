@@ -33,6 +33,7 @@ NETCOREAPP
 Picovoice
 pthread
 pvrecorder
+pvrecorderdemo
 repr
 RTLD
 stdint

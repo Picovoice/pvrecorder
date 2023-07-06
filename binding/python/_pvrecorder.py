@@ -88,9 +88,9 @@ class PvRecorder(object):
 
         :param device_index: The index of the audio device to use. A value of (-1) will resort to default device.
         :param frame_length: The length of audio frame to get for each read call.
-        :param buffered_frames_count: The number of audio frames buffered internally for reading - i.e. internal circular buffer
-        will be of size `frame_length` * `buffered_frames_count`. If this value is too low, buffer overflows could occur
-        audio frames could be dropped. A higher value will increase memory usage.
+        :param buffered_frames_count: The number of audio frames buffered internally for reading - i.e. internal
+        circular buffer will be of size `frame_length` * `buffered_frames_count`. If this value is too low,
+        buffer overflows could occur audio frames could be dropped. A higher value will increase memory usage.
         """
 
         library = self._get_library()
@@ -246,6 +246,7 @@ class PvRecorder(object):
         if cls._library is None:
             cls._library = cdll.LoadLibrary(cls._relative_library_path)
         return cls._library
+
 
 __all__ = [
     'PvRecorder',
