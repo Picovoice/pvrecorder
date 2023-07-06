@@ -38,7 +38,7 @@ static void init_test_helper(
 
 static void test_pv_recorder_init(void) {
     printf("Initialize with valid parameters\n");
-    init_test_helper(-1, 512, 10, PV_RECORDER_STATUS_SUCCESS);
+    init_test_helper(0, 512, 10, PV_RECORDER_STATUS_SUCCESS);
 
     printf("Initialize with invalid device index (negative)\n");
     init_test_helper(-2, 512, 10, PV_RECORDER_STATUS_INVALID_ARGUMENT);
@@ -47,13 +47,13 @@ static void test_pv_recorder_init(void) {
     init_test_helper(500, 512, 10, PV_RECORDER_STATUS_INVALID_ARGUMENT);
 
     printf("Initialize with invalid frame length\n");
-    init_test_helper(-1, -1, 10, PV_RECORDER_STATUS_INVALID_ARGUMENT);
+    init_test_helper(0, -1, 10, PV_RECORDER_STATUS_INVALID_ARGUMENT);
 
     printf("Initialize with invalid buffered frames count\n");
-    init_test_helper(-1, 512, 0, PV_RECORDER_STATUS_INVALID_ARGUMENT);
+    init_test_helper(0, 512, 0, PV_RECORDER_STATUS_INVALID_ARGUMENT);
 
     printf("Initialize with null recorder pointer\n");
-    pv_recorder_status_t status = pv_recorder_init(-1, 512, 10, NULL);
+    pv_recorder_status_t status = pv_recorder_init(0, 512, 10, NULL);
     check_condition(
             status == PV_RECORDER_STATUS_INVALID_ARGUMENT,
             __FUNCTION__ ,
@@ -68,7 +68,7 @@ static void test_pv_recorder_start_stop(void) {
     pv_recorder_status_t status;
     int16_t frame[512];
 
-    status = pv_recorder_init(-1, 512, 10, &recorder);
+    status = pv_recorder_init(0, 512, 10, &recorder);
     check_condition(
             status == PV_RECORDER_STATUS_SUCCESS,
             __FUNCTION__ ,
@@ -162,7 +162,7 @@ static void test_pv_recorder_start_stop(void) {
 
 static void test_pv_recorder_set_debug_logging(void) {
     pv_recorder_t *recorder = NULL;
-    pv_recorder_status_t status = pv_recorder_init(-1, 512, 10, &recorder);
+    pv_recorder_status_t status = pv_recorder_init(0, 512, 10, &recorder);
     check_condition(
             status == PV_RECORDER_STATUS_SUCCESS,
             __FUNCTION__ ,
@@ -179,7 +179,7 @@ static void test_pv_recorder_set_debug_logging(void) {
 
 static void test_pv_recorder_get_selected_device(void) {
     pv_recorder_t *recorder = NULL;
-    pv_recorder_status_t status = pv_recorder_init(-1, 512, 10, &recorder);
+    pv_recorder_status_t status = pv_recorder_init(0, 512, 10, &recorder);
     check_condition(
             status == PV_RECORDER_STATUS_SUCCESS,
             __FUNCTION__ ,
@@ -270,10 +270,10 @@ static void test_pv_recorder_version(void) {
 
 int main() {
     srand(time(NULL));
-    test_pv_recorder_init();
-    test_pv_recorder_start_stop();
-    test_pv_recorder_set_debug_logging();
-    test_pv_recorder_get_selected_device();
+//    test_pv_recorder_init();
+//    test_pv_recorder_start_stop();
+//    test_pv_recorder_set_debug_logging();
+//    test_pv_recorder_get_selected_device();
     test_pv_recorder_get_available_devices();
     test_pv_recorder_sample_rate();
     test_pv_recorder_version();

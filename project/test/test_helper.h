@@ -15,7 +15,7 @@ static void check_condition(bool condition, const char *function, int32_t line, 
     if (condition == 0) {
         va_list args;
         va_start(args, message);
-        fprintf(stderr, "%s:%s():at_line %d: %s", __FILE__, function, line, test_error_message(message, args));
+        fprintf(stderr, "%s:%s():at_line %d: %s\n", __FILE__, function, line, test_error_message(message, args));
         va_end(args);
         exit(1);
     }
