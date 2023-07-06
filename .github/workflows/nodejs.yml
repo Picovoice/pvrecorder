@@ -19,7 +19,7 @@ on:
 
 defaults:
   run:
-    working-directory: sdk/nodejs
+    working-directory: binding/nodejs
 
 jobs:
   build-github-hosted:
@@ -53,7 +53,7 @@ jobs:
       run: yarn build
 
     - name: Run get audio devices
-      run: node demo/demo.js --show_audio_devices
+      run: node ../demo/nodejs/demo.js --show_audio_devices
 
   build-self-hosted:
     runs-on: ${{ matrix.machine }}

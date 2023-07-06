@@ -12,7 +12,7 @@
 
 const fs = require("fs");
 
-const { PvRecorder } = require("../dist/index");
+const { PvRecorder } = require("../../binding/nodejs/dist");
 
 let isInterrupted = false;
 

@@ -30,7 +30,7 @@ console.log("Copying scripts...");
 
 // Scripts
 ncp(
-    "../../scripts",
+    "../../resources/scripts",
     "./scripts",
     function (err) {
         if (err) {
