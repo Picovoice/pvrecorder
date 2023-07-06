@@ -19,6 +19,11 @@ runs:
       working-directory: project
       shell: bash
 
+    - name: Test
+      run: ctest --output-on-failure
+      working-directory: project
+      shell: bash
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:

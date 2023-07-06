@@ -99,26 +99,12 @@ if (PV_BUILD_TESTS)
             NAME test_circular_buffer
             COMMAND test_circular_buffer
     )
-    add_custom_command(
-            TARGET test_circular_buffer
-            COMMENT "Run pv_circular_buffer tests"
-            POST_BUILD
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-            COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIGURATION> -R "^test_circular_buffer" --output-on-failures
-    )
 
     add_executable(test_recorder test/test_pv_recorder.c)
     target_link_libraries(test_recorder pv_recorder)
     add_test(
             NAME test_recorder
             COMMAND test_recorder
-    )
-    add_custom_command(
-            TARGET test_recorder
-            COMMENT "Run pv_recorder tests"
-            POST_BUILD
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-            COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIGURATION> -R "^test_recorder" --output-on-failures
     )
 endif()
 
