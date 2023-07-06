@@ -21,7 +21,7 @@ from pvrecorder import PvRecorder
 devices = PvRecorder.get_audio_devices()
 ```
 
-To start recording initialize the instance and run start:
+To start recording initialize an instance and run start:
 
 ```python
 from pvrecorder import PvRecorder
@@ -30,11 +30,11 @@ recorder = PvRecorder(device_index=-1, frame_length=512)
 recorder.start()
 ```
 
-Get the pcm frames by calling the read function:
+Get the frames by calling the read function:
 
 ```python
-pcm = recorder.read()
-# do something with pcm
+frame = recorder.read()
+# do something with frame
 ```
 
 To stop recording just run stop on the instance:

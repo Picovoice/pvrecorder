@@ -9,6 +9,7 @@
 #    specific language governing permissions and limitations under the License.
 #
 
+import os.path
 import unittest
 
 from _pvrecorder import *
@@ -17,7 +18,7 @@ from _pvrecorder import *
 class PvLeopardTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        PvRecorder.set_default_library_path('../..')
+        PvRecorder.set_default_library_path(os.path.join('..', '..'))
 
     def test_invalid_device_index(self):
         with self.assertRaises(ValueError):
