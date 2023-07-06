@@ -3,3 +3,5 @@ dist
 MANIFEST.in
 pvrecorder
 pvrecorder.egg-info
+build
+__pycache__

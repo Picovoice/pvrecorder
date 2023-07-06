@@ -139,6 +139,10 @@ class PvRecorder(object):
         self._version_func.argtypes = None
         self._version_func.restype = c_char_p
 
+        self._sample_rate_func = library.pv_recorder_sample_rate
+        self._sample_rate_func.argtypes = None
+        self._sample_rate_func.restype = c_int32
+
     def delete(self) -> None:
         """Releases any resources used by PvRecorder."""
 
@@ -193,6 +197,13 @@ class PvRecorder(object):
 
         version = self._version_func()
         return version.decode('utf-8')
+
+    @property
+    def sample_rate(self) -> int:
+        """Gets the audio sample rate used by PvRecorder."""
+
+        sample_rate = self._sample_rate_func()
+        return sample_rate
 
     @staticmethod
     def get_available_devices() -> List[str]:
