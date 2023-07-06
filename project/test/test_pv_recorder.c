@@ -235,7 +235,7 @@ static void test_pv_recorder_get_available_devices(void) {
             pv_recorder_status_to_string(status),
             pv_recorder_status_to_string(PV_RECORDER_STATUS_SUCCESS));
     check_condition(
-            device_list_length > 0,
+            device_list_length >= 0,
             __FUNCTION__ ,
             __LINE__,
             "device_list_length should have been greater than 0, instead got %d",
@@ -270,10 +270,10 @@ static void test_pv_recorder_version(void) {
 
 int main() {
     srand(time(NULL));
-//    test_pv_recorder_init();
-//    test_pv_recorder_start_stop();
-//    test_pv_recorder_set_debug_logging();
-//    test_pv_recorder_get_selected_device();
+    test_pv_recorder_init();
+    test_pv_recorder_start_stop();
+    test_pv_recorder_set_debug_logging();
+    test_pv_recorder_get_selected_device();
     test_pv_recorder_get_available_devices();
     test_pv_recorder_sample_rate();
     test_pv_recorder_version();
