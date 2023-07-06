@@ -28,7 +28,7 @@ if (${PV_RECORDER_PLATFORM} STREQUAL "windows")
   set(NODE_LIB ${NODE_WIN_LIB_DIR}/node.a)
 endif()
 
-add_library(pv_recorder_napi SHARED pv_recorder_napi.c pv_recorder)
+add_library(pv_recorder_napi SHARED pv_recorder_napi.c $<TARGET_OBJECTS:pv_recorder_object>)
 set_target_properties(pv_recorder_napi PROPERTIES
     PREFIX ""
     OUTPUT_NAME "pv_recorder"

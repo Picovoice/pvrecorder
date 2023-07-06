@@ -70,9 +70,11 @@ else ()
     message(FATAL_ERROR "Unknown platform `${PV_RECORDER_PLATFORM}`.")
 endif ()
 
-add_library(pv_recorder SHARED src/pv_circular_buffer.c src/pv_recorder.c)
-target_include_directories(pv_recorder PUBLIC include)
-target_include_directories(pv_recorder PRIVATE src/miniaudio)
+add_library(pv_recorder_object OBJECT src/pv_circular_buffer.c src/pv_recorder.c)
+target_include_directories(pv_recorder_object PUBLIC include)
+target_include_directories(pv_recorder_object PRIVATE src/miniaudio)
+
+add_library(pv_recorder SHARED $<TARGET_OBJECTS:pv_recorder_object>)
 set_target_properties(pv_recorder PROPERTIES PUBLIC_HEADER include/pv_recorder.h)
 
 if (NOT ${PV_RECORDER_PLATFORM} STREQUAL "windows")
