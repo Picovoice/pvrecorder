@@ -203,7 +203,7 @@ static void test_pv_recorder_get_selected_device(void) {
     pv_recorder_delete(recorder);
 }
 
-static void test_pv_recorder_get_available_devices(void) {
+static int32_t test_pv_recorder_get_available_devices(void) {
     pv_recorder_status_t status;
     int32_t device_list_length = -1;
     char **device_list = NULL;
@@ -247,6 +247,7 @@ static void test_pv_recorder_get_available_devices(void) {
             "device_list should have not been NULL");
 
     pv_recorder_free_available_devices(device_list_length, device_list);
+    return device_list_length;
 }
 
 static void test_pv_recorder_sample_rate(void) {
@@ -270,13 +271,15 @@ static void test_pv_recorder_version(void) {
 
 int main() {
     srand(time(NULL));
-    test_pv_recorder_init();
-    test_pv_recorder_start_stop();
-    test_pv_recorder_set_debug_logging();
-    test_pv_recorder_get_selected_device();
-    test_pv_recorder_get_available_devices();
+    int32_t num_available_devices = test_pv_recorder_get_available_devices();
     test_pv_recorder_sample_rate();
     test_pv_recorder_version();
 
+    if (num_available_devices > 0) {
+        test_pv_recorder_init();
+        test_pv_recorder_start_stop();
+        test_pv_recorder_set_debug_logging();
+        test_pv_recorder_get_selected_device();
+    }
     return 0;
 }
