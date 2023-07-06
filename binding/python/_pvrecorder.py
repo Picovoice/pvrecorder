@@ -109,7 +109,7 @@ class PvRecorder(object):
 
         status = init_func(device_index, frame_length, buffered_frames_count, byref(self._handle))
         if status is not self.PvRecorderStatuses.SUCCESS:
-            raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to initialize PvRecorder.")
+            raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to initialize PvRecorder." + status)
 
         self._delete_func = library.pv_recorder_delete
         self._delete_func.argtypes = [POINTER(self.CPvRecorder)]
