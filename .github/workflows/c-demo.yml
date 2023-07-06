@@ -15,6 +15,10 @@ on:
       - '!demo/c/README.md'
       - '.github/workflows/c-demo.yml'
 
+defaults:
+  run:
+    working-directory: demo/c
+
 jobs:
   build-github-hosted:
     runs-on: ${{ matrix.os }}
