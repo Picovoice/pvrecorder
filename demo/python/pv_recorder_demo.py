@@ -1,5 +1,5 @@
 #
-# Copyright 2021-2022 Picovoice Inc.
+# Copyright 2021-2023 Picovoice Inc.
 #
 # You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
 # file accompanying this source.
@@ -39,7 +39,7 @@ def main():
     args = parser.parse_args()
 
     if args.show_audio_devices:
-        devices = PvRecorder.get_audio_devices()
+        devices = PvRecorder.get_available_devices()
         for i in range(len(devices)):
             print("index: %d, device name: %s" % (i, devices[i]))
     else:
