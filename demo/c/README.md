@@ -31,6 +31,11 @@ to get a list of possible values.
 
 ## Usage
 
+To see the usage options for the demo:
+```console
+./pv_recorder_demo
+```
+
 Get a list of available audio recording devices:
 ```console
 ./pv_recorder_demo --show_audio_devices
