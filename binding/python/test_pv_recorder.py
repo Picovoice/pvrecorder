@@ -25,14 +25,14 @@ class PvLeopardTestCase(unittest.TestCase):
 
     def test_invalid_frame_length(self):
         with self.assertRaises(ValueError):
-            _ = PvRecorder(-1, -1)
+            _ = PvRecorder(0, -1)
 
     def test_invalid_buffered_frame_count(self):
         with self.assertRaises(ValueError):
-            _ = PvRecorder(-1, 512, 0)
+            _ = PvRecorder(0, 512, 0)
 
     def test_start_stop(self):
-        recorder = PvRecorder(-1, 512)
+        recorder = PvRecorder(0, 512)
         recorder.start()
         for i in range(5):
             frame = recorder.read()
@@ -41,21 +41,21 @@ class PvLeopardTestCase(unittest.TestCase):
         recorder.delete()
 
     def test_set_debug_logging(self):
-        recorder = PvRecorder(-1, 512)
+        recorder = PvRecorder(0, 512)
         recorder.set_debug_logging(True)
         recorder.set_debug_logging(False)
         self.assertIsNotNone(recorder)
         recorder.delete()
 
     def test_selected_device(self):
-        recorder = PvRecorder(-1, 512)
+        recorder = PvRecorder(0, 512)
         device = recorder.selected_device
         self.assertIsNotNone(device)
         self.assertIsInstance(device, str)
         recorder.delete()
 
     def test_get_available_devices(self):
-        recorder = PvRecorder(-1, 512)
+        recorder = PvRecorder(0, 512)
         devices = recorder.get_available_devices()
         self.assertIsNotNone(devices)
         for device in devices:
@@ -64,14 +64,14 @@ class PvLeopardTestCase(unittest.TestCase):
         recorder.delete()
 
     def test_version(self):
-        recorder = PvRecorder(-1, 512)
+        recorder = PvRecorder(0, 512)
         version = recorder.version
         self.assertGreater(len(version), 0)
         self.assertIsInstance(version, str)
         recorder.delete()
 
     def test_sample_rate(self):
-        recorder = PvRecorder(-1, 512)
+        recorder = PvRecorder(0, 512)
         sample_rate = recorder.sample_rate
         self.assertGreater(sample_rate, 0)
         self.assertIsInstance(sample_rate, int)

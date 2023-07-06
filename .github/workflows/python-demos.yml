@@ -37,7 +37,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Build binding (temporary)
-      run: python3 setup.py sdist bdist_wheel
+      run: pip install wheel && python3 setup.py sdist bdist_wheel
       working-directory: binding/python
 
     - name: Pre-build dependencies
@@ -60,7 +60,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Build binding (temporary)
-      run: python3 setup.py sdist bdist_wheel
+      run: pip install wheel && python3 setup.py sdist bdist_wheel
       working-directory: binding/python
 
     - name: Install dependencies
