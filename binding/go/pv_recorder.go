@@ -179,6 +179,11 @@ func (pvRecorder *PvRecorder) SetDebugLogging(isDebugLoggingEnabled bool) {
 	nativePvRecorder.nativeSetDebugLogging(pvRecorder, isDebugLoggingEnabled)
 }
 
+// GetIsRecording gets whether the given instance is currently recording audio or not.
+func (pvRecorder *PvRecorder) GetIsRecording() bool {
+	return nativePvRecorder.nativeGetIsRecording(pvRecorder)
+}
+
 // GetSelectedDevice gets the current selected audio input device name
 func (pvRecorder *PvRecorder) GetSelectedDevice() string {
 	return nativePvRecorder.nativeGetSelectedDevice(pvRecorder)

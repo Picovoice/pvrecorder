@@ -86,9 +86,9 @@ int32_t pv_recorder_read_wrapper(void *f, void *object, int16_t *pcm) {
     return ((pv_recorder_read_func) f)(object, pcm);
 }
 
-typedef void (*pv_recorder_set_debug_logging_func)(void *, int32_t);
+typedef void (*pv_recorder_set_debug_logging_func)(void *, bool);
 
-void pv_recorder_set_debug_logging_wrapper(void *f, void *object, int32_t is_debug_logging_enabled) {
+void pv_recorder_set_debug_logging_wrapper(void *f, void *object, bool is_debug_logging_enabled) {
 	return ((pv_recorder_set_debug_logging_func) f)(object, is_debug_logging_enabled);
 }
 
@@ -139,6 +139,7 @@ var (
 	pv_recorder_stop_ptr                   = C.load_symbol(lib, C.CString("pv_recorder_stop"))
 	pv_recorder_read_ptr                   = C.load_symbol(lib, C.CString("pv_recorder_read"))
 	pv_recorder_set_debug_logging_ptr      = C.load_symbol(lib, C.CString("pv_recorder_set_debug_logging"))
+	pv_recorder_get_is_recoring_ptr        = C.load_symbol(lib, C.CString("pv_recorder_get_is_recording"))
 	pv_recorder_get_selected_device_ptr    = C.load_symbol(lib, C.CString("pv_recorder_get_selected_device"))
 	pv_recorder_get_available_devices_ptr  = C.load_symbol(lib, C.CString("pv_recorder_get_available_devices"))
 	pv_recorder_free_available_devices_ptr = C.load_symbol(lib, C.CString("pv_recorder_free_available_devices"))
@@ -194,7 +195,14 @@ func (nativePvRecorderType) nativeRead(pvRecorder *PvRecorder, pcm *C.int16_t) P
 func (nativePvRecorderType) nativeSetDebugLogging(pvRecorder *PvRecorder, isDebugLoggingEnabled bool) {
 	C.pv_recorder_set_debug_logging_wrapper(pv_recorder_set_debug_logging_ptr,
 		unsafe.Pointer(pvRecorder.handle),
-		C.int32_t(isDebugLoggingEnabled))
+		C.bool(isDebugLoggingEnabled))
+}
+
+func (nativePvRecorderType) nativeGetIsRecording(pvRecorder *PvRecorder) bool {
+	var ret = C.pv_recorder_get_is_recording_wrapper(pv_recorder_get_is_recoring_ptr,
+		unsafe.Pointer(pvRecorder.handle))
+
+	return bool(ret)
 }
 
 func (nativePvRecorderType) nativeGetSelectedDevice(pvRecorder *PvRecorder) string {
