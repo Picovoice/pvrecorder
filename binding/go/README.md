@@ -24,7 +24,7 @@ A cross platform audio recorder to read one channel and 16kHz samples.
 ## Installation
 
 ```console
-go get github.com/Picovoice/pvrecorder/sdk/go
+go get github.com/Picovoice/pvrecorder/binding/go
 ```
 
 ## Usage
@@ -32,9 +32,9 @@ go get github.com/Picovoice/pvrecorder/sdk/go
 To get the list of available devices:
 
 ```go
-import . "github.com/Picovoice/pvrecorder/sdk/go"
+import . "github.com/Picovoice/pvrecorder/binding/go"
 
-devices, err := GetAudioDevices()
+devices, err := GetAvailableDevices()
 if err != nil {
     // error
 }
@@ -43,13 +43,12 @@ if err != nil {
 To start recording, initialize the instance and run start function:
 
 ```go
-import . "github.com/Picovoice/pvrecorder/sdk/go"
+import . "github.com/Picovoice/pvrecorder/binding/go"
 
 recorder := PvRecorder{
     DeviceIndex: -1, // Using -1 for index uses default audio input device.
     FrameLength: 512,
-    BufferSizeMSec: 1000,
-    LogOverflow: 1,
+    BufferedFramesCount: 10,
 }
 if err := recorder.Init(); err != nil {
     // error
@@ -83,10 +82,4 @@ recorder.Delete()
 
 ### Demo
 
-For more detailed information on how to use the pv_recorder go sdk, please that a look at [demo/demo.go](../../demo/go/demo.go). 
-
-To run the demo:
-
-```console
-go run demo/demo.go
-```
+For more detailed information on how to use the pv_recorder go binding, please that a look at [demo/demo.go](../../demo/go/demo.go). 

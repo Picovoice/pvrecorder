@@ -1,4 +1,4 @@
-// Copyright 2021 Picovoice Inc.
+// Copyright 2021-2023 Picovoice Inc.
 //
 // You may not use this file except in compliance with the license. A copy of the license is
 // located in the "LICENSE" file accompanying this source.
@@ -12,98 +12,96 @@
 package main
 
 import (
-    "bytes"
-    "encoding/binary"
-    "flag"
-    "log"
-    "os"
-    "os/signal"
+	"flag"
+	"log"
+	"os"
+	"os/signal"
+	"path/filepath"
 
-    pvrecorder "github.com/Picovoice/pvrecorder/sdk/go"
+	pvrecorder "github.com/Picovoice/pvrecorder/binding/go"
+	"github.com/go-audio/wav"
 )
 
 func main() {
-    showAudioDevices := flag.Bool("show_audio_devices", false, "Display all the available input devices")
-    audioDeviceIndex := flag.Int("audio_device_index", -1, "Index of audio input device to use.")
-    rawOutputPath := flag.String("raw_output_path", "", "Output path to save recorded audio raw bytes.")
-    flag.Parse()
+	showAudioDevices := flag.Bool("show_audio_devices", false, "Display all the available input devices")
+	audioDeviceIndex := flag.Int("audio_device_index", -1, "Index of audio input device to use.")
+	outputPath := flag.String("output_path", "", "Output path to save recorded a wav file.")
+	flag.Parse()
 
-    log.Printf("pvrecorder.go version: %s\n", pvrecorder.Version())
+	log.Printf("pvrecorder.go version: %s\n", pvrecorder.Version())
 
-    if *showAudioDevices {
-        log.Println("Printing devices...")
-        if devices, err := pvrecorder.GetAudioDevices(); err != nil {
-            log.Fatalf("Error: %s.\n", err.Error())
-        } else {
-            for i, device := range devices {
-                log.Printf("index: %d, device name: %s\n", i, device)
-            }
-        }
-        return;
-    }
+	if *showAudioDevices {
+		log.Println("Printing devices...")
+		if devices, err := pvrecorder.GetAvailableDevices(); err != nil {
+			log.Fatalf("Error: %s.\n", err.Error())
+		} else {
+			for i, device := range devices {
+				log.Printf("index: %d, device name: %s\n", i, device)
+			}
+		}
+		return
+	}
 
-    recorder := pvrecorder.PvRecorder{
-        DeviceIndex: *audioDeviceIndex,
-        FrameLength: 512,
-        BufferSizeMSec: 1000,
-        LogOverflow: 1,
-    }
+	recorder := pvrecorder.PvRecorder{
+		DeviceIndex:         *audioDeviceIndex,
+		FrameLength:         512,
+		BufferedFramesCount: 10,
+	}
 
-    log.Println("Initializing...")
-    if err := recorder.Init(); err != nil {
-        log.Fatalf("Error: %s.\n", err.Error())
-    }
-    defer recorder.Delete()
+	log.Println("Initializing...")
+	if err := recorder.Init(); err != nil {
+		log.Fatalf("Error: %s.\n", err.Error())
+	}
+	defer recorder.Delete()
 
-    log.Printf("Using device: %s", recorder.GetSelectedDevice())
+	log.Printf("Using device: %s", recorder.GetSelectedDevice())
 
-    log.Println("Starting...")
-    if err := recorder.Start(); err != nil {
-        log.Fatalf("Error: %s.\n", err.Error())
-    }
+	log.Println("Starting...")
+	if err := recorder.Start(); err != nil {
+		log.Fatalf("Error: %s.\n", err.Error())
+	}
 
-    signalCh := make(chan os.Signal, 1)
-    waitCh := make(chan struct{})
-    signal.Notify(signalCh, os.Interrupt)
+	signalCh := make(chan os.Signal, 1)
+	waitCh := make(chan struct{})
+	signal.Notify(signalCh, os.Interrupt)
 
-    go func () {
-        <- signalCh
-        close(waitCh)
-    }()
+	go func() {
+		<-signalCh
+		close(waitCh)
+	}()
 
-    var f *os.File
-    var buf *bytes.Buffer
-    if *rawOutputPath != "" {
-        file, err := os.Create(*rawOutputPath)
-        if err != nil {
-            log.Fatalf("Failed to create file: %s\n", err.Error())
-        }
-        defer file.Close()
+	var outputWav *wav.Encoder
+	if *outputPath != "" {
+		outputFilePath, _ := filepath.Abs(*outputPath)
+		outputFile, err := os.Create(outputFilePath)
+		if err != nil {
+			log.Fatalf("Failed to create output audio at path %s", outputFilePath)
+		}
+		defer outputFile.Close()
 
-        f = file
-        buf = new(bytes.Buffer)
-    }
-    
-    waitLoop:
-    for {
-        select {
-        case <- waitCh:
-            log.Println("Stopping...")
-            break waitLoop
-        default:
-            pcm, err := recorder.Read()
-            if err != nil {
-                log.Fatalf("Error: %s.\n", err.Error())
-            }
-            if *rawOutputPath != "" {
-                if err := binary.Write(buf, binary.LittleEndian, pcm); err != nil {
-                    log.Fatalf("Failed to write pcm to buffer: %s.\n", err.Error())
-                }
-                if _, err := f.Write(buf.Bytes()); err != nil {
-                    log.Fatalf("Failed to write bytes to file: %s\n", err.Error())
-                }
-                buf.Reset()
-            }
-        }
-    }
+		outputWav = wav.NewEncoder(outputFile, PvRecorder.SampleRate(), 16, 1, 1)
+		defer outputWav.Close()
+	}
+
+waitLoop:
+	for {
+		select {
+		case <-waitCh:
+			log.Println("Stopping...")
+			break waitLoop
+		default:
+			pcm, err := recorder.Read()
+			if err != nil {
+				log.Fatalf("Error: %s.\n", err.Error())
+			}
+			if outputWav != nil {
+				for outputBufIndex := range pcm {
+					err := outputWav.WriteFrame(pcm[outputBufIndex])
+					if err != nil {
+						log.Fatal(err)
+					}
+				}
+			}
+		}
+	}
 }

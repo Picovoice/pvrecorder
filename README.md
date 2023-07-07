@@ -86,6 +86,24 @@ For more information about the Python demos go to [demo/python](demo/python).
 
 ### Go Demo
 
+The demo requires `cgo`, which on Windows may mean that you need to install a gcc compiler like [Mingw](http://mingw-w64.org) to build it properly.
+
+From [demo/go](demo/go) run the following commands from the terminal.
+
+To show the available audio devices run:
+
+```console
+pv_recorder_demo --show_audio_devices
+```
+
+```console
+go run demo.go --audio_device_index {AUDIO_DEVICE_INDEX} --output_path {OUTPUT_PATH}
+```
+
+Replace `{AUDIO_DEVICE_INDEX}` with the index of the audio device to use, and `{OUTPUT_PATH}` with the path to save the audio data in `wav` format.
+
+For more information about Go demos go to [demo/go](demo/go).
+
 ### Node.js Demo
 
 ### Rust Demo
@@ -149,6 +167,63 @@ recorder.delete()
 ### .NET
 
 ### Go
+
+To install the PvRecorder Go module to your project, use the command:
+
+```console
+go get github.com/Picovoice/pvrecorder/binding/go
+```
+
+To get the list of available devices:
+
+```go
+import . "github.com/Picovoice/pvrecorder/binding/go"
+
+devices, err := GetAvailableDevices()
+if err != nil {
+    // error
+}
+```
+
+To start recording, initialize the instance and run start function:
+
+```go
+import . "github.com/Picovoice/pvrecorder/binding/go"
+
+recorder := PvRecorder{
+    DeviceIndex: -1, // Using -1 for index uses default audio input device.
+    FrameLength: 512,
+    BufferedFramesCount: 10,
+}
+if err := recorder.Init(); err != nil {
+    // error
+}
+if err := recorder.Start(); err != nil {
+    // error
+}
+```
+
+To read the pcm frames, run:
+
+```go
+pcm, err := recorder.Read()
+if err != nil {
+    // handle error
+}
+// do something with pcm
+```
+
+To stop recording just run stop on the instance:
+
+```go
+recorder.Stop()
+```
+
+Once you are done, free the used resources. You do not have to call stop before delete:
+
+```go
+recorder.Delete()
+```
 
 ### Node.js
 
