@@ -77,6 +77,22 @@ static void test_pv_recorder_start_stop(void) {
             pv_recorder_status_to_string(status),
             pv_recorder_status_to_string(PV_RECORDER_STATUS_SUCCESS));
 
+    printf("Check is_recording on NULL\n");
+    bool is_recording = pv_recorder_get_is_recording(NULL);
+    check_condition(
+            is_recording == false,
+            __FUNCTION__ ,
+            __LINE__,
+            "get_is_recording returned true on a NULL object.");
+
+    printf("Check is_recording on before start\n");
+    is_recording = pv_recorder_get_is_recording(recorder);
+    check_condition(
+            is_recording == false,
+            __FUNCTION__ ,
+            __LINE__,
+            "get_is_recording returned true - expected false.");
+
     printf("Call start on null object\n");
     status = pv_recorder_start(NULL);
     check_condition(
@@ -137,6 +153,14 @@ static void test_pv_recorder_start_stop(void) {
             pv_recorder_status_to_string(status),
             pv_recorder_status_to_string(PV_RECORDER_STATUS_SUCCESS));
 
+    printf("Check is_recording on started recorder\n");
+    is_recording = pv_recorder_get_is_recording(recorder);
+    check_condition(
+            is_recording == true,
+            __FUNCTION__ ,
+            __LINE__,
+            "get_is_recording returned false - expected true.");
+
     printf("Call stop on null recorder object\n");
     status = pv_recorder_stop(NULL);
     check_condition(
@@ -156,6 +180,14 @@ static void test_pv_recorder_start_stop(void) {
             "Recorder stop returned %s - expected %s.",
             pv_recorder_status_to_string(status),
             pv_recorder_status_to_string(PV_RECORDER_STATUS_SUCCESS));
+
+    printf("Check is_recording on stopped recorder\n");
+    is_recording = pv_recorder_get_is_recording(recorder);
+    check_condition(
+            is_recording == false,
+            __FUNCTION__ ,
+            __LINE__,
+            "get_is_recording returned true - expected false.");
 
     pv_recorder_delete(recorder);
 }

@@ -278,6 +278,13 @@ PV_API void pv_recorder_set_debug_logging(
     object->is_debug_logging_enabled = is_debug_logging_enabled;
 }
 
+PV_API bool pv_recorder_get_is_recording(pv_recorder_t *object) {
+    if (!object) {
+        return false;
+    }
+    return object->is_started;
+}
+
 PV_API const char *pv_recorder_get_selected_device(pv_recorder_t *object) {
     if (!object) {
         return NULL;
