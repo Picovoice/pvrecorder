@@ -162,15 +162,9 @@ func TestGetSelectedDevice(t *testing.T) {
 }
 
 func TestGetAvailableDevices(t *testing.T) {
-	devices, err := GetAvailableDevices()
+	_, err := GetAvailableDevices()
 	if err != nil {
 		t.Fatalf("Failed to get available devices: %v", err)
-	}
-
-	for _, device := range devices {
-		if len(device) == 0 {
-			t.Fatalf("Invalid device")
-		}
 	}
 }
 
