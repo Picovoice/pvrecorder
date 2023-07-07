@@ -27,7 +27,7 @@ func TestInvalidDeviceIndex(t *testing.T) {
 	}
 	err := recorder.Init()
 	if err == nil {
-		t.Fatalf("Init succeded with invalid device index")
+		t.Fatalf("Init succeeded with invalid device index")
 	} else {
 		recorder.Delete()
 	}
@@ -41,7 +41,7 @@ func TestInvalidFrameLength(t *testing.T) {
 	}
 	err := recorder.Init()
 	if err == nil {
-		t.Fatalf("Init succeded with invalid frame length")
+		t.Fatalf("Init succeeded with invalid frame length")
 	} else {
 		recorder.Delete()
 	}
@@ -55,7 +55,7 @@ func TestInvalidBufferedFramesCount(t *testing.T) {
 	}
 	err := recorder.Init()
 	if err == nil {
-		t.Fatalf("Init succeded with invalid buffered frames count")
+		t.Fatalf("Init succeeded with invalid buffered frames count")
 	} else {
 		recorder.Delete()
 	}

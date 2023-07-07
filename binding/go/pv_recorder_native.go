@@ -145,7 +145,7 @@ var (
 	pv_recorder_stop_ptr                   = C.load_symbol(lib, C.CString("pv_recorder_stop"))
 	pv_recorder_read_ptr                   = C.load_symbol(lib, C.CString("pv_recorder_read"))
 	pv_recorder_set_debug_logging_ptr      = C.load_symbol(lib, C.CString("pv_recorder_set_debug_logging"))
-	pv_recorder_get_is_recoring_ptr        = C.load_symbol(lib, C.CString("pv_recorder_get_is_recording"))
+	pv_recorder_get_is_recording_ptr       = C.load_symbol(lib, C.CString("pv_recorder_get_is_recording"))
 	pv_recorder_get_selected_device_ptr    = C.load_symbol(lib, C.CString("pv_recorder_get_selected_device"))
 	pv_recorder_get_available_devices_ptr  = C.load_symbol(lib, C.CString("pv_recorder_get_available_devices"))
 	pv_recorder_free_available_devices_ptr = C.load_symbol(lib, C.CString("pv_recorder_free_available_devices"))
@@ -205,7 +205,7 @@ func (nativePvRecorderType) nativeSetDebugLogging(pvRecorder *PvRecorder, isDebu
 }
 
 func (nativePvRecorderType) nativeGetIsRecording(pvRecorder *PvRecorder) bool {
-	var ret = C.pv_recorder_get_is_recording_wrapper(pv_recorder_get_is_recoring_ptr,
+	var ret = C.pv_recorder_get_is_recording_wrapper(pv_recorder_get_is_recording_ptr,
 		unsafe.Pointer(pvRecorder.handle))
 
 	return bool(ret)
