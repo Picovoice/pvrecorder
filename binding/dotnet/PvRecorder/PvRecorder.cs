@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2021-2023 Picovoice Inc.
+    Copyright 2021-2022 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -9,8 +9,8 @@
     specific language governing permissions and limitations under the License.
 */
 using System;
-using System.Diagnostics;
 using System.IO;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -40,86 +40,72 @@ namespace Pv
         private const string LIBRARY = "libpv_recorder";
         private IntPtr _libraryPointer = IntPtr.Zero;
 
+        private int frameLength;
+
         static PvRecorder()
         {
-
-#if NETCOREAPP3_0_OR_GREATER
-
+#if NETCOREAPP3_1_OR_GREATER
             NativeLibrary.SetDllImportResolver(typeof(PvRecorder).Assembly, ImportResolver);
-
 #endif
-
         }
 
-#if NETCOREAPP3_0_OR_GREATER
-
+#if NETCOREAPP3_1_OR_GREATER
         private static IntPtr ImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
         {
-
-#pragma warning disable IDE0058
-#pragma warning disable IDE0059
-
             IntPtr libHandle = IntPtr.Zero;
             NativeLibrary.TryLoad(GetLibraryPath(), out libHandle);
             return libHandle;
         }
-
-#pragma warning restore IDE0059
-#pragma warning restore IDE0058
-
 #endif
+        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        private static extern PvRecorderStatus pv_recorder_init(int deviceIndex, int frameLength, int bufferSizeMSec, bool logOverflow, bool logSilence, out IntPtr handle);
 
-        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        private static extern PvRecorderStatus pv_recorder_init(int deviceIndex, int frameLength, int bufferedFramesCount, out IntPtr handle);
-
-        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern void pv_recorder_delete(IntPtr handle);
 
-        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern PvRecorderStatus pv_recorder_start(IntPtr handle);
 
-        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern PvRecorderStatus pv_recorder_stop(IntPtr handle);
 
-        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        private static extern PvRecorderStatus pv_recorder_read(IntPtr handle, short[] frame);
+        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        private static extern PvRecorderStatus pv_recorder_read(IntPtr handle, short[] pcm);
 
-        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr pv_recorder_set_debug_logging(IntPtr handle, bool isDebugLoggingEnabled);
-
-        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern IntPtr pv_recorder_get_selected_device(IntPtr handle);
 
-        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        private static extern PvRecorderStatus pv_recorder_get_available_devices(out int deviceListLength, out IntPtr deviceList);
+        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        private static extern PvRecorderStatus pv_recorder_get_audio_devices(out int count, out IntPtr devices);
 
-        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        private static extern void pv_recorder_free_avilable_devices(int deviceListLength, IntPtr deviceList);
+        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        private static extern void pv_recorder_free_device_list(int count, IntPtr devices);
 
-        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int pv_recorder_sample_rate();
-
-        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern IntPtr pv_recorder_version();
 
         /// <summary>
         /// Factory method for PvRecorder library.
-        /// </summary>        
-        /// <param name="frameLength">
-        /// Length of the audio frames to receive at each read call.
-        /// </param>
+        /// </summary>
         /// <param name="deviceIndex">
         /// The index of the audio device to capture audio from. A value of (-1) will use the default audio.
         /// </param>
-        /// <param name="bufferedFramesCount">
-        /// The number of audio frames buffered internally for reading - i.e. internal circular buffer
-        /// will be of size `frame_length` * `buffered_frames_count`. If this value is too low, buffer overflows could occur
-        /// and audio frames could be dropped. A higher value will increase memory usage.
+        /// <param name="frameLength">
+        /// Length of the audio frames to receive at each read call.
+        /// </param>
+        /// <param name="bufferSizeMSec">
+        /// Time in milliseconds for the buffer size to hold recorded audio.
+        /// </param>
+        /// <param name="logOverflow">
+        /// Boolean value representing if buffer overflow warnings should be logged.
+        /// </param>
+        /// <param name="logSilence">
+        /// Boolean variable to enable silence logs. This will log when continuous audio buffers are detected as silent.
         /// </param>
         /// <returns>An instance of PvRecorder.</returns>
-        public static PvRecorder Create(int frameLength, int deviceIndex = -1, int bufferedFramesCount = 50)
+        public static PvRecorder Create(int deviceIndex, int frameLength, int bufferSizeMSec = 1000, bool logOverflow = true, bool logSilence = true)
         {
-            return new PvRecorder(deviceIndex, frameLength, bufferedFramesCount);
+            return new PvRecorder(deviceIndex, frameLength, bufferSizeMSec, logOverflow, logSilence);
         }
 
         /// <summary>
@@ -131,36 +117,24 @@ namespace Pv
         /// <param name="frameLength">
         /// Length of the audio frames to receive at each read call.
         /// </param>
-        /// <param name="bufferedFramesCount">
-        /// The number of audio frames buffered internally for reading - i.e. internal circular buffer
-        /// will be of size `frame_length` * `buffered_frames_count`. If this value is too low, buffer overflows could occur
-        /// and audio frames could be dropped. A higher value will increase memory usage.
+        /// <param name="bufferSizeMSec">
+        /// Time in milliseconds for the buffer size to hold recorded audio.
         /// </param>
-        private PvRecorder(int frameLength, int deviceIndex, int bufferedFramesCount)
+        /// <param name="logOverflow">
+        /// Boolean value representing if buffer overflow warnings should be logged.
+        /// </param>
+        /// <param name="logSilence">
+        /// Boolean variable to enable silence logs. This will log when continuous audio buffers are detected as silent.
+        /// </param>
+        private PvRecorder(int deviceIndex, int frameLength, int bufferSizeMSec, bool logOverflow, bool logSilence)
         {
-            if (frameLength <= 0)
-            {
-                throw new PvRecorderInvalidArgumentException($"Frame length of {frameLength} is invalid - must be greater than 0.");
-            }
-
-            if (deviceIndex < -1)
-            {
-                throw new PvRecorderInvalidArgumentException($"Device index of {deviceIndex} is invalid - must be greater than -1.");
-            }
-
-            if (bufferedFramesCount <= 0)
-            {
-                throw new PvRecorderInvalidArgumentException($"Buffered frames count of {bufferedFramesCount} is invalid - must be greater than 0.");
-            }
-
-            PvRecorderStatus status = pv_recorder_init(deviceIndex, frameLength, bufferedFramesCount, out _libraryPointer);
+            PvRecorderStatus status = pv_recorder_init(deviceIndex, frameLength, bufferSizeMSec, logOverflow, logSilence, out _libraryPointer);
             if (status != PvRecorderStatus.SUCCESS)
             {
                 throw PvRecorderStatusToException(status);
             }
 
-            FrameLength = frameLength;
-            SampleRate = pv_recorder_sample_rate();
+            this.frameLength = frameLength;
             SelectedDevice = Marshal.PtrToStringAnsi(pv_recorder_get_selected_device(_libraryPointer));
             Version = Marshal.PtrToStringAnsi(pv_recorder_version());
         }
@@ -192,10 +166,10 @@ namespace Pv
         /// <summary>
         /// Reads audio frames.
         /// </summary>
-        /// <returns>An array of audio frames with length ${frameLength} provided in the factory method.</returns>
+        /// <returns>An array of audio frames with length ${frameLength} provided in the factory method,</returns>
         public short[] Read()
         {
-            short[] pcm = new short[FrameLength];
+            short[] pcm = new short[frameLength];
             PvRecorderStatus status = pv_recorder_read(_libraryPointer, pcm);
             if (status != PvRecorderStatus.SUCCESS)
             {
@@ -203,23 +177,6 @@ namespace Pv
             }
             return pcm;
         }
-
-        /// <summary>
-        /// Gets the length of frames returned by the recorder.
-        /// </summary>
-        public int FrameLength
-        {
-            get; private set;
-        }
-
-        /// <summary>
-        /// Gets the recording sample rate.
-        /// </summary>
-        public int SampleRate
-        {
-            get; private set;
-        }
-
 
         /// <summary>
         /// Gets the current selected device.
@@ -238,59 +195,59 @@ namespace Pv
         }
 
         /// <summary>
-        /// Gets the available audio input devices of the current machine.
+        /// Gets the available input devices of the current machine.
         /// </summary>
         /// <returns>A list of strings containing the names of the audio devices.</returns>
-        public static string[] GetAvailableDevices()
+        public static string[] GetAudioDevices()
         {
-            int deviceListLength;
-            IntPtr deviceList;
+            int count;
+            IntPtr devices;
 
-            PvRecorderStatus status = pv_recorder_get_available_devices(out deviceListLength, out deviceList);
+            PvRecorderStatus status = pv_recorder_get_audio_devices(out count, out devices);
             if (status != PvRecorderStatus.SUCCESS)
             {
                 throw PvRecorderStatusToException(status);
             }
 
             int elementSize = Marshal.SizeOf(typeof(IntPtr));
-            string[] deviceNames = new string[deviceListLength];
-            for (int i = 0; i < deviceListLength; i++)
+            string[] deviceNames = new string[count];
+            for (int i = 0; i < count; i++)
             {
-                deviceNames[i] = Marshal.PtrToStringAnsi(Marshal.ReadIntPtr(deviceList, i * elementSize));
+                deviceNames[i] = Marshal.PtrToStringAnsi(Marshal.ReadIntPtr(devices, i * elementSize));
             }
 
-            pv_recorder_free_avilable_devices(deviceListLength, deviceList);
+            pv_recorder_free_device_list(count, devices);
 
             return deviceNames;
         }
 
         /// <summary>
-        /// Converts status codes to PvRecorderExceptions.
+        /// Converts status codes to .NET exceptions.
         /// </summary>
         /// <param name="status">Status code.</param>
-        /// <returns>PvRecorderExceptions</returns>
-        private static PvRecorderException PvRecorderStatusToException(PvRecorderStatus status)
+        /// <returns>.NET exception</returns>
+        private static Exception PvRecorderStatusToException(PvRecorderStatus status)
         {
             switch (status)
             {
                 case PvRecorderStatus.OUT_OF_MEMORY:
-                    return new PvRecorderMemoryException();
+                    return new OutOfMemoryException();
                 case PvRecorderStatus.INVALID_ARGUMENT:
-                    return new PvRecorderInvalidArgumentException();
+                    return new ArgumentException();
                 case PvRecorderStatus.INVALID_STATE:
-                    return new PvRecorderInvalidStateException("PvRecorder failed with invalid state.");
+                    return new Exception("PvRecorder failed with invalid state.");
                 case PvRecorderStatus.BACKEND_ERROR:
-                    return new PvRecorderBackendException("PvRecorder audio backend error.");
+                    return new Exception("PvRecorder backend error.");
                 case PvRecorderStatus.DEVICE_ALREADY_INITIALIZED:
-                    return new PvRecorderDeviceAlreadyInitializedException("PvRecorder audio device already initialized.");
+                    return new Exception("PvRecorder device already initialized.");
                 case PvRecorderStatus.DEVICE_NOT_INITIALIZED:
-                    return new PvRecorderDeviceNotInitializedException("PvRecorder audio device not initialized.");
+                    return new Exception("PvRecorder device not initialized.");
                 case PvRecorderStatus.IO_ERROR:
-                    return new PvRecorderIOException();
+                    return new IOException();
                 case PvRecorderStatus.RUNTIME_ERROR:
-                    return new PvRecorderRuntimeException("PvRecorder runtime error.");
+                    return new SystemException("PvRecorder runtime error.");
                 default:
-                    return new PvRecorderException("Unknown status returned from PvRecorder.");
+                    return new Exception("Unknown status returned from PvRecorder.");
             }
         }
 
@@ -322,7 +279,7 @@ namespace Pv
             process.Start();
             process.WaitForExit();
 
-            if (process.ExitCode != 0)
+            if (process.ExitCode != 0 )
             {
                 throw new SystemException("System is not supported.");
             }
