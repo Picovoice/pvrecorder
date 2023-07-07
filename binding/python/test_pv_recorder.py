@@ -15,7 +15,7 @@ import unittest
 from _pvrecorder import *
 
 
-class PvLeopardTestCase(unittest.TestCase):
+class PvRecorderTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         PvRecorder.set_default_library_path(os.path.join('..', '..'))
