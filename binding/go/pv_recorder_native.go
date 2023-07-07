@@ -14,6 +14,7 @@ package pvrecorder
 /*
 #cgo linux LDFLAGS: -lpthread -ldl -lm
 #cgo darwin LDFLAGS: -lpthread -ldl -lm
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -89,6 +90,12 @@ typedef void (*pv_recorder_set_debug_logging_func)(void *, int32_t);
 
 void pv_recorder_set_debug_logging_wrapper(void *f, void *object, int32_t is_debug_logging_enabled) {
 	return ((pv_recorder_set_debug_logging_func) f)(object, is_debug_logging_enabled);
+}
+
+typedef const char *(*pv_recorder_get_is_recording_func)(void *);
+
+bool pv_recorder_get_is_recording_wrapper(void *f, void* object) {
+    return ((pv_recorder_get_is_recording_func) f)(object);
 }
 
 typedef const char *(*pv_recorder_get_selected_device_func)(void *);
