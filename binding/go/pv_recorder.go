@@ -189,8 +189,8 @@ func (pvRecorder *PvRecorder) GetSelectedDevice() string {
 	return nativePvRecorder.nativeGetSelectedDevice(pvRecorder)
 }
 
-// GetAudioDevices function gets the currently available input audio devices.
-func GetAudioDevices() ([]string, error) {
+// GetAvailableDevices function gets the currently available input audio devices.
+func GetAvailableDevices() ([]string, error) {
 	var count int
 	var devices **C.char
 

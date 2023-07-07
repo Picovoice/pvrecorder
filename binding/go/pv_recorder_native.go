@@ -59,7 +59,7 @@ static void *load_symbol(void *handle, const char *symbol) {
 typedef int32_t (*pv_recorder_init_func)(int32_t, int32_t, int32_t, void **);
 
 int32_t pv_recorder_init_wrapper(void *f, int32_t device_index, int32_t frame_length, int32_t buffered_frames_count, void **object) {
-    return ((pv_recorder_init_func) f)(device_index, frame_length, buffer_size_msec, object);
+    return ((pv_recorder_init_func) f)(device_index, frame_length, buffered_frames_count, object);
 }
 
 typedef void (*pv_recorder_delete_func)(void *);
@@ -122,6 +122,12 @@ const char *pv_recorder_version_wrapper(void *f) {
     return ((pv_recorder_version_func) f)();
 }
 
+typedef int32_t (*pv_recorder_sample_rate_func)();
+
+int32_t pv_recorder_sample_rate_wrapper(void *f) {
+    return ((pv_recorder_sample_rate_func) f)();
+}
+
 */
 import "C"
 
@@ -144,7 +150,7 @@ var (
 	pv_recorder_get_available_devices_ptr  = C.load_symbol(lib, C.CString("pv_recorder_get_available_devices"))
 	pv_recorder_free_available_devices_ptr = C.load_symbol(lib, C.CString("pv_recorder_free_available_devices"))
 	pv_recorder_version_ptr                = C.load_symbol(lib, C.CString("pv_recorder_version"))
-	pv_recorder_sample_rate_ptr            = C.load_symbol(lib, C.CString("pv_recorder_sample_rate_"))
+	pv_recorder_sample_rate_ptr            = C.load_symbol(lib, C.CString("pv_recorder_sample_rate"))
 )
 
 func (np nativePvRecorderType) nativeInit(pvRecorder *PvRecorder) PvRecorderStatus {
@@ -213,7 +219,7 @@ func (nativePvRecorderType) nativeGetSelectedDevice(pvRecorder *PvRecorder) stri
 }
 
 func (nativePvRecorderType) nativeGetAudioDevices(count *int, devices ***C.char) PvRecorderStatus {
-	var ret = C.pv_recorder_get_audio_devices_wrapper(pv_recorder_get_available_devices_ptr,
+	var ret = C.pv_recorder_get_available_devices_wrapper(pv_recorder_get_available_devices_ptr,
 		(*C.int32_t)(unsafe.Pointer(count)),
 		(***C.char)(unsafe.Pointer(devices)))
 
@@ -221,7 +227,7 @@ func (nativePvRecorderType) nativeGetAudioDevices(count *int, devices ***C.char)
 }
 
 func (nativePvRecorderType) nativeFreeDeviceList(count int, devices **C.char) {
-	C.pv_recorder_free_device_list_wrapper(pv_recorder_free_available_devices_ptr,
+	C.pv_recorder_free_available_devices_wrapper(pv_recorder_free_available_devices_ptr,
 		(C.int32_t)(count),
 		(**C.char)(unsafe.Pointer(devices)))
 }
