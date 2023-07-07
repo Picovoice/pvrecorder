@@ -48,6 +48,14 @@ class PvRecorderTestCase(unittest.TestCase):
         self.assertIsNotNone(recorder)
         recorder.delete()
 
+    def test_is_recording(self):
+        recorder = PvRecorder(0, 512)
+        recorder.start()
+        self.assertTrue(recorder.is_recording)
+        recorder.stop()
+        self.assertFalse(recorder.is_recording)
+        recorder.delete()
+
     def test_selected_device(self):
         recorder = PvRecorder(0, 512)
         device = recorder.selected_device

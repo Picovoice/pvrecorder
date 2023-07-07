@@ -18,7 +18,7 @@ Getting the list of input devices does not require an instance:
 ```python
 from pvrecorder import PvRecorder
 
-devices = PvRecorder.get_audio_devices()
+devices = PvRecorder.get_available_devices()
 ```
 
 To start recording initialize an instance and run start:

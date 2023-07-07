@@ -131,6 +131,10 @@ class PvRecorder(object):
         self._read_func.argtypes = [POINTER(self.CPvRecorder), POINTER(c_int16)]
         self._read_func.restype = self.PvRecorderStatuses
 
+        self._get_is_recording_func = library.pv_recorder_get_is_recording
+        self._get_is_recording_func.argtypes = [POINTER(self.CPvRecorder)]
+        self._get_is_recording_func.restype = c_bool
+
         self._get_selected_device_func = library.pv_recorder_get_selected_device
         self._get_selected_device_func.argtypes = [POINTER(self.CPvRecorder)]
         self._get_selected_device_func.restype = c_char_p
@@ -183,6 +187,12 @@ class PvRecorder(object):
         """
 
         self._set_debug_logging_func(self._handle, is_debug_logging_enabled)
+
+    @property
+    def is_recording(self) -> bool:
+        """Gets whether the recorder is currently recording audio or not."""
+
+        return bool(self._get_is_recording_func(self._handle))
 
     @property
     def selected_device(self) -> str:
