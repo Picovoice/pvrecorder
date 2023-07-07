@@ -67,3 +67,8 @@ jobs:
 
     - name: Test
       run: python3 test_pv_recorder.py
+      if: ${{ matrix.machine != 'pv-windows' }}
+
+    - name: Test
+      run: python test_pv_recorder.py
+      if: ${{ matrix.machine == 'pv-windows' }}
