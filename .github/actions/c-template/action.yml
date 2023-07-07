@@ -19,8 +19,8 @@ runs:
       working-directory: project
       shell: bash
 
-    - name: Run get audio devices
-      run: ./pv_recorder_demo --show_audio_devices
+    - name: Test
+      run: ctest --output-on-failure
       working-directory: project/build
       shell: bash
 

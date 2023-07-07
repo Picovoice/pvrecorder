@@ -1,0 +1,85 @@
+name: C Demo
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'demo/c/**'
+      - '!demo/c/README.md'
+      - '.github/workflows/c-demo.yml'
+  pull_request:
+    branches: [ main, 'v[0-9]+.[0-9]+' ]
+    paths:
+      - 'demo/c/**'
+      - '!demo/c/README.md'
+      - '.github/workflows/c-demo.yml'
+
+defaults:
+  run:
+    working-directory: demo/c
+    shell: bash
+
+jobs:
+  build-github-hosted:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, mac-latest]
+        include:
+          - os: ubuntu-latest
+            pv_recorder_platform: linux
+          - os: windows-latest
+            pv_recorder_platform: windows
+          - os: mac-latest
+            pv_recorder_platform: mac
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Create build directory
+        run: cmake -B ./build -S. -DPV_RECORDER_PLATFORM="${{ matrix.pv_recorder_platform }}"
+
+      - name: Build demo
+        run: cmake --build ./build
+
+      - name: Run demo
+        run: ./build/pv_recorder_demo --show_audio_devices
+
+  build-self-hosted:
+    runs-on: ${{ matrix.machine }}
+    strategy:
+      matrix:
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+        include:
+          - machine: rpi2
+            pv_recorder_platform: raspberry-pi2
+          - machine: rpi3-32
+            pv_recorder_platform: raspberry-pi3
+          - machine: rpi3-64
+            pv_recorder_platform: raspberry-pi3-64
+          - machine: rpi4-32
+            pv_recorder_platform: raspberry-pi4
+          - machine: rpi4-64
+            pv_recorder_platform: raspberry-pi4-64
+          - machine: jetson
+            pv_recorder_platform: jetson-nano
+          - machine: beaglebone
+            pv_recorder_platform: beaglebone
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Create build directory
+        run: cmake -B ./build -S . -DPV_RECORDER_PLATFORM="${{ matrix.pv_recorder_platform }}"
+
+      - name: Build demo
+        run: cmake --build ./build
+
+      - name: Run demo
+        run: ./build/pv_recorder_demo --show_audio_devices

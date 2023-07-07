@@ -33,6 +33,7 @@ The `{PV_RECORDER_PLATFORM}` variable will set the compilation flags for the giv
 to get a list of possible values.
 
 ## Usage
+
 1. Create a PvRecorder object:
 ```c
 #include "pv_recorder.h"
@@ -43,9 +44,9 @@ const int32_t buffered_frame_count = 10;
 
 pv_recorder_t *recorder = NULL;
 pv_recorder_status_t status = pv_recorder_init(
-        device_index, 
-        frame_length, 
-        buffered_frame_count, 
+        device_index,
+        frame_length,
+        buffered_frame_count,
         &recorder);
 if (status != PV_RECORDER_STATUS_SUCCESS) {
     // handle PvRecorder init error
@@ -71,9 +72,9 @@ while (true) {
     if (status != PV_RECORDER_STATUS_SUCCESS) {
         // handle PvRecorder read error
     }
-    
+
     // use frame of audio data
-    // ...      
+    // ...
 }
 ```
 
