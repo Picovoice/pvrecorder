@@ -1,4 +1,4 @@
-// Copyright 2021-2022 Picovoice Inc.
+// Copyright 2021-2023 Picovoice Inc.
 //
 // You may not use this file except in compliance with the license. A copy of the license is
 // located in the "LICENSE" file accompanying this source.
@@ -83,7 +83,7 @@ func pvRecorderStatusToString(status PvRecorderStatus) string {
 
 // PvRecorder struct
 type PvRecorder struct {
-	// handle for pvrecorder instance in C.
+	// handle for pvRecorder instance in C.
 	handle uintptr
 
 	// Index of audio device to start recording and capture audio.
@@ -92,14 +92,9 @@ type PvRecorder struct {
 	// FrameLength to get for each read command.
 	FrameLength int
 
-	// BufferSizeMSec is the total amount of audio frames to store in milliseconds.
-	BufferSizeMSec int
-
-	// LogOverflow flag to enable logs when a buffer overflow occurs.
-	LogOverflow int
-
-	// LogSilence flag to enable logs when continuous audio buffers are detected as silent.
-	LogSilence int
+	// BufferedFramesCount is the number of audio frames buffered internally for reading - i.e. internal circular buffer
+	// will be of size `frame_length` * `buffered_frames_count`. If this value is too low, buffer overflows could occur.
+	BufferedFramesCount int
 }
 
 type nativePvRecorderInterface interface {
@@ -107,10 +102,13 @@ type nativePvRecorderInterface interface {
 	nativeDelete(*PvRecorder)
 	nativeStart(*PvRecorder)
 	nativeStop(*PvRecorder)
+	nativeRead(*PvRecorder)
+	nativeSetDebugLogging(*PvRecorder)
 	nativeGetSelectedDevice(*PvRecorder)
 	nativeGetAudioDevices(*C.int32_t, ***C.char)
 	nativeFreeDeviceList(C.int32_t, **C.char)
 	nativeVersion()
+	nativeSampleRate()
 }
 
 type nativePvRecorderType struct{}
@@ -122,8 +120,8 @@ var (
 )
 
 // Init function for PvRecorder
-func (pvrecorder *PvRecorder) Init() error {
-	ret := nativePvRecorder.nativeInit(pvrecorder)
+func (pvRecorder *PvRecorder) Init() error {
+	ret := nativePvRecorder.nativeInit(pvRecorder)
 	if ret != SUCCESS {
 		return fmt.Errorf("PvRecorder Init failed with: %s", pvRecorderStatusToString(ret))
 	}
@@ -132,13 +130,13 @@ func (pvrecorder *PvRecorder) Init() error {
 }
 
 // Delete function releases resources acquired by PvRecorder
-func (pvrecorder *PvRecorder) Delete() {
-	nativePvRecorder.nativeDelete(pvrecorder)
+func (pvRecorder *PvRecorder) Delete() {
+	nativePvRecorder.nativeDelete(pvRecorder)
 }
 
 // Start function starts recording audio.
-func (pvrecorder *PvRecorder) Start() error {
-	ret := nativePvRecorder.nativeStart(pvrecorder)
+func (pvRecorder *PvRecorder) Start() error {
+	ret := nativePvRecorder.nativeStart(pvRecorder)
 	if ret != SUCCESS {
 		return fmt.Errorf("PvRecorder Start failed with: %s", pvRecorderStatusToString(ret))
 	}
@@ -147,8 +145,8 @@ func (pvrecorder *PvRecorder) Start() error {
 }
 
 // Stop function stops recording audio.
-func (pvrecorder *PvRecorder) Stop() error {
-	ret := nativePvRecorder.nativeStop(pvrecorder)
+func (pvRecorder *PvRecorder) Stop() error {
+	ret := nativePvRecorder.nativeStop(pvRecorder)
 	if ret != SUCCESS {
 		return fmt.Errorf("PvRecorder Stop failed with: %s", pvRecorderStatusToString(ret))
 	}
@@ -157,17 +155,17 @@ func (pvrecorder *PvRecorder) Stop() error {
 }
 
 // Read function reads audio frames.
-func (pvrecorder *PvRecorder) Read() ([]int16, error) {
-	pcm := C.malloc_cgo(C.int32_t(pvrecorder.FrameLength))
+func (pvRecorder *PvRecorder) Read() ([]int16, error) {
+	pcm := C.malloc_cgo(C.int32_t(pvRecorder.FrameLength))
 	defer C.free(unsafe.Pointer(pcm))
 
-	ret := nativePvRecorder.nativeRead(pvrecorder, pcm)
+	ret := nativePvRecorder.nativeRead(pvRecorder, pcm)
 	if ret != SUCCESS {
 		return nil, fmt.Errorf("PvRecorder Read failed with: %s", pvRecorderStatusToString(ret))
 	}
 
-	pcmCSlice := (*[1 << 28]C.int16_t)(unsafe.Pointer(pcm))[:pvrecorder.FrameLength:pvrecorder.FrameLength]
-	pcmSlice := make([]int16, pvrecorder.FrameLength)
+	pcmCSlice := (*[1 << 28]C.int16_t)(unsafe.Pointer(pcm))[:pvRecorder.FrameLength:pvRecorder.FrameLength]
+	pcmSlice := make([]int16, pvRecorder.FrameLength)
 	for i := range pcmSlice {
 		pcmSlice[i] = int16(pcmCSlice[i])
 	}
@@ -175,9 +173,15 @@ func (pvrecorder *PvRecorder) Read() ([]int16, error) {
 	return pcmSlice, nil
 }
 
+// SetDebugLogging enables or disables debug logging for PvRecorder. Debug logs will indicate when there are
+// overflows in the internal  frame buffer and when an audio source is generating frames of silence.
+func (pvRecorder *PvRecorder) SetDebugLogging(isDebugLoggingEnabled bool) {
+	nativePvRecorder.nativeSetDebugLogging(pvRecorder, isDebugLoggingEnabled)
+}
+
 // GetSelectedDevice gets the current selected audio input device name
-func (pvrecorder *PvRecorder) GetSelectedDevice() string {
-	return nativePvRecorder.nativeGetSelectedDevice(pvrecorder)
+func (pvRecorder *PvRecorder) GetSelectedDevice() string {
+	return nativePvRecorder.nativeGetSelectedDevice(pvRecorder)
 }
 
 // GetAudioDevices function gets the currently available input audio devices.
@@ -205,8 +209,13 @@ func Version() string {
 	return nativePvRecorder.nativeVersion()
 }
 
+// SampleRate function gets the audio sample rate used by PvRecorder.
+func SampleRate() int {
+	return nativePvRecorder.nativeSampleRate()
+}
+
 func extractLib() string {
-	extractionDir := filepath.Join(os.TempDir(), "pvrecorder")
+	extractionDir := filepath.Join(os.TempDir(), "pvRecorder")
 
 	var scriptPath string
 	if runtime.GOOS == "windows" {
