@@ -208,7 +208,6 @@ func (nativePvRecorderType) nativeGetIsRecording(pvRecorder *PvRecorder) bool {
 	var ret = C.pv_recorder_get_is_recording_wrapper(pv_recorder_get_is_recording_ptr,
 		unsafe.Pointer(pvRecorder.handle))
 
-	println(ret)
 	return bool(ret)
 }
 

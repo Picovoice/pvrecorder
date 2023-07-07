@@ -13,6 +13,7 @@ package pvrecorder
 import (
 	"os"
 	"testing"
+	"time"
 )
 
 func TestMain(m *testing.M) {
@@ -132,6 +133,8 @@ func TestGetIsRecording(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Stop failed: %v", err)
 	}
+
+	time.Sleep(500 * time.Millisecond)
 
 	isRecording = recorder.GetIsRecording()
 	if isRecording {
