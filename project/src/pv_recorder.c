@@ -67,7 +67,7 @@ PV_API pv_recorder_status_t pv_recorder_init(
     if (frame_length <= 0) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
-    if (buffered_frames_count <= 1) {
+    if (buffered_frames_count < 1) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
     if (!object) {
@@ -276,6 +276,13 @@ PV_API void pv_recorder_set_debug_logging(
     }
 
     object->is_debug_logging_enabled = is_debug_logging_enabled;
+}
+
+PV_API bool pv_recorder_get_is_recording(pv_recorder_t *object) {
+    if (!object) {
+        return false;
+    }
+    return object->is_started;
 }
 
 PV_API const char *pv_recorder_get_selected_device(pv_recorder_t *object) {

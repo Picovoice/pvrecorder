@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.4)
-project(pv_recorder VERSION 1.2.0 DESCRIPTION "Audio recorder library for Picovoice.")
+project(pv_recorder VERSION 1.2.0 DESCRIPTION "Picovoice audio recorder library.")
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+
+option(PV_BUILD_TESTS "Build and run library tests" ON)
+option(PV_BUILD_NODE "Build Node.js libraries" ON)
 
 if(NOT PV_RECORDER_PLATFORM)
     message(FATAL_ERROR "No `PV_RECORDER_PLATFORM` value was given. Valid platforms are: \n"
@@ -67,10 +70,13 @@ else ()
     message(FATAL_ERROR "Unknown platform `${PV_RECORDER_PLATFORM}`.")
 endif ()
 
-add_library(pv_recorder SHARED src/pv_circular_buffer.c src/pv_recorder.c)
-target_include_directories(pv_recorder PUBLIC include)
-target_include_directories(pv_recorder PRIVATE src/miniaudio)
+add_library(pv_recorder_object OBJECT src/pv_circular_buffer.c src/pv_recorder.c)
+target_include_directories(pv_recorder_object PUBLIC include)
+target_include_directories(pv_recorder_object PRIVATE src/miniaudio)
+
+add_library(pv_recorder SHARED $<TARGET_OBJECTS:pv_recorder_object>)
 set_target_properties(pv_recorder PROPERTIES PUBLIC_HEADER include/pv_recorder.h)
+target_include_directories(pv_recorder PUBLIC include)
 
 if (NOT ${PV_RECORDER_PLATFORM} STREQUAL "windows")
     target_link_libraries(pv_recorder PRIVATE pthread dl m)
@@ -87,26 +93,24 @@ if(DEFINED OUTPUT_DIR)
             COMMENT "Copying to output directory.")
 endif()
 
-add_executable(pv_recorder_demo ../demo/c/pv_recorder_demo.c)
-target_link_libraries(pv_recorder_demo pv_recorder)
+if (PV_BUILD_TESTS)
+    enable_testing()
 
-enable_testing()
+    add_executable(test_circular_buffer test/test_pv_circular_buffer.c src/pv_circular_buffer.c)
+    target_include_directories(test_circular_buffer PUBLIC include)
+    add_test(
+            NAME test_circular_buffer
+            COMMAND test_circular_buffer
+    )
 
-add_executable(test_circular_buffer test/test_pv_circular_buffer.c src/pv_circular_buffer.c)
+    add_executable(test_recorder test/test_pv_recorder.c)
+    target_link_libraries(test_recorder pv_recorder)
+    add_test(
+            NAME test_recorder
+            COMMAND test_recorder
+    )
+endif()
 
-target_include_directories(test_circular_buffer PUBLIC include)
-
-add_test(
-        NAME test_circular_buffer
-        COMMAND test_circular_buffer
-)
-
-add_custom_command(
-        TARGET test_circular_buffer
-        COMMENT "Run Tests"
-        POST_BUILD
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIGURATION> -R "^test_circular_buffer" --output-on-failures
-)
-
-add_subdirectory(node)
+if (PV_BUILD_NODE)
+    add_subdirectory(node)
+endif()

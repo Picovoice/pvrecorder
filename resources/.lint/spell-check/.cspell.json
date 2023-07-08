@@ -11,9 +11,8 @@
     }
   ],
   "ignorePaths": [
-    "../../project/CMakeLists.txt",
-    "../../project/Preload.CMake",
-    "../../project/node/CMakeLists.txt",
+    "**/CMakeLists.txt",
+    "**/Preload.CMake",
 
     // submodules
     "../../project/src/miniaudio",

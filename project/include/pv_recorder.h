@@ -113,6 +113,14 @@ PV_API void pv_recorder_set_debug_logging(
         bool is_debug_logging_enabled);
 
 /**
+ * Gets whether the given `pv_recorder_t` instance is currently recording audio or not.
+ *
+ * @param object PvRecorder object.
+ * @returns A boolean indicating whether PvRecorder is currently recording audio or not.
+ */
+PV_API bool pv_recorder_get_is_recording(pv_recorder_t *object);
+
+/**
  * Gets the audio device that the given `pv_recorder_t` instance is using.
  *
  * @param object PvRecorder object.
