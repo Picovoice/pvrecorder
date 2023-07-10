@@ -56,11 +56,18 @@ namespace PvRecorderTest
 
             using (PvRecorder recorder = PvRecorder.Create(FRAME_LENGTH, deviceIndex: 0))
             {
+                recorder.SetDebugLogging(true);
+
+                Assert.IsFalse(recorder.IsRecording);
                 recorder.Start();
+                Assert.IsTrue(recorder.IsRecording);
+
                 short[] frame = recorder.Read();
                 Assert.IsNotNull(frame);
                 Assert.AreEqual(FRAME_LENGTH, frame.Length);
+
                 recorder.Stop();
+                Assert.IsFalse(recorder.IsRecording);
             }
         }
 

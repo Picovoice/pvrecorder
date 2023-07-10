@@ -5,5 +5,10 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Visible>false</Visible>
 		</Content>
+        <Content Include="$(MSBuildThisFileDirectory)scripts/**">
+            <Link>scripts/%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
 	</ItemGroup>
 </Project>

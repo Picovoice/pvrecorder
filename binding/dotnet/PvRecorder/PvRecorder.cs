@@ -34,7 +34,7 @@ namespace Pv
     }
 
     /// <summary>
-    /// .NET sdk for capturing and reading audio frames.
+    /// PvRecorder is a cross-platform audio recorder library for .NET that is designed for real-time audio processing.
     /// </summary>
     public class PvRecorder : IDisposable
     {
@@ -87,6 +87,9 @@ namespace Pv
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr pv_recorder_set_debug_logging(IntPtr handle, bool isDebugLoggingEnabled);
+
+        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
+        private static extern bool pv_recorder_get_is_recording(IntPtr handle);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr pv_recorder_get_selected_device(IntPtr handle);
@@ -191,7 +194,7 @@ namespace Pv
         }
 
         /// <summary>
-        /// Reads a frame of audio samples.
+        /// Synchronously reads a frame of audio samples.
         /// </summary>
         /// <returns>An array of audio samples with length of `frameLength` that was provided upon initialization.</returns>
         public short[] Read()
@@ -206,11 +209,32 @@ namespace Pv
         }
 
         /// <summary>
+        /// Enable or disable debug logging for PvRecorder.Debug logs will indicate when there are overflows
+        /// in the internal frame buffer and when an audio source is generating frames of silence.
+        /// </summary>
+        /// <param name="isDebugLoggingEnabled">Boolean indicating whether the debug logging is enabled or disabled.</param>
+        public void SetDebugLogging(bool isDebugLoggingEnabled)
+        {
+            pv_recorder_set_debug_logging(_libraryPointer, isDebugLoggingEnabled);
+        }
+
+        /// <summary>
         /// Gets the length of frame returned by the recorder.
         /// </summary>
         public int FrameLength
         {
             get; private set;
+        }
+
+        /// <summary>
+        /// Gets whether the recorder is currently capturing audio or not.
+        /// </summary>
+        public bool IsRecording
+        {
+            get
+            {
+                return pv_recorder_get_is_recording(_libraryPointer);
+            }
         }
 
         /// <summary>
@@ -239,7 +263,7 @@ namespace Pv
         }
 
         /// <summary>
-        /// Gets the available audio input devices of the current machine.
+        /// Gets the available audio input devices of the current system.
         /// </summary>
         /// <returns>A list of strings containing the names of the audio devices.</returns>
         public static string[] GetAvailableDevices()
