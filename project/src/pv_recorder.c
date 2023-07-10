@@ -204,6 +204,7 @@ PV_API pv_recorder_status_t pv_recorder_stop(pv_recorder_t *object) {
 
     ma_result result = ma_device_stop(&(object->device));
     if (result != MA_SUCCESS) {
+        ma_mutex_unlock(&object->mutex);
         if (result == MA_DEVICE_NOT_INITIALIZED) {
             return PV_RECORDER_STATUS_DEVICE_NOT_INITIALIZED;
         } else {
