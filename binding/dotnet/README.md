@@ -1,28 +1,48 @@
-# PV_Recorder
+# PvRecorder Binding for .NET
 
-A cross platform audio recorder that captures single-channel audio at a sample rate of 16kHz.
+# PvRecorder
+
+PvRecorder is an easy-to-use cross-platform audio recorder designed for real-time audio processing.
+It allows developers access to an audio device's input stream, broken up into data frames of a given size.
 
 ## Requirements
 
-- .NET Standard 2.0, .NET Core 3.1, .NET 6.0
+- .NET 6.0
 
 ## Compatibility
 
-- Windows (amd64)
-- macOS (x86_64, arm64)
+Platform compatible with .NET Framework 4.6.1+:
+
+- Windows (x86_64)
+
+Platforms compatible with .NET Core 2.0+:
+
 - Linux (x86_64)
+- macOS (x86_64)
+- Windows (x86_64)
+
+Platforms compatible with .NET Core 3.0+:
+
 - Raspberry Pi:
-    - 2
-    - 3 (32 and 64 bit)
-    - 4 (32 and 64 bit)
+  - 2
+  - 3 (32 and 64 bit)
+  - 4 (32 and 64 bit)
 - NVIDIA Jetson Nano
 - BeagleBone
 
+Platform compatible with .NET 6.0+:
+
+- macOS (arm64)
+
 ## Installation
+
+You can install the latest version of PvRecorder by adding the latest [PvRecorder Nuget package](https://www.nuget.org/packages/PvRecorder/)
+in Visual Studio or using by using the .NET CLI:
 
 ```console
 dotnet add package PvRecorder
 ```
+
 
 ## Usage
 
@@ -34,27 +54,26 @@ using Pv;
 string[] devices = PvRecorder.GetAudioDevices();
 ```
 
-To start recording initialize the instance and run start:
+To start recording initialize the instance and call `Start()`:
 
 ```csharp
 PvRecorder recorder = PvRecorder.Create(
-    deviceIndex: -1, // uses default index
     frameLength: 512,
 );
 
 recorder.Start();
 ```
 
-Get the pcm frames by calling the read function:
+Get the audio frames by calling the read function:
 
 ```csharp
 while (true) {
-    pcm = recorder.Read();
-    // do something with pcm
+    short[] frame = recorder.Read();
+    // do something with audio frame
 }
 ```
 
-To stop recording just run stop on the instance:
+To stop recording:
 
 ```csharp
 recorder.Stop();
@@ -69,36 +88,12 @@ recorder.Dispose();
 To have to resources freed immediately after use without explicitly calling the `Dispose` function, wrap PvRecorder in a using statement:
 
 ```csharp
-using(PvRecorder recorder = PvRecorder.Create(deviceIndex: -1, frameLength: 512)) {
+using(PvRecorder recorder = PvRecorder.Create(frameLength: 512)) {
     // PvRecorder usage
 }
 ```
 
-### Demo
+## Demo
 
-**NOTE**: The demo is built on .Net Core 3.1.
-
-For more detailed information on how to use the pv_recorder .NET sdk, please that a look at [Demo/Demo.cs](../../demo/dotnet/Demo.cs).
-
-In the following instructions we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{RAW_OUTPUT_PATH}` as the path to save the raw audio data
-
-`{AUDIO_DEVICE_INDEX}` defaults to -1 and `{RAW_OUTPUT_PATH}` can be empty if you wish to not save any data.
-
-To build the demo:
-
-```console
-dotnet build -c Release
-```
-
-To show the available audio devices run:
-
-```console
-dotnet run --project Demo -c Release -- --show_audio_devices
-```
-
-To run audio recorder run:
-
-```console
-dotnet run --project Demo -c Release
--- --audio_device_index {AUDIO_DEVICE_INDEX} --raw_output_path {RAW_OUTPUT_PATH}
-```
+The [PvRecorder .NET demo](https://github.com/Picovoice/pvrecorder/tree/main/demo/dotnet) is a .NET command-line application that demonstates how to
+use PvRecorder to record audio to a file.

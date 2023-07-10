@@ -61,6 +61,22 @@ git clone --recurse-submodules https://github.com/Picovoice/pvrecorder.git
 
 ### .NET Demo
 
+From [demo/dotnet/PvRecorderDemo](demo/dotnet/PvRecorderDemo) run the
+following in the terminal to build the demo:
+
+```console
+dotnet build
+```
+
+Make sure there is a working microphone connected to your device. From [demo/dotnet/PvRecorderDemo](demo/dotnet/PvRecorderDemo) run the
+following in the terminal:
+
+```console
+dotnet run -- --output_wav_path ${OUTPUT_WAV_PATH}
+```
+
+For more information about the .NET demo go to [demo/dotnet](demo/dotnet).
+
 ### Go Demo
 
 ### Node.js Demo
@@ -97,6 +113,54 @@ Hit `Ctrl+C` to stop recording. If no audio device index (`-d`) is provided, the
 ### Python
 
 ### .NET
+
+Install the .NET SDK using NuGet or the dotnet CLI:
+
+```console
+dotnet add package PvRecorder
+```
+
+Init and start `PvRecorder`:
+
+```csharp
+using Pv;
+
+```csharp
+PvRecorder recorder = PvRecorder.Create(
+    frameLength: 512,
+);
+
+recorder.Start();
+```
+
+Get the audio frames by calling the read function:
+
+```csharp
+while (true) {
+    short[] frame = recorder.Read();
+    // do something with audio frame
+}
+```
+
+To stop recording:
+
+```csharp
+recorder.Stop();
+```
+
+Once you are done, free the used resources:
+
+```csharp
+recorder.Dispose();
+```
+
+To have to resources freed immediately after use without explicitly calling the `Dispose` function, wrap PvRecorder in a using statement:
+
+```csharp
+using(PvRecorder recorder = PvRecorder.Create(frameLength: 512)) {
+    // PvRecorder usage
+}
+```
 
 ### Go
 
