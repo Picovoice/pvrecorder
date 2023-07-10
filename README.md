@@ -88,6 +88,22 @@ For more information about the Python demos go to [demo/python](demo/python).
 
 ### Node.js Demo
 
+Install the demo package:
+
+```console
+yarn global add @picovoice/pvrecorder-node-demo
+```
+
+With a working microphone connected to your device run the following in the terminal:
+
+```console
+pvrecorder-node-demo --output_wav_path ${OUTPUT_WAV_PATH}
+```
+
+Replace `{OUTPUT_WAV_PATH}` with the path to save the audio data in `.wav` format.
+
+For more information about NodeJS demos go to [demo/nodejs](demo/nodejs/).
+
 ### Rust Demo
 
 ### C Demo
@@ -151,6 +167,49 @@ recorder.delete()
 ### Go
 
 ### Node.js
+
+Install NodeJS binding:
+
+```console
+yarn add @picovoice/pvrecorder-node
+```
+
+Getting the list of input audio devices does not require an instance:
+
+```javascript
+const { PvRecorder } = require("@picovoice/pvrecorder-node");
+
+const devices = PvRecorder.getAvailableDevices();
+```
+
+To start recording initialize the instance and run `start`:
+
+```javascript
+const recorder = new PvRecorder(/*sets to default device*/-1, /*frame length*/ 512);
+recorder.start()
+```
+
+Get a frame of audio by calling the read function:
+
+```javascript
+while (recorder.isRecording) {
+    /*const frame = recorder.readSync(), for synchronous calls*/
+    const frame = await recorder.read();
+    // do something with frame
+}
+```
+
+To stop recording just run stop on the instance:
+
+```javascript
+recorder.stop();
+```
+
+Once you are done, free the used resources. You do not have to call stop before release:
+
+```javascript
+recorder.release();
+```
 
 ### Rust
 

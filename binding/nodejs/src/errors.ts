@@ -12,16 +12,16 @@
 
 import PvRecorderStatus from "./pv_recorder_status_t";
 
-class PvRecorderStatusOutOfMemoryError extends Error{}
-class PvRecorderStatusInvalidArgumentError extends Error{}
-class PvRecorderStatusInvalidStateError extends Error{}
-class PvRecorderStatusBackendError extends Error{}
-class PvRecorderStatusDeviceAlreadyInitializedError extends Error{}
-class PvRecorderStatusDeviceNotInitializedError extends Error{}
-class PvRecorderStatusIOError extends Error{}
-class PvRecorderStatusRuntimeError extends Error{}
+class PvRecorderStatusOutOfMemoryError extends Error {}
+class PvRecorderStatusInvalidArgumentError extends Error {}
+class PvRecorderStatusInvalidStateError extends Error {}
+class PvRecorderStatusBackendError extends Error {}
+class PvRecorderStatusDeviceAlreadyInitializedError extends Error {}
+class PvRecorderStatusDeviceNotInitializedError extends Error {}
+class PvRecorderStatusIOError extends Error {}
+class PvRecorderStatusRuntimeError extends Error {}
 
-function PvRecorderStatusToException(status: PvRecorderStatus, errorMessage: string) {
+function pvRecorderStatusToException(status: PvRecorderStatus, errorMessage: string): Error {
   switch (status) {
     case PvRecorderStatus.OUT_OF_MEMORY:
       return new PvRecorderStatusOutOfMemoryError(errorMessage);
@@ -40,9 +40,10 @@ function PvRecorderStatusToException(status: PvRecorderStatus, errorMessage: str
     case PvRecorderStatus.RUNTIME_ERROR:
       return new PvRecorderStatusRuntimeError(errorMessage);
     default:
+      // eslint-disable-next-line
       console.warn(`Unknown error code: ${status}`);
       return new Error(errorMessage);
   }
 }
 
-export default PvRecorderStatusToException;
+export default pvRecorderStatusToException;

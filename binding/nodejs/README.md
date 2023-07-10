@@ -1,24 +1,11 @@
-# PV_Recorder
+# PvRecorder
 
-A cross platform audio recorder that captures single-channel audio at a sample rate of 16kHz.
-
-## Requirements
-
-- Node.js 14+
+PvRecorder Binding for Node.js.
 
 ## Compatibility
 
-- Windows (x86_64)
-- macOS
-    - x86_64
-    - arm64
-- Linux (x86_64)
-- Raspberry Pi:
-    - 2
-    - 3 (32 and 64 bit)
-    - 4 (32 and 64 bit)
-- NVIDIA Jetson Nano
-- BeagleBone
+- Node.js 14+
+- Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64), Raspberry Pi (all variants), NVIDIA Jetson (Nano), and BeagleBone.
 
 ## Installation
 
@@ -28,12 +15,12 @@ yarn add @picovoice/pvrecorder-node
 
 ## Usage
 
-Getting the list of input devices does not require an instance:
+Getting the list of input audio devices does not require an instance:
 
 ```javascript
 const { PvRecorder } = require("@picovoice/pvrecorder-node");
 
-const devices = PvRecorder.getAudioDevices();
+const devices = PvRecorder.getAvailableDevices();
 ```
 
 To start recording initialize the instance and run `start`:
@@ -46,7 +33,7 @@ recorder.start()
 Get the pcm frames by calling the read function:
 
 ```javascript
-while (true) {
+while (recorder.isRecording) {
     /*const pcm = recorder.readSync(), for synchronous calls*/
     const pcm = await recorder.read();
     // do something with pcm
@@ -61,26 +48,10 @@ recorder.stop();
 
 Once you are done, free the used resources. You do not have to call stop before release:
 
-```csharp
-recorder.release()
+```javascript
+recorder.release();
 ```
 
-### Demo
+## Demos
 
-For more detailed information on how to use the pv_recorder Node.js sdk, see [demo/demo.js](../../demo/nodejs/demo.js). 
-
-In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{RAW_OUTPUT_PATH}` as the path to save the raw audio data 
-
-`{AUDIO_DEVICE_INDEX}` defaults to -1 and `{RAW_OUTPUT_PATH}` can be empty if you wish to not save any data.
-
-To show the available audio devices run:
-
-```console
-node demo/demo.js --show_audio_devices
-```
-
-To run the audio recorder:
-
-```console
-node demo/demo.js --audio_device_index {AUDIO_DEVICE_INDEX} --raw_output_path {RAW_OUTPUT_PATH}
-```
+[@picovoice/pvrecorder-demo](https://www.npmjs.com/package/@picovoice/pvrecorder-demo) provides command-line utilities for recording audio.

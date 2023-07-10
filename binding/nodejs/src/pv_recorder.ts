@@ -15,12 +15,13 @@ import * as os from "os";
 import * as path from "path";
 
 import PvRecorderStatus from "./pv_recorder_status_t";
-import PvRecorderStatusToException from "./errors";
+import pvRecorderStatusToException from "./errors";
 
 /**
  * PvRecorder class for recording audio.
  */
 class PvRecorder {
+  // eslint-disable-next-line
   private static _pvRecorder = require(PvRecorder._getLibraryPath());
 
   private readonly _handle: number;
@@ -46,11 +47,11 @@ class PvRecorder {
     try {
       porcupineHandleAndStatus = PvRecorder._pvRecorder.init(deviceIndex, frameLength, bufferedFramesCount);
     } catch (err: any) {
-      PvRecorderStatusToException(err.code, err);
+      pvRecorderStatusToException(err.code, err);
     }
     const status = porcupineHandleAndStatus.status;
     if (status !== PvRecorderStatus.SUCCESS) {
-      throw PvRecorderStatusToException(status, "PvRecorder failed to initialize.");
+      throw pvRecorderStatusToException(status, "PvRecorder failed to initialize.");
     }
     this._handle = porcupineHandleAndStatus.handle;
     this._frameLength = frameLength;
@@ -80,12 +81,19 @@ class PvRecorder {
   }
 
   /**
+   * @returns Whether PvRecorder is currently recording audio or not.
+   */
+  get isRecording(): boolean {
+    return PvRecorder._pvRecorder.get_is_recording(this._handle);
+  }
+
+  /**
    * Starts recording audio.
    */
   public start(): void {
     const status = PvRecorder._pvRecorder.start(this._handle);
     if (status !== PvRecorderStatus.SUCCESS) {
-      throw PvRecorderStatusToException(status, "PvRecorder failed to start.");
+      throw pvRecorderStatusToException(status, "PvRecorder failed to start.");
     }
   }
 
@@ -95,7 +103,7 @@ class PvRecorder {
   public stop(): void {
     const status = PvRecorder._pvRecorder.stop(this._handle);
     if (status !== PvRecorderStatus.SUCCESS) {
-      throw PvRecorderStatusToException(status, "PvRecorder failed to stop.");
+      throw pvRecorderStatusToException(status, "PvRecorder failed to stop.");
     }
   }
 
@@ -107,13 +115,13 @@ class PvRecorder {
   public async read(): Promise<Int16Array> {
     return new Promise<Int16Array>((resolve, reject) => {
       setTimeout(() => {
-        let pcm = new Int16Array(this._frameLength);
+        const pcm = new Int16Array(this._frameLength);
         const status = PvRecorder._pvRecorder.read(this._handle, pcm);
         if (status !== PvRecorderStatus.SUCCESS) {
-          reject(PvRecorderStatusToException(status, "PvRecorder failed to read audio data frame."));
+          reject(pvRecorderStatusToException(status, "PvRecorder failed to read audio data frame."));
         }
         resolve(pcm);
-      })
+      });
     });
   }
 
@@ -123,10 +131,10 @@ class PvRecorder {
    * @returns {Int16Array} Audio data frame.
    */
   public readSync(): Int16Array {
-    let pcm = new Int16Array(this._frameLength);
+    const pcm = new Int16Array(this._frameLength);
     const status = PvRecorder._pvRecorder.read(this._handle, pcm);
     if (status !== PvRecorderStatus.SUCCESS) {
-      throw PvRecorderStatusToException(status, "PvRecorder failed to read audio data frame.");
+      throw pvRecorderStatusToException(status, "PvRecorder failed to read audio data frame.");
     }
     return pcm;
   }
@@ -166,7 +174,7 @@ class PvRecorder {
    *
    * @returns {Array<string>} An array of the available device names.
    */
-  public static getAudioDevices() {
+  public static getAvailableDevices(): string[] {
     const devices = PvRecorder._pvRecorder.get_available_devices();
     if ((devices === undefined) || (devices === null)) {
       throw new Error("Failed to get audio devices.");
@@ -174,16 +182,16 @@ class PvRecorder {
     return devices;
   }
 
-  private static _getLibraryPath() {
+  private static _getLibraryPath(): string {
     let scriptPath;
     if (os.platform() === "win32") {
-      scriptPath = path.resolve(__dirname, "..", "scripts", "platform.bat")
+      scriptPath = path.resolve(__dirname, "..", "scripts", "platform.bat");
     } else {
-      scriptPath = path.resolve(__dirname, "..", "scripts", "platform.sh")
+      scriptPath = path.resolve(__dirname, "..", "scripts", "platform.sh");
     }
 
-    let output = execSync(`"${scriptPath}"`).toString();
-    let [osName, cpu] = output.split(" ");
+    const output = execSync(`"${scriptPath}"`).toString();
+    const [osName, cpu] = output.split(" ");
 
     return path.resolve(__dirname, "..", "lib", osName, cpu, "pv_recorder.node");
   }
