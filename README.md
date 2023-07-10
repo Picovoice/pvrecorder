@@ -69,6 +69,29 @@ git clone --recurse-submodules https://github.com/Picovoice/pvrecorder.git
 
 ### C Demo
 
+Run the following commands to build the demo app:
+
+```console
+cd demo/c
+cmake -S . -B build -DPV_RECORDER_PLATFORM={PV_RECORDER_PLATFORM}
+cmake --build build
+```
+
+The `{PV_RECORDER_PLATFORM}` variable will set the compilation flags for the given platform. Exclude this variable
+to get a list of possible values.
+
+Get a list of available audio recording devices:
+```console
+./pv_recorder_demo --show_audio_devices
+```
+
+Record to a file with a given audio device index:
+```console
+./pv_recorder_demo -o test.wav -d 2
+```
+
+Hit `Ctrl+C` to stop recording. If no audio device index (`-d`) is provided, the demo will use the system's default recording device.
+
 ## SDKs
 
 ### Python

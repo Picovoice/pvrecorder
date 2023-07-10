@@ -57,8 +57,8 @@ static void pv_recorder_ma_callback(ma_device *device, void *output, const void 
 }
 
 PV_API pv_recorder_status_t pv_recorder_init(
-        int32_t device_index,
         int32_t frame_length,
+        int32_t device_index,
         int32_t buffered_frames_count,
         pv_recorder_t **object) {
     if (device_index < PV_RECORDER_DEFAULT_DEVICE_INDEX) {

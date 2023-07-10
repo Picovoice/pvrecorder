@@ -123,8 +123,8 @@ int main(int argc, char *argv[]) {
     const int32_t frame_length = 512;
     pv_recorder_t *recorder = NULL;
     pv_recorder_status_t status = pv_recorder_init(
-            device_index,
             frame_length,
+            device_index,
             10,
             &recorder);
     if (status != PV_RECORDER_STATUS_SUCCESS) {
