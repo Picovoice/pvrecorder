@@ -200,6 +200,8 @@ PV_API pv_recorder_status_t pv_recorder_stop(pv_recorder_t *object) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
 
+    ma_mutex_lock(&object->mutex);
+
     ma_result result = ma_device_stop(&(object->device));
     if (result != MA_SUCCESS) {
         if (result == MA_DEVICE_NOT_INITIALIZED) {
@@ -212,6 +214,8 @@ PV_API pv_recorder_status_t pv_recorder_stop(pv_recorder_t *object) {
 
     pv_circular_buffer_reset(object->buffer);
     object->is_started = false;
+
+    ma_mutex_unlock(&object->mutex);
 
     return PV_RECORDER_STATUS_SUCCESS;
 }
@@ -233,6 +237,11 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *fra
 
     for (int32_t i = 0; i < READ_RETRY_COUNT; i++) {
         ma_mutex_lock(&object->mutex);
+
+        if (!(object->is_started)) {
+            ma_mutex_unlock(&object->mutex);
+            return PV_RECORDER_STATUS_SUCCESS;
+        }
 
         const int32_t length = pv_circular_buffer_read(object->buffer, read_ptr, remaining);
         processed += length;
