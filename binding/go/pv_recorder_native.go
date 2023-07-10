@@ -97,7 +97,7 @@ typedef const char *(*pv_recorder_get_is_recording_func)(void *);
 
 bool pv_recorder_get_is_recording_wrapper(void *f, void* object) {
     bool is_recording = ((pv_recorder_get_is_recording_func) f)(object);
-	printf("is recording: %d\n", is_recording);
+	fprintf(stdout, "is recording: %d\n", is_recording);
 	return is_recording;
 }
 
