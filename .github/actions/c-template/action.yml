@@ -22,8 +22,13 @@ runs:
       working-directory: project
       shell: ${{ inputs.shell }}
 
-    - name: Test
-      run: ctest --output-on-failure
+    - name: Test circular buffer
+      run: ./test_circular_buffer
+      working-directory: project/build
+      shell: ${{ inputs.shell }}
+
+    - name: Test recorder
+      run: ./test_recorder
       working-directory: project/build
       shell: ${{ inputs.shell }}
 
