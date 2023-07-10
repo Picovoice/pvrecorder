@@ -17,7 +17,6 @@ package pvrecorder
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <stdio.h>
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -96,9 +95,7 @@ void pv_recorder_set_debug_logging_wrapper(void *f, void *object, bool is_debug_
 typedef const char *(*pv_recorder_get_is_recording_func)(void *);
 
 bool pv_recorder_get_is_recording_wrapper(void *f, void* object) {
-    bool is_recording = ((pv_recorder_get_is_recording_func) f)(object);
-	fprintf(stdout, "is recording: %d\n", is_recording);
-	return is_recording;
+    return ((pv_recorder_get_is_recording_func) f)(object);
 }
 
 typedef const char *(*pv_recorder_get_selected_device_func)(void *);
@@ -210,6 +207,8 @@ func (nativePvRecorderType) nativeSetDebugLogging(pvRecorder *PvRecorder, isDebu
 func (nativePvRecorderType) nativeGetIsRecording(pvRecorder *PvRecorder) bool {
 	var ret = C.pv_recorder_get_is_recording_wrapper(pv_recorder_get_is_recording_ptr,
 		unsafe.Pointer(pvRecorder.handle))
+
+	println("is recording:", ret)
 
 	return bool(ret)
 }
