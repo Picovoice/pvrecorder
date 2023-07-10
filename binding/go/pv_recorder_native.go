@@ -92,7 +92,7 @@ void pv_recorder_set_debug_logging_wrapper(void *f, void *object, bool is_debug_
 	return ((pv_recorder_set_debug_logging_func) f)(object, is_debug_logging_enabled);
 }
 
-typedef const char *(*pv_recorder_get_is_recording_func)(void *);
+typedef bool (*pv_recorder_get_is_recording_func)(void *);
 
 bool pv_recorder_get_is_recording_wrapper(void *f, void* object) {
     return ((pv_recorder_get_is_recording_func) f)(object);
@@ -207,8 +207,6 @@ func (nativePvRecorderType) nativeSetDebugLogging(pvRecorder *PvRecorder, isDebu
 func (nativePvRecorderType) nativeGetIsRecording(pvRecorder *PvRecorder) bool {
 	var ret = C.pv_recorder_get_is_recording_wrapper(pv_recorder_get_is_recording_ptr,
 		unsafe.Pointer(pvRecorder.handle))
-
-	println("is recording:", ret)
 
 	return bool(ret)
 }
