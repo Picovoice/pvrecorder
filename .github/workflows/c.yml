@@ -25,14 +25,11 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-latest]
+        os: [ubuntu-20.04]
         include:
           - os: ubuntu-20.04
             pv_recorder_platform: linux
             output_dir: linux/x86_64
-          - os: windows-latest
-            pv_recorder_platform: windows
-            output_dir: windows/amd64
     steps:
       - uses: actions/checkout@v3
         with:
@@ -48,7 +45,7 @@ jobs:
     runs-on: ${{ matrix.machine }}
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone, pv-windows]
         include:
           - machine: rpi2
             pv_recorder_platform: raspberry-pi2
@@ -71,6 +68,9 @@ jobs:
           - machine: beaglebone
             pv_recorder_platform: beaglebone
             output_dir: beaglebone
+          - machine: pv-windows
+            pv_recorder_platform: windows
+            output_dir: windows/amd64
 
     steps:
       - uses: actions/checkout@v3
