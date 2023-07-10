@@ -17,6 +17,7 @@ package pvrecorder
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -95,7 +96,9 @@ void pv_recorder_set_debug_logging_wrapper(void *f, void *object, bool is_debug_
 typedef const char *(*pv_recorder_get_is_recording_func)(void *);
 
 bool pv_recorder_get_is_recording_wrapper(void *f, void* object) {
-    return ((pv_recorder_get_is_recording_func) f)(object);
+    bool is_recording = ((pv_recorder_get_is_recording_func) f)(object);
+	printf("is recording: %d\n", is_recording);
+	return is_recording;
 }
 
 typedef const char *(*pv_recorder_get_selected_device_func)(void *);
