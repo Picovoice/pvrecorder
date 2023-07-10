@@ -1,4 +1,4 @@
-# PvRecorder Demos for .NET
+# PvRecorder Demo for .NET
 
 This project contains a .NET command-line demo for PvRecorder that demonstrates how to use PvRecorder to record audio to a WAV file.
 
