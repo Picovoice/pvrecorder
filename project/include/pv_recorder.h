@@ -49,8 +49,8 @@ typedef enum {
  * Creates a PvRecorder instance. When finished with the instance, resources should be released
  * using the `pv_recorder_delete() function.
  *
- * @param device_index The index of the audio device to use. A value of (-1) will resort to default device.
  * @param frame_length The length of audio frame to get for each read call.
+ * @param device_index The index of the audio device to use. A value of (-1) will resort to default device.
  * @param buffered_frames_count The number of audio frames buffered internally for reading - i.e. internal circular buffer
  * will be of size `frame_length` * `buffered_frames_count`. If this value is too low, buffer overflows could occur
  * and audio frames could be dropped. A higher value will increase memory usage.
@@ -59,8 +59,8 @@ typedef enum {
  * PV_RECORDER_STATUS_DEVICE_INITIALIZED or PV_RECORDER_STATUS_OUT_OF_MEMORY on failure.
  */
 PV_API pv_recorder_status_t pv_recorder_init(
-        int32_t device_index,
         int32_t frame_length,
+        int32_t device_index,
         int32_t buffered_frames_count,
         pv_recorder_t **object);
 

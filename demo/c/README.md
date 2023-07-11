@@ -21,9 +21,8 @@ Run the following commands to build the demo app:
 
 ```console
 git submodule update --init --recursive
-mkdir build && cd build
-cmake .. -DPV_RECORDER_PLATFORM={PV_RECORDER_PLATFORM}
-cmake --build .
+cmake -S . -B build -DPV_RECORDER_PLATFORM={PV_RECORDER_PLATFORM}
+cmake --build build
 ```
 
 The `{PV_RECORDER_PLATFORM}` variable will set the compilation flags for the given platform. Exclude this variable

@@ -21,9 +21,8 @@ Run the following commands to build and test (`{OUTPUT_DIR}` can be empty if you
 
 ```console
 git submodule update --init --recursive
-mkdir build && cd build
-cmake .. -DOUTPUT_DIR={OUTPUT_DIR} -DPV_RECORDER_PLATFORM={PV_RECORDER_PLATFORM}
-cmake --build .
+cmake -S . -B build -DOUTPUT_DIR={OUTPUT_DIR} -DPV_RECORDER_PLATFORM={PV_RECORDER_PLATFORM}
+cmake --build build
 ```
 
 The variable `{OUTPUT_DIR}` will be used to select the directory to copy the shared object
@@ -38,14 +37,14 @@ to get a list of possible values.
 ```c
 #include "pv_recorder.h"
 
-const int32_t device_index = -1; // -1 == default device
 const int32_t frame_length = 512;
+const int32_t device_index = -1; // -1 == default device
 const int32_t buffered_frame_count = 10;
 
 pv_recorder_t *recorder = NULL;
 pv_recorder_status_t status = pv_recorder_init(
-        device_index,
         frame_length,
+        device_index,
         buffered_frame_count,
         &recorder);
 if (status != PV_RECORDER_STATUS_SUCCESS) {
