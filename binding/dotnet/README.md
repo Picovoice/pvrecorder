@@ -43,28 +43,18 @@ in Visual Studio or using by using the .NET CLI:
 dotnet add package PvRecorder
 ```
 
-
 ## Usage
 
-Getting the list of input devices does not require an instance:
+Initialize and begin recording:
 
 ```csharp
 using Pv;
 
-string[] devices = PvRecorder.GetAudioDevices();
-```
-
-To start recording initialize the instance and call `Start()`:
-
-```csharp
-PvRecorder recorder = PvRecorder.Create(
-    frameLength: 512,
-);
-
+PvRecorder recorder = PvRecorder.Create(frameLength: 512);
 recorder.Start();
 ```
 
-Get the audio frames by calling the read function:
+Read a frame of audio:
 
 ```csharp
 while (true) {
@@ -79,21 +69,36 @@ To stop recording:
 recorder.Stop();
 ```
 
-Once you are done, free the used resources. You do not have to call stop before Dispose:
+Once you are done, free the used resources. You do not have to call `Stop()` before `Dispose()`:
 
 ```csharp
 recorder.Dispose();
 ```
-
-To have to resources freed immediately after use without explicitly calling the `Dispose` function, wrap PvRecorder in a using statement:
+ 
+To have resources freed immediately after use without explicitly calling the `Dispose()` function, wrap `PvRecorder` in a `using` statement:
 
 ```csharp
-using(PvRecorder recorder = PvRecorder.Create(frameLength: 512)) {
+using (PvRecorder recorder = PvRecorder.Create(frameLength: 512)) {
     // PvRecorder usage
 }
 ```
 
+### Selecting an Audio Device
+
+To print a list of available audio devices:
+```csharp
+string[] devices = PvRecorder.GetAudioDevices();
+```
+
+The index of the device in the returned list can be used in `Create()` to select that device for audio capture:
+```csharp
+PvRecorder recorder = PvRecorder.Create(
+    frameLength: 512,
+    deviceIndex: 2);
+```
+
+
 ## Demo
 
-The [PvRecorder .NET demo](https://github.com/Picovoice/pvrecorder/tree/main/demo/dotnet) is a .NET command-line application that demonstates how to
+The [PvRecorder .NET demo](https://github.com/Picovoice/pvrecorder/tree/main/demo/dotnet) is a .NET command-line application that demonstrates how to
 use PvRecorder to record audio to a file.
