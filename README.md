@@ -100,7 +100,7 @@ With a working microphone connected to your device run the following in the term
 pvrecorder-node-demo --output_wav_path ${OUTPUT_WAV_PATH}
 ```
 
-Replace `{OUTPUT_WAV_PATH}` with the path to save the audio data in `.wav` format.
+Replace `{OUTPUT_WAV_PATH}` with the path to save the audio data in `wav` format.
 
 For more information about NodeJS demos go to [demo/nodejs](demo/nodejs/).
 
@@ -174,18 +174,10 @@ Install NodeJS binding:
 yarn add @picovoice/pvrecorder-node
 ```
 
-Getting the list of input audio devices does not require an instance:
-
-```javascript
-const { PvRecorder } = require("@picovoice/pvrecorder-node");
-
-const devices = PvRecorder.getAvailableDevices();
-```
-
 To start recording initialize the instance and run `start`:
 
 ```javascript
-const recorder = new PvRecorder(/*sets to default device*/-1, /*frame length*/ 512);
+const recorder = new PvRecorder(512);
 recorder.start()
 ```
 

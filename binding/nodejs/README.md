@@ -16,11 +16,25 @@ yarn add @picovoice/pvrecorder-node
 To start recording initialize the instance and run `start`:
 
 ```javascript
+const { PvRecorder } = require("@picovoice/pvrecorder-node");
+
 const recorder = new PvRecorder(/*sets to default device*/-1, /*frame length*/ 512);
 recorder.start()
 ```
 
 (or)
+
+Use `get_available_devices()` to get a list of available devices and then initialize the instance based on the index of a device:
+
+```javascript
+
+const { PvRecorder } = require("@picovoice/pvrecorder-node");
+
+const devices = PvRecorder.getAvailableDevices() // select index of device
+
+const recorder = new PvRecorder(512, 0);
+recorder.start()
+```
 
 Get the pcm frames by calling the read function:
 
@@ -46,4 +60,4 @@ recorder.release();
 
 ## Demos
 
-[@picovoice/pvrecorder-demo](https://www.npmjs.com/package/@picovoice/pvrecorder-demo) provides command-line utilities for recording audio.
+[@picovoice/pvrecorder-demo](https://www.npmjs.com/package/@picovoice/pvrecorder-demo) provides command-line utilities for recording audio to a file.

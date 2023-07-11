@@ -53,7 +53,7 @@ async function runDemo() {
     const frames = [];
 
     const frameLength = 512;
-    const recorder = new PvRecorder(audioDeviceIndex, frameLength);
+    const recorder = new PvRecorder(frameLength, audioDeviceIndex);
     console.log(`Using PvRecorder version: ${recorder.version}`);
 
     recorder.start();
