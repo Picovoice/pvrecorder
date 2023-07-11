@@ -41,16 +41,16 @@ import . "github.com/Picovoice/pvrecorder/binding/go"
 devices = GetAvailableDevices() // select index of device
 
 recorder = NewPvRecorder(/*FrameLength*/512)
-recorder.DeviceIndex = 0 //
+recorder.DeviceIndex = 0
 recorder.Init()
 if err != nil {
-// handle init error
+    // handle init error
 }
 defer recorder.Delete()
 
 err = recorder.Start()
 if err != nil {
-// handle start error
+    // handle start error
 }
 ```
 
