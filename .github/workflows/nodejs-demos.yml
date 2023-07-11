@@ -47,6 +47,7 @@ jobs:
 
     - name: Install dependencies
       run: yarn install
+      working-directory: demo/nodejs
 
     - name: Run get audio devices
       run: node demo.js --show_audio_devices
@@ -72,6 +73,7 @@ jobs:
 
     - name: Install dependencies
       run: yarn install
+      working-directory: demo/nodejs
 
     - name: Run get audio devices
       run: node demo.js --show_audio_devices
