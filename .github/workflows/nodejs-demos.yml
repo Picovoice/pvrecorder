@@ -43,7 +43,8 @@ jobs:
 
     - name: Build binding
       run: yarn install && yarn build
-      working-directory: binding/nodejs
+      with:
+        working-directory: binding/nodejs
 
     - name: Install dependencies
       run: yarn install
@@ -68,7 +69,8 @@ jobs:
 
     - name: Build binding
       run: yarn install && yarn build
-      working-directory: binding/nodejs
+      with:
+        working-directory: binding/nodejs
 
     - name: Install dependencies
       run: yarn install
