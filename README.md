@@ -94,7 +94,7 @@ From [demo/go](demo/go) run the following commands from the terminal.
 go run demo.go --output_wav_path {OUTPUT_WAV_PATH}
 ```
 
-Replace  `{OUTPUT_WAV_PATH}` with the path to save the audio data in `wav` format.
+Replace  `{OUTPUT_WAV_PATH}` with a file path to save the audio data in `wav` format.
 
 For more information about Go demos go to [demo/go](demo/go).
 
@@ -168,46 +168,35 @@ To install the PvRecorder Go module to your project, use the command:
 go get github.com/Picovoice/pvrecorder/binding/go
 ```
 
-To get the list of available devices:
+To start recording initialize an instance and run start:
 
 ```go
 import . "github.com/Picovoice/pvrecorder/binding/go"
 
-devices, err := GetAvailableDevices()
+recorder = NewPvRecorder(/*FrameLength*/512)
+recorder.Init()
 if err != nil {
-    // error
+    // handle init error
+}
+defer recorder.Delete()
+
+err = recorder.Start()
+if err != nil {
+    // handle start error
 }
 ```
 
-To start recording, initialize the instance and run start function:
+Get a frame of audio by calling the `Read()` function:
 
 ```go
-import . "github.com/Picovoice/pvrecorder/binding/go"
-
-recorder := PvRecorder{
-    FrameLength: 512,
-    DeviceIndex: -1, // Using -1 for index uses default audio input device.
-    BufferedFramesCount: 10,
-}
-if err := recorder.Init(); err != nil {
-    // error
-}
-if err := recorder.Start(); err != nil {
-    // error
-}
-```
-
-To read the pcm frames, run:
-
-```go
-pcm, err := recorder.Read()
+frame, err := recorder.Read()
 if err != nil {
     // handle error
 }
-// do something with pcm
+// do something with frame
 ```
 
-To stop recording just run stop on the instance:
+To stop recording, run stop on the instance:
 
 ```go
 recorder.Stop()

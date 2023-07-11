@@ -13,42 +13,58 @@ go get github.com/Picovoice/pvrecorder/binding/go
 
 ## Usage
 
-To get the list of available devices:
+To start recording initialize an instance and run start:
 
 ```go
 import . "github.com/Picovoice/pvrecorder/binding/go"
 
-devices, err := GetAvailableDevices()
+recorder = NewPvRecorder(/*FrameLength*/512)
+recorder.Init()
 if err != nil {
-    // error
+    // handle init error
+}
+defer recorder.Delete()
+
+err = recorder.Start()
+if err != nil {
+    // handle start error
 }
 ```
 
-To start recording, initialize the instance and run start function:
+(or)
+
+Use `GetAvailableDevices()` to get a list of available devices and then initialize the instance based on the index of a device:
 
 ```go
 import . "github.com/Picovoice/pvrecorder/binding/go"
 
-recorder := NewPvRecorder(/*FrameLength*/512)
-if err := recorder.Init(); err != nil {
-    // error
+devices = GetAvailableDevices() // select index of device
+
+recorder = NewPvRecorder(/*FrameLength*/512)
+recorder.DeviceIndex = 0 //
+recorder.Init()
+if err != nil {
+// handle init error
 }
-if err := recorder.Start(); err != nil {
-    // error
+defer recorder.Delete()
+
+err = recorder.Start()
+if err != nil {
+// handle start error
 }
 ```
 
-To read the pcm frames, run:
+Get a frame of audio by calling the `Read()` function:
 
 ```go
-pcm, err := recorder.Read()
+frame, err := recorder.Read()
 if err != nil {
     // handle error
 }
-// do something with pcm
+// do something with frame
 ```
 
-To stop recording just run stop on the instance:
+To stop recording, run stop on the instance:
 
 ```go
 recorder.Stop()

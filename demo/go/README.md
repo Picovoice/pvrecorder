@@ -14,9 +14,7 @@ NOTE: The working directory for the following go commands is:
 pvrecorder/demo/go
 ```
 
-### Demo
-
-In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{OUTPUT_WAV_PATH}` as the path to save the audio data in `wav` format.
+In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{OUTPUT_WAV_PATH}` as the file path to save the audio data in `wav` format.
 
 `{AUDIO_DEVICE_INDEX}` defaults to -1 and `{OUTPUT_WAV_PATH}` can be empty if you wish to not save any data.
 

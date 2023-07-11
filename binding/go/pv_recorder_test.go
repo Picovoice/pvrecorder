@@ -62,6 +62,7 @@ func TestStartStop(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Init failed: %v", err)
 	}
+	defer recorder.Delete()
 
 	err = recorder.Start()
 	if err != nil {
@@ -77,8 +78,6 @@ func TestStartStop(t *testing.T) {
 			t.Fatalf("Frame length is not equal")
 		}
 	}
-
-	recorder.Delete()
 }
 
 func TestSetDebugLogging(t *testing.T) {
@@ -89,11 +88,10 @@ func TestSetDebugLogging(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Init failed: %v", err)
 	}
+	defer recorder.Delete()
 
 	recorder.SetDebugLogging(true)
 	recorder.SetDebugLogging(false)
-
-	recorder.Delete()
 }
 
 func TestGetIsRecording(t *testing.T) {
@@ -104,6 +102,7 @@ func TestGetIsRecording(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Init failed: %v", err)
 	}
+	defer recorder.Delete()
 
 	err = recorder.Start()
 	if err != nil {
@@ -124,8 +123,6 @@ func TestGetIsRecording(t *testing.T) {
 	if isRecording {
 		t.Fatalf("Recorder should have stopped recording audio")
 	}
-
-	recorder.Delete()
 }
 
 func TestGetSelectedDevice(t *testing.T) {
@@ -136,14 +133,13 @@ func TestGetSelectedDevice(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Init failed: %v", err)
 	}
+	defer recorder.Delete()
 
 	device := recorder.GetSelectedDevice()
 
 	if len(device) == 0 {
 		t.Fatalf("Failed to get selected device")
 	}
-
-	recorder.Delete()
 }
 
 func TestGetAvailableDevices(t *testing.T) {
