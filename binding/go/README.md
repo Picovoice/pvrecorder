@@ -78,4 +78,4 @@ recorder.Delete()
 
 ### Demo
 
-For more detailed information on how to use the pv_recorder go binding, please that a look at [demo/demo.go](../../demo/go/demo.go). 
+For more detailed information on how to use the PvRecorder Go binding, please that a look at [demo/demo.go](../../demo/go/demo.go). 

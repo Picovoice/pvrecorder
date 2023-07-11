@@ -199,8 +199,8 @@ func (pvRecorder *PvRecorder) SetDebugLogging(isDebugLoggingEnabled bool) {
 	nativePvRecorder.nativeSetDebugLogging(pvRecorder, isDebugLoggingEnabled)
 }
 
-// GetIsRecording gets whether the given instance is currently recording audio or not.
-func (pvRecorder *PvRecorder) GetIsRecording() bool {
+// IsRecording gets whether the given instance is currently recording audio or not.
+func (pvRecorder *PvRecorder) IsRecording() bool {
 	return nativePvRecorder.nativeGetIsRecording(pvRecorder)
 }
 

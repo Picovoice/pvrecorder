@@ -1,4 +1,4 @@
-# PvRecorder Go Demo
+# PvRecorder Demo for Go
 
 ## Compatibility
 
