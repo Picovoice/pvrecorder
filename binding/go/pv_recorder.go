@@ -86,7 +86,7 @@ type PvRecorder struct {
 	// handle for pvRecorder instance in C.
 	handle uintptr
 
-	// FrameLength to get for each read command.
+	// Length of each frame returned from read command.
 	FrameLength int
 
 	// Index of audio device to start recording and capture audio.

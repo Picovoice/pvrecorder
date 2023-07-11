@@ -109,7 +109,7 @@ func TestGetIsRecording(t *testing.T) {
 		t.Fatalf("Start failed: %v", err)
 	}
 
-	isRecording := recorder.GetIsRecording()
+	isRecording := recorder.IsRecording()
 	if !isRecording {
 		t.Fatalf("Recorder should be recording audio")
 	}
@@ -119,7 +119,7 @@ func TestGetIsRecording(t *testing.T) {
 		t.Fatalf("Stop failed: %v", err)
 	}
 
-	isRecording = recorder.GetIsRecording()
+	isRecording = recorder.IsRecording()
 	if isRecording {
 		t.Fatalf("Recorder should have stopped recording audio")
 	}
