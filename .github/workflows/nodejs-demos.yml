@@ -41,13 +41,8 @@ jobs:
     - name: Pre-build dependencies
       run: npm install yarn
 
-    - name: Build binding
-      run: yarn install && yarn build
-      working-directory: binding/nodejs
-
     - name: Install dependencies
       run: yarn install
-      working-directory: demo/nodejs
 
     - name: Run get audio devices
       run: node demo.js --show_audio_devices
@@ -67,13 +62,8 @@ jobs:
     - name: Pre-build dependencies
       run: npm install yarn
 
-    - name: Build binding
-      run: yarn install && yarn build
-      working-directory: binding/nodejs
-
     - name: Install dependencies
       run: yarn install
-      working-directory: demo/nodejs
 
     - name: Run get audio devices
       run: node demo.js --show_audio_devices
