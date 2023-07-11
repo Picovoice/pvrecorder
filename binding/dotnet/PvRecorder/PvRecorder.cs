@@ -233,7 +233,7 @@ namespace Pv
         {
             get
             {
-                return pv_recorder_get_is_recording(_libraryPointer) == 0;
+                return pv_recorder_get_is_recording(_libraryPointer) != 0;
             }
         }
 

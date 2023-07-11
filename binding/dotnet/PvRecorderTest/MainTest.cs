@@ -40,19 +40,16 @@ namespace PvRecorderTest
             {
                 recorder.SetDebugLogging(true);
 
-                Console.WriteLine(recorder.IsRecording);
-                
+                Assert.IsFalse(recorder.IsRecording);
                 recorder.Start();
-                Console.WriteLine(recorder.IsRecording);
-
+                Assert.IsTrue(recorder.IsRecording);
 
                 short[] frame = recorder.Read();
                 Assert.IsNotNull(frame);
                 Assert.AreEqual(FRAME_LENGTH, frame.Length);
 
                 recorder.Stop();
-                Console.WriteLine(recorder.IsRecording);
-
+                Assert.IsFalse(recorder.IsRecording);
             }
         }
 
@@ -67,7 +64,7 @@ namespace PvRecorderTest
             {
                 for (int i = 0; i < devices.Length; i++)
                 {
-                    Assert.IsFalse(string.IsNullOrEmpty(devices[i]));
+                    Assert.IsNotNull(devices[i]);
                 }
             }
         }
