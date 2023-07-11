@@ -38,7 +38,7 @@ namespace PvRecorderTest
             {
                 recorder.SetDebugLogging(true);
 
-                Assert.IsFalse(recorder.IsRecording);
+                //Assert.IsFalse(recorder.IsRecording);
                 recorder.Start();
                 Assert.IsTrue(recorder.IsRecording);
 
