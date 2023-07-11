@@ -44,7 +44,7 @@ def main():
             print("index: %d, device name: %s" % (i, devices[i]))
     else:
         device_index = args.audio_device_index
-        output_path = args.output_path
+        output_path = args.output_wav_path
 
         recorder = PvRecorder(frame_length=512, device_index=device_index)
         print("pvrecorder version: %s" % recorder.version)
