@@ -18,7 +18,7 @@ To start recording initialize the instance and run `start`:
 ```javascript
 const { PvRecorder } = require("@picovoice/pvrecorder-node");
 
-const recorder = new PvRecorder(/*sets to default device*/-1, /*frame length*/ 512);
+const recorder = new PvRecorder(/*frame length*/ 512);
 recorder.start()
 ```
 
@@ -30,9 +30,9 @@ Use `get_available_devices()` to get a list of available devices and then initia
 
 const { PvRecorder } = require("@picovoice/pvrecorder-node");
 
-const devices = PvRecorder.getAvailableDevices() // select index of device
+const devices = PvRecorder.getAvailableDevices()
 
-const recorder = new PvRecorder(512, 0);
+const recorder = new PvRecorder(512, /*device index*/0);
 recorder.start()
 ```
 
@@ -40,7 +40,7 @@ Get a frame of audio by calling the read function:
 
 ```javascript
 while (recorder.isRecording) {
-    /*const frame = recorder.readSync(), for synchronous calls*/
+    // const frame = recorder.readSync(), for synchronous calls
     const frame = await recorder.read();
     // do something with frame
 }

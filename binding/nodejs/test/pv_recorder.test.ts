@@ -3,7 +3,7 @@ import { PvRecorder } from "../src";
 describe("Test PvRecorder", () => {
   test("invalid device index", () => {
     const f = () => {
-      new PvRecorder( 512, -2);
+      new PvRecorder(512, -2);
     }
 
     expect(f).toThrow(Error);
@@ -26,7 +26,7 @@ describe("Test PvRecorder", () => {
   });
 
   test("start stop", async () => {
-    const recorder = new PvRecorder( 512, 0);
+    const recorder = new PvRecorder(512, 0);
     recorder.start();
 
     for (let i = 0; i < 5; i++) {
@@ -43,14 +43,14 @@ describe("Test PvRecorder", () => {
   });
 
   test("set debug logging", () => {
-    const recorder = new PvRecorder( 512, 0);
+    const recorder = new PvRecorder(512, 0);
     recorder.setDebugLogging(true);
     recorder.setDebugLogging(false);
     recorder.release();
   });
 
   test("is recording", () => {
-    const recorder = new PvRecorder( 512, 0);
+    const recorder = new PvRecorder(512, 0);
 
     recorder.start();
     expect(recorder.isRecording).toBeTruthy();
@@ -62,7 +62,7 @@ describe("Test PvRecorder", () => {
   });
 
   test("get selected device", () => {
-    const recorder = new PvRecorder( 512, 0);
+    const recorder = new PvRecorder(512, 0);
     const device = recorder.getSelectedDevice();
 
     expect(device).toBeDefined();
@@ -81,7 +81,7 @@ describe("Test PvRecorder", () => {
   });
 
   test("version", () => {
-    const recorder = new PvRecorder( 512, 0);
+    const recorder = new PvRecorder(512, 0);
 
     expect(recorder.version).toBeDefined();
     expect(typeof recorder.version).toBe("string");
@@ -91,7 +91,7 @@ describe("Test PvRecorder", () => {
   });
 
   test("sample rate", () => {
-    const recorder = new PvRecorder( 512, 0);
+    const recorder = new PvRecorder(512, 0);
 
     expect(recorder.sampleRate).toBeDefined();
     expect(typeof recorder.sampleRate).toBe("number");

@@ -32,8 +32,8 @@ class PvRecorder {
   /**
    * PvRecorder constructor.
    *
-   * @param deviceIndex The audio device index to use to record audio. A value of (-1) will use machine's default audio device.
    * @param frameLength Length of the audio frames to receive per read call.
+   * @param deviceIndex The audio device index to use to record audio. A value of (-1) will use machine's default audio device.
    * @param bufferedFramesCount The number of audio frames buffered internally for reading - i.e. internal circular buffer
    * will be of size `frameLength` * `bufferedFramesCount`. If this value is too low, buffer overflows could occur
    * and audio frames could be dropped. A higher value will increase memory usage.
@@ -43,17 +43,17 @@ class PvRecorder {
     deviceIndex: number = -1,
     bufferedFramesCount = 50,
   ) {
-    let porcupineHandleAndStatus;
+    let pvRecorderHandleAndStatus;
     try {
-      porcupineHandleAndStatus = PvRecorder._pvRecorder.init(frameLength, deviceIndex, bufferedFramesCount);
+      pvRecorderHandleAndStatus = PvRecorder._pvRecorder.init(frameLength, deviceIndex, bufferedFramesCount);
     } catch (err: any) {
       pvRecorderStatusToException(err.code, err);
     }
-    const status = porcupineHandleAndStatus.status;
+    const status = pvRecorderHandleAndStatus.status;
     if (status !== PvRecorderStatus.SUCCESS) {
       throw pvRecorderStatusToException(status, "PvRecorder failed to initialize.");
     }
-    this._handle = porcupineHandleAndStatus.handle;
+    this._handle = pvRecorderHandleAndStatus.handle;
     this._frameLength = frameLength;
     this._sampleRate = PvRecorder._pvRecorder.sample_rate();
     this._version = PvRecorder._pvRecorder.version();

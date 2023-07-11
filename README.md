@@ -168,7 +168,7 @@ recorder.delete()
 
 ### Node.js
 
-Install NodeJS binding:
+Install Node.js binding:
 
 ```console
 yarn add @picovoice/pvrecorder-node
@@ -185,13 +185,12 @@ Get a frame of audio by calling the read function:
 
 ```javascript
 while (recorder.isRecording) {
-    /*const frame = recorder.readSync(), for synchronous calls*/
     const frame = await recorder.read();
     // do something with frame
 }
 ```
 
-To stop recording just run stop on the instance:
+To stop recording, run stop on the instance:
 
 ```javascript
 recorder.stop();

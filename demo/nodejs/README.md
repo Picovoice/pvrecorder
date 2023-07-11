@@ -5,8 +5,6 @@
 - Node.js 14+
 - Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64), Raspberry Pi (2, 3, 4), NVIDIA Jetson (Nano), and BeagleBone.
 
-For more detailed information on how to use the pv_recorder Node.js sdk, see [demo.js](../../demo/nodejs/demo.js).
-
 ## Installation:
 
 To install the demos and make them available on the command line, use either of the following `yarn` or `npm` commands:
