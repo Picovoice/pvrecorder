@@ -1,11 +1,9 @@
-# PvRecorder
-
-A cross-platform audio recorder to read one channel and 16kHz samples.
+# PvRecorder Binding for Python
 
 ## Compatibility
 
 - Python 3.5+
-- Runs on Linux (x86_64), Mac (x86_64 and arm64), Windows (x86_64), Raspberry Pi (all variants), NVIDIA Jetson (Nano), and BeagleBone.
+- Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64), Raspberry Pi (all variants), NVIDIA Jetson (Nano), and BeagleBone.
 
 ## Installation
 
@@ -13,24 +11,29 @@ pip3 install pvrecorder
 
 ## Usage
 
-Getting the list of input devices does not require an instance:
-
-```python
-from pvrecorder import PvRecorder
-
-devices = PvRecorder.get_available_devices()
-```
-
 To start recording initialize an instance and run start:
 
 ```python
 from pvrecorder import PvRecorder
 
-recorder = PvRecorder(device_index=-1, frame_length=512)
+recorder = PvRecorder(frame_length=512)
 recorder.start()
 ```
 
-Get the frames by calling the read function:
+(or)
+
+Use `get_available_devices()` to get a list of available devices and then initialize the instance based on the index of a device:
+
+```python
+from pvrecorder import PvRecorder
+
+devices = PvRecorder.get_available_devices() # select index of device
+
+recorder = PvRecorder(frame_length=512, device_index=0)
+recorder.start()
+```
+
+Get a frame of audio by calling the `read()` function:
 
 ```python
 frame = recorder.read()
@@ -51,4 +54,4 @@ recorder.delete()
 
 ## Demos
 
-[pvrecorderdemo](https://pypi.org/project/pvrecorderdemo/) provides command-line utilities for recording audio.
+[pvrecorderdemo](https://pypi.org/project/pvrecorderdemo/) provides command-line utilities for recording audio to a file.

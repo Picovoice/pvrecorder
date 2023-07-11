@@ -74,10 +74,10 @@ pv_recorder_demo --show_audio_devices
 With a working microphone connected to your device run the following in the terminal:
 
 ```console
-pv_recorder_demo --audio_device_index {AUDIO_DEVICE_INDEX} --output_path {OUTPUT_PATH}
+pv_recorder_demo --output_wav_path {OUTPUT_WAV_PATH}
 ```
 
-Replace `{AUDIO_DEVICE_INDEX}` with the index of the audio device to use, and `{OUTPUT_PATH}` with the path to save the audio data in `wav` format.
+Replace `{OUTPUT_WAV_PATH}` with the path to save the audio data in `wav` format.
 
 For more information about the Python demos go to [demo/python](demo/python).
 
@@ -132,7 +132,7 @@ To start recording initialize an instance and run start:
 ```python
 from pvrecorder import PvRecorder
 
-recorder = PvRecorder(device_index=-1, frame_length=512)
+recorder = PvRecorder(frame_length=512)
 recorder.start()
 ```
 

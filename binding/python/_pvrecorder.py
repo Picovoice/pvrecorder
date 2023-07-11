@@ -80,14 +80,14 @@ class PvRecorder(object):
 
     def __init__(
             self,
-            device_index: int,
             frame_length: int,
-            buffered_frames_count: int = 100):
+            device_index: int = -1,
+            buffered_frames_count: int = 50):
         """
         Constructor
 
-        :param device_index: The index of the audio device to use. A value of (-1) will resort to default device.
         :param frame_length: The length of audio frame to get for each read call.
+        :param device_index: The index of the audio device to use. A value of (-1) will resort to default device.
         :param buffered_frames_count: The number of audio frames buffered internally for reading - i.e. internal
         circular buffer will be of size `frame_length` * `buffered_frames_count`. If this value is too low,
         buffer overflows could occur audio frames could be dropped. A higher value will increase memory usage.
@@ -107,7 +107,7 @@ class PvRecorder(object):
         self._handle = POINTER(self.CPvRecorder)()
         self._frame_length = frame_length
 
-        status = init_func(device_index, frame_length, buffered_frames_count, byref(self._handle))
+        status = init_func(frame_length, device_index, buffered_frames_count, byref(self._handle))
         if status is not self.PvRecorderStatuses.SUCCESS:
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to initialize PvRecorder.")
 
@@ -167,7 +167,7 @@ class PvRecorder(object):
             raise self._PVRECORDER_STATUS_TO_EXCEPTION[status]("Failed to stop device.")
 
     def read(self) -> List[int]:
-        """Synchronous call to read frames.
+        """Synchronous call to read a frame of audio.
 
         :return: A frame with size `frame_length` matching the value given to `__init__()`.
         """
@@ -207,6 +207,12 @@ class PvRecorder(object):
 
         version = self._version_func()
         return version.decode('utf-8')
+
+    @property
+    def frame_length(self) -> int:
+        """Gets the frame length matching the value given to `__init__()`."""
+
+        return self._frame_length
 
     @property
     def sample_rate(self) -> int:

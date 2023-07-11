@@ -32,7 +32,7 @@ def main():
         default=-1)
 
     parser.add_argument(
-        "--output_path",
+        "--output_wav_path",
         help="Path to file to store raw audio.",
         default=None)
 
@@ -46,8 +46,8 @@ def main():
         device_index = args.audio_device_index
         output_path = args.output_path
 
-        recorder = PvRecorder(device_index=device_index, frame_length=512)
-        print("pvrecorder.py version: %s" % recorder.version)
+        recorder = PvRecorder(frame_length=512, device_index=device_index)
+        print("pvrecorder version: %s" % recorder.version)
 
         recorder.start()
         print("Using device: %s" % recorder.selected_device)
@@ -58,12 +58,12 @@ def main():
             if output_path is not None:
                 wavfile = wave.open(output_path, "w")
                 # noinspection PyTypeChecker
-                wavfile.setparams((1, 2, 16000, 512, "NONE", "NONE"))
+                wavfile.setparams((1, 2, recorder.sample_rate, recorder.frame_length, "NONE", "NONE"))
 
             while True:
-                pcm = recorder.read()
+                frame = recorder.read()
                 if wavfile is not None:
-                    wavfile.writeframes(struct.pack("h" * len(pcm), *pcm))
+                    wavfile.writeframes(struct.pack("h" * len(frame), *frame))
 
         except KeyboardInterrupt:
             print("Stopping...")
