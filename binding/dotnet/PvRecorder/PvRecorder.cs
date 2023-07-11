@@ -89,7 +89,7 @@ namespace Pv
         private static extern IntPtr pv_recorder_set_debug_logging(IntPtr handle, bool isDebugLoggingEnabled);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool pv_recorder_get_is_recording(IntPtr handle);
+        private static extern char pv_recorder_get_is_recording(IntPtr handle);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr pv_recorder_get_selected_device(IntPtr handle);
@@ -233,7 +233,7 @@ namespace Pv
         {
             get
             {
-                return pv_recorder_get_is_recording(_libraryPointer);
+                return pv_recorder_get_is_recording(_libraryPointer) == 0;
             }
         }
 
