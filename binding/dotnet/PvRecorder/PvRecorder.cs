@@ -71,7 +71,7 @@ namespace Pv
 #endif
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        private static extern PvRecorderStatus pv_recorder_init(int deviceIndex, int frameLength, int bufferedFramesCount, out IntPtr handle);
+        private static extern PvRecorderStatus pv_recorder_init(int frameLength, int deviceIndex, int bufferedFramesCount, out IntPtr handle);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         private static extern void pv_recorder_delete(IntPtr handle);
@@ -157,7 +157,7 @@ namespace Pv
                 throw new PvRecorderInvalidArgumentException($"Buffered frames count of {bufferedFramesCount} is invalid - must be greater than 0.");
             }
 
-            PvRecorderStatus status = pv_recorder_init(deviceIndex, frameLength, bufferedFramesCount, out _libraryPointer);
+            PvRecorderStatus status = pv_recorder_init(frameLength, deviceIndex, bufferedFramesCount, out _libraryPointer);
             if (status != PvRecorderStatus.SUCCESS)
             {
                 throw PvRecorderStatusToException(status);

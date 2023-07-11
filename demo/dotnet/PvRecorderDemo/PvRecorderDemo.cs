@@ -12,6 +12,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 using Pv;
 
@@ -132,6 +133,7 @@ namespace PvRecorderDemo
                     {
                         e.Cancel = true;
                         recorder.Stop();
+                        Console.WriteLine("Stopping...");
                     };
 
                     recorder.Start();
@@ -147,7 +149,10 @@ namespace PvRecorderDemo
                             {
                                 outputFileWriter.Write(sample);
                             }
+                            totalSamplesWritten += frame.Length;
                         }
+
+                        Thread.Yield();
                     }
 
                     if (outputFileWriter != null)
@@ -155,6 +160,7 @@ namespace PvRecorderDemo
                         WriteWavHeader(outputFileWriter, 1, 16, recorder.SampleRate, totalSamplesWritten);
                         outputFileWriter.Flush();
                         outputFileWriter.Dispose();
+                        Console.WriteLine($"Output file written to '{outputWavPath}'");
                     }
                 }
             }
