@@ -20,23 +20,9 @@ namespace PvRecorderTest
     {
         private static readonly int FRAME_LENGTH = 512;
 
-        private static bool _hasAudioDevices;
-
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext _)
-        {
-            _hasAudioDevices = PvRecorder.GetAvailableDevices().Length > 0;
-        }
-
         [TestMethod]
         public void TestInit()
         {
-            if (!_hasAudioDevices)
-            {
-                Assert.Inconclusive("No audio devices to test with.");
-                return;
-            }
-
             PvRecorder recorder = PvRecorder.Create(FRAME_LENGTH, deviceIndex: 0, bufferedFramesCount: 60);
             Assert.IsNotNull(recorder);
             Assert.IsTrue(recorder.SampleRate > 0);
@@ -48,12 +34,6 @@ namespace PvRecorderTest
         [TestMethod]
         public void TestStartStop()
         {
-            if (!_hasAudioDevices)
-            {
-                Assert.Inconclusive("No audio devices to test with.");
-                return;
-            }
-
             using (PvRecorder recorder = PvRecorder.Create(FRAME_LENGTH, deviceIndex: 0))
             {
                 recorder.SetDebugLogging(true);

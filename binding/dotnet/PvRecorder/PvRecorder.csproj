@@ -1,4 +1,4 @@
-﻿    <Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>net6.0;netcoreapp3.0;netstandard2.0</TargetFrameworks>
@@ -17,7 +17,103 @@
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <PackageIcon>pv_circle_512.png</PackageIcon>
     </PropertyGroup>
-     <ItemGroup>
+
+    <!--Target files-->
+    <ItemGroup>
+        <Content Include="PvRecorder.netstandard2.0.targets">
+            <PackagePath>
+                build/netstandard2.0/PvRecorder.targets;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="PvRecorder.targets">
+            <PackagePath>
+                build/netcoreapp3.0/PvRecorder.targets;
+                build/net6.0/PvRecorder.targets;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <!--.NET Standard 2.0+ libs-->
+    <ItemGroup>
+        <Content Include="..\..\..\lib\windows\amd64\libpv_recorder.dll">
+            <PackagePath>
+                build/netstandard2.0/libpv_recorder.dll;
+                build/netcoreapp3.0/lib/windows/amd64/libpv_recorder.dll;
+                build/net6.0/lib/windows/amd64/libpv_recorder.dll;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\windows\amd64\libpv_recorder.dll</Link>
+            <Visible>false</Visible>
+        </Content>
+        <Content Include="..\..\..\lib\linux\x86_64\libpv_recorder.so">
+            <PackagePath>
+                build/netstandard2.0/libpv_recorder.so;
+                build/netcoreapp3.0/lib/linux/x86_64/libpv_recorder.so;
+                build/net6.0/lib/linux/x86_64/libpv_recorder.so;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\linux\x86_64\libpv_recorder.so</Link>
+            <Visible>false</Visible>
+        </Content>
+        <Content Include="..\..\..\lib\mac\x86_64\libpv_recorder.dylib">
+            <PackagePath>
+                build/netstandard2.0/libpv_recorder.dylib;
+                build/netcoreapp3.0/lib/mac/x86_64/libpv_recorder.dylib;
+                build/net6.0/lib/mac/x86_64/libpv_recorder.dylib;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\mac\x86_64\libpv_recorder.dylib</Link>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+
+    <!--.NET Core 3.0+ libs-->
+    <ItemGroup>
+        <Content Include="..\..\..\lib\beaglebone\libpv_recorder.so">
+            <PackagePath>
+                build/netcoreapp3.0/lib/beaglebone/libpv_recorder.so;
+                build/net6.0/lib/beaglebone/libpv_recorder.so;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\beaglebone\libpv_recorder.so</Link>
+            <Visible>false</Visible>
+        </Content>
+        <Content Include="..\..\..\lib\raspberry-pi\**\*" Exclude="..\..\..\lib\raspberry-pi\arm11\*">
+            <PackagePath>
+                build/netcoreapp3.0/lib/raspberry-pi;
+                build/net6.0/lib/raspberry-pi;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\raspberry-pi\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Visible>false</Visible>
+        </Content>
+        <Content Include="..\..\..\lib\jetson\cortex-a57-aarch64\libpv_recorder.so">
+            <PackagePath>
+                build/netcoreapp3.0/lib/jetson/cortex-a57-aarch64/libpv_recorder.so;
+                build/net6.0/lib/jetson/cortex-a57-aarch64/libpv_recorder.so;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\jetson\cortex-a57-aarch64\libpv_recorder.so</Link>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+
+    <!--.NET 6.0+ libs-->
+    <ItemGroup>
+        <Content Include="..\..\..\lib\mac\arm64\libpv_recorder.dylib">
+            <PackagePath>
+                build/net6.0/lib/mac/arm64/libpv_recorder.dylib;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\mac\arm64\libpv_recorder.dylib</Link>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+
+    <!--Resource files-->
+    <ItemGroup>
         <Content Include="..\..\..\resources\scripts\*">
             <PackagePath>
                 build/netstandard2.0/scripts;
@@ -28,96 +124,14 @@
             <Link>scripts\%(Filename)%(Extension)</Link>
             <Visible>False</Visible>
         </Content>
-		<Content Include="PvRecorder.netstandard2.0.targets">
-		  <PackagePath>
-				build/netstandard2.0/PvRecorder.targets;
-			</PackagePath>
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Include="PvRecorder.targets">
-			<PackagePath>
-				build/netcoreapp3.0;
-				build/net6.0;
-			</PackagePath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Include="..\..\..\lib\windows\amd64\libpv_recorder.dll">
-			<PackagePath>
-				build/netstandard2.0/libpv_recorder.dll;
-				build/netcoreapp3.0/lib/windows/amd64/libpv_recorder.dll;
-				build/net6.0/lib/windows/amd64/libpv_recorder.dll;
-			</PackagePath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<Link>lib\windows\amd64\libpv_recorder.dll</Link>
-			<Visible>false</Visible>
-		</Content>
-		<Content Include="..\..\..\lib\linux\x86_64\libpv_recorder.so">
-			<PackagePath>
-				build/netstandard2.0/libpv_recorder.so;
-				build/netcoreapp3.0/lib/linux/x86_64/libpv_recorder.so;
-				build/net6.0/lib/linux/x86_64/libpv_recorder.so;
-			</PackagePath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<Link>lib\linux\x86_64\libpv_recorder.so</Link>
-			<Visible>false</Visible>
-		</Content>
-		<Content Include="..\..\..\lib\mac\x86_64\libpv_recorder.dylib">
-			<PackagePath>
-				build/netstandard2.0/libpv_recorder.dylib;
-				build/netcoreapp3.0/lib/mac/x86_64/libpv_recorder.dylib;
-				build/net6.0/lib/mac/x86_64/libpv_recorder.dylib;
-			</PackagePath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<Link>lib\mac\x86_64\libpv_recorder.dylib</Link>
-			<Visible>false</Visible>
-		</Content>
-	</ItemGroup>
-	<ItemGroup>
-        <Content Include="..\..\..\lib\beaglebone\libpv_recorder.so">
-            <PackagePath>
-                build/netcoreapp3.0/lib/beaglebone/libpv_recorder.so;
-                build/net6.0/lib/beaglebone/libpv_recorder.so;
-            </PackagePath>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>lib\beaglebone\libpv_recorder.so</Link>
-            <Visible>false</Visible>
-        </Content>
-		<Content Include="..\..\..\lib\raspberry-pi\**\*" Exclude="..\..\..\lib\raspberry-pi\arm11\*">
-			<PackagePath>
-				build/netcoreapp3.0/lib/raspberry-pi;
-				build/net6.0/lib/raspberry-pi;
-			</PackagePath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<Link>lib\raspberry-pi\%(RecursiveDir)%(Filename)%(Extension)</Link>
-			<Visible>false</Visible>
-		</Content>
-		<Content Include="..\..\..\lib\jetson\cortex-a57-aarch64\libpv_recorder.so">
-			<PackagePath>
-				build/netcoreapp3.0/lib/jetson/cortex-a57-aarch64/libpv_recorder.so;
-				build/net6.0/lib/jetson/cortex-a57-aarch64/libpv_recorder.so;
-			</PackagePath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<Link>lib\jetson\cortex-a57-aarch64\libpv_recorder.so</Link>
-			<Visible>false</Visible>
-		</Content>
-	</ItemGroup>
-	<ItemGroup>
-		<Content Include="..\..\..\lib\mac\arm64\libpv_recorder.dylib">
-			<PackagePath>
-				build/net6.0/lib/mac/arm64/libpv_recorder.dylib;
-			</PackagePath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<Link>lib\mac\arm64\libpv_recorder.dylib</Link>
-			<Visible>false</Visible>
-		</Content>
-	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="Content\" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="Content\pv_circle_512.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-	</ItemGroup>
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Content\" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="Content\pv_circle_512.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
 </Project>
