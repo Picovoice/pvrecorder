@@ -1,7 +1,7 @@
 venv
 dist
 MANIFEST.in
-pvrecorder
-pvrecorder.egg-info
+pvrecorderdemo
+pvrecorderdemo.egg-info
 build
 __pycache__

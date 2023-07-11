@@ -1,25 +1,9 @@
-# PvRecorder
-
-A cross-platform audio recorder to read one channel and 16kHz samples.
-
-## Requirements
-
-- Python 3
+# PvRecorder Binding for Python
 
 ## Compatibility
 
-- Windows (amd64)
-- macOS
-    - x86_64
-    - arm64
-- Linux (x86_64)
-- Raspberry Pi:
-    - Zero
-    - 2
-    - 3 (32 and 64 bit)
-    - 4 (32 and 64 bit)
-- NVIDIA Jetson Nano
-- BeagleBone
+- Python 3.5+
+- Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64), Raspberry Pi (all variants), NVIDIA Jetson (Nano), and BeagleBone.
 
 ## Installation
 
@@ -27,28 +11,33 @@ pip3 install pvrecorder
 
 ## Usage
 
-Getting the list of input devices does not require an instance:
+To start recording initialize an instance and run start:
 
 ```python
 from pvrecorder import PvRecorder
 
-devices = PvRecorder.get_audio_devices()
-```
-
-To start recording initialize the instance and run start:
-
-```python
-from pvrecorder import PvRecorder
-
-recorder = PvRecorder(device_index=-1, frame_length=512)
+recorder = PvRecorder(frame_length=512)
 recorder.start()
 ```
 
-Get the pcm frames by calling the read function:
+(or)
+
+Use `get_available_devices()` to get a list of available devices and then initialize the instance based on the index of a device:
 
 ```python
-pcm = recorder.read()
-# do something with pcm
+from pvrecorder import PvRecorder
+
+devices = PvRecorder.get_available_devices() # select index of device
+
+recorder = PvRecorder(frame_length=512, device_index=0)
+recorder.start()
+```
+
+Get a frame of audio by calling the `read()` function:
+
+```python
+frame = recorder.read()
+# do something with frame
 ```
 
 To stop recording just run stop on the instance:
@@ -63,22 +52,6 @@ Once you are done, free the used resources. You do not have to call stop before 
 recorder.delete()
 ```
 
-### Demo
+## Demos
 
-For more detailed information on how to use the pv_recorder python sdk, please that a look at [demo.py](../../demo/python/demo.py).
-
-In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{OUTPUT_PATH}` as the path to save the audio data in `wav` format.
-
-`{AUDIO_DEVICE_INDEX}` defaults to -1 and `{OUTPUT_PATH}` can be empty if you wish to not save any data.
-
-To show the available audio devices run:
-
-```console
-python3 demo.py --show_audio_devices
-```
-
-To run audio recorder run:
-
-```console
-python3 demo.py --audio_device_index {AUDIO_DEVICE_INDEX} --output_path {OUTPUT_PATH}
-```
+[pvrecorderdemo](https://pypi.org/project/pvrecorderdemo/) provides command-line utilities for recording audio to a file.

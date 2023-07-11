@@ -1,5 +1,5 @@
 #
-# Copyright 2021-2022 Picovoice Inc.
+# Copyright 2021-2023 Picovoice Inc.
 #
 # You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
 # file accompanying this source.
@@ -22,11 +22,11 @@ os.mkdir(package_folder)
 shutil.copy(os.path.join(os.path.dirname(__file__), '../../LICENSE'), package_folder)
 
 shutil.copy(os.path.join(os.path.dirname(__file__), '__init__.py'), os.path.join(package_folder, '__init__.py'))
-shutil.copy(os.path.join(os.path.dirname(__file__), 'pvrecorder.py'), os.path.join(package_folder, 'pvrecorder.py'))
+shutil.copy(os.path.join(os.path.dirname(__file__), '_pvrecorder.py'), os.path.join(package_folder, '_pvrecorder.py'))
 
 shutil.copytree(
-    os.path.join(os.path.dirname(__file__), '../../scripts'),
-    os.path.join(package_folder, 'scripts'))
+    os.path.join(os.path.dirname(__file__), '../../resources/scripts'),
+    os.path.join(package_folder, 'resources/scripts'))
 
 platforms = ('beaglebone', 'jetson', 'linux', 'mac', 'raspberry-pi', 'windows')
 
@@ -39,7 +39,7 @@ for platform in platforms:
 MANIFEST_IN = """
 include pvrecorder/LICENSE
 include pvrecorder/__init__.py
-include pvrecorder/pv_recorder.py
+include pvrecorder/_pv_recorder.py
 include pvrecorder/lib/beaglebone/libpv_recorder.so
 recursive-include pvrecorder/lib/jetson *
 include pvrecorder/lib/linux/x86_64/libpv_recorder.so
@@ -47,7 +47,7 @@ include pvrecorder/lib/mac/x86_64/libpv_recorder.dylib
 include pvrecorder/lib/mac/arm64/libpv_recorder.dylib
 recursive-include pvrecorder/lib/raspberry-pi *
 include pvrecorder/lib/windows/amd64/libpv_recorder.dll
-recursive-include pvrecorder/scripts *
+recursive-include pvrecorder/resources/scripts *
 """
 
 with open(os.path.join(os.path.dirname(__file__), 'MANIFEST.in'), 'w') as f:
@@ -58,7 +58,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md'), 'r') as f:
 
 setuptools.setup(
     name="pvrecorder",
-    version="1.1.2",
+    version="1.2.0",
     author="Picovoice",
     author_email="hello@picovoice.ai",
     description="Recorder library for Picovoice.",
@@ -77,5 +77,5 @@ setuptools.setup(
         "Topic :: Multimedia :: Sound/Audio :: Speech"
     ],
     python_requires='>=3.5',
-    keywords="audio recorder",
+    keywords="Audio Recorder",
 )

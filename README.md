@@ -59,6 +59,29 @@ git clone --recurse-submodules https://github.com/Picovoice/pvrecorder.git
 
 ### Python Demo
 
+Install the demo package:
+
+```console
+pip3 install pvrecorderdemo
+```
+
+To show the available audio devices run:
+
+```console
+pv_recorder_demo --show_audio_devices
+```
+
+With a working microphone connected to your device run the following in the terminal:
+
+```console
+pv_recorder_demo --output_wav_path {OUTPUT_WAV_PATH}
+```
+
+Replace `{OUTPUT_WAV_PATH}` with the path to save the audio data in `wav` format.
+
+For more information about the Python demos go to [demo/python](demo/python).
+
+
 ### .NET Demo
 
 ### Go Demo
@@ -95,6 +118,33 @@ Hit `Ctrl+C` to stop recording. If no audio device index (`-d`) is provided, the
 ## SDKs
 
 ### Python
+
+To start recording initialize an instance and run start:
+
+```python
+from pvrecorder import PvRecorder
+
+recorder = PvRecorder(frame_length=512)
+recorder.start()
+```
+
+Get the frames by calling the read function:
+
+```python
+frame = recorder.read()
+```
+
+To stop recording just run stop on the instance:
+
+```python
+recorder.stop()
+```
+
+Once you are done, free the used resources. You do not have to call stop before delete:
+
+```python
+recorder.delete()
+```
 
 ### .NET
 

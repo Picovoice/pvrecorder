@@ -29,7 +29,7 @@ on:
 
 defaults:
   run:
-    working-directory: sdk/python
+    working-directory: binding/python
 
 jobs:
   build-github-hosted:
@@ -37,7 +37,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
 
     steps:
@@ -50,29 +50,25 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Pre-build
-      run: pip3 install wheel
-
-    - name: Build
-      run: python3 setup.py sdist bdist_wheel
-
-    - name: Run get audio devices
-      run: python3 demo.py --show_audio_devices
+    - name: Test
+      run: python3 test_pv_recorder.py
 
   build-self-hosted:
     runs-on: ${{ matrix.machine }}
 
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone, pv-windows]
 
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
 
-    - name: Build
-      run: python3 setup.py sdist bdist_wheel
+    - name: Test
+      run: python3 test_pv_recorder.py
+      if: ${{ matrix.machine != 'pv-windows' }}
 
-    - name: Run get audio devices
-      run: python3 demo.py --show_audio_devices
+    - name: Test
+      run: python test_pv_recorder.py
+      if: ${{ matrix.machine == 'pv-windows' }}
