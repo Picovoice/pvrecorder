@@ -29,11 +29,7 @@ To start recording, initialize the instance and run start function:
 ```go
 import . "github.com/Picovoice/pvrecorder/binding/go"
 
-recorder := PvRecorder{
-FrameLength: 512,
-    DeviceIndex: -1, // Using -1 for index uses default audio input device.
-    BufferedFramesCount: 10,
-}
+recorder := NewPvRecorder(/*FrameLength*/512)
 if err := recorder.Init(); err != nil {
     // error
 }

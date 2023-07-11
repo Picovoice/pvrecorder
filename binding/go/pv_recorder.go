@@ -119,12 +119,32 @@ var (
 	nativePvRecorder = nativePvRecorderType{}
 )
 
+var (
+	// SampleRate Audio sample rate used by PvRecorder.
+	SampleRate int
+
+	// Version PvRecorder version
+	Version string
+)
+
+// NewPvRecorder returns a PvRecorder struct with default parameters
+func NewPvRecorder(frameLength int) PvRecorder {
+	return PvRecorder{
+		FrameLength:         frameLength,
+		DeviceIndex:         -1,
+		BufferedFramesCount: 50,
+	}
+}
+
 // Init function for PvRecorder
 func (pvRecorder *PvRecorder) Init() error {
 	ret := nativePvRecorder.nativeInit(pvRecorder)
 	if ret != SUCCESS {
 		return fmt.Errorf("PvRecorder Init failed with: %s", pvRecorderStatusToString(ret))
 	}
+
+	SampleRate = nativePvRecorder.nativeSampleRate()
+	Version = nativePvRecorder.nativeVersion()
 
 	return nil
 }
@@ -207,16 +227,6 @@ func GetAvailableDevices() ([]string, error) {
 	}
 
 	return deviceNames, nil
-}
-
-// Version function gets the current library version.
-func Version() string {
-	return nativePvRecorder.nativeVersion()
-}
-
-// SampleRate function gets the audio sample rate used by PvRecorder.
-func SampleRate() int {
-	return nativePvRecorder.nativeSampleRate()
 }
 
 func extractLib() string {

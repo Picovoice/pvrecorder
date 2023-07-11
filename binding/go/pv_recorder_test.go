@@ -20,11 +20,9 @@ func TestMain(m *testing.M) {
 }
 
 func TestInvalidDeviceIndex(t *testing.T) {
-	recorder := PvRecorder{
-		FrameLength:         512,
-		DeviceIndex:         -2,
-		BufferedFramesCount: 10,
-	}
+	recorder := NewPvRecorder(512)
+	recorder.DeviceIndex = -2
+
 	err := recorder.Init()
 	if err == nil {
 		t.Fatalf("Init succeeded with invalid device index")
@@ -34,11 +32,8 @@ func TestInvalidDeviceIndex(t *testing.T) {
 }
 
 func TestInvalidFrameLength(t *testing.T) {
-	recorder := PvRecorder{
-		FrameLength:         0,
-		DeviceIndex:         0,
-		BufferedFramesCount: 10,
-	}
+	recorder := NewPvRecorder(0)
+
 	err := recorder.Init()
 	if err == nil {
 		t.Fatalf("Init succeeded with invalid frame length")
@@ -48,11 +43,9 @@ func TestInvalidFrameLength(t *testing.T) {
 }
 
 func TestInvalidBufferedFramesCount(t *testing.T) {
-	recorder := PvRecorder{
-		FrameLength:         512,
-		DeviceIndex:         0,
-		BufferedFramesCount: 0,
-	}
+	recorder := NewPvRecorder(512)
+	recorder.BufferedFramesCount = 0
+
 	err := recorder.Init()
 	if err == nil {
 		t.Fatalf("Init succeeded with invalid buffered frames count")
@@ -62,11 +55,9 @@ func TestInvalidBufferedFramesCount(t *testing.T) {
 }
 
 func TestStartStop(t *testing.T) {
-	recorder := PvRecorder{
-		FrameLength:         512,
-		DeviceIndex:         0,
-		BufferedFramesCount: 10,
-	}
+	recorder := NewPvRecorder(512)
+	recorder.DeviceIndex = 0
+
 	err := recorder.Init()
 	if err != nil {
 		t.Fatalf("Init failed: %v", err)
@@ -91,11 +82,9 @@ func TestStartStop(t *testing.T) {
 }
 
 func TestSetDebugLogging(t *testing.T) {
-	recorder := PvRecorder{
-		FrameLength:         512,
-		DeviceIndex:         0,
-		BufferedFramesCount: 10,
-	}
+	recorder := NewPvRecorder(512)
+	recorder.DeviceIndex = 0
+
 	err := recorder.Init()
 	if err != nil {
 		t.Fatalf("Init failed: %v", err)
@@ -108,11 +97,9 @@ func TestSetDebugLogging(t *testing.T) {
 }
 
 func TestGetIsRecording(t *testing.T) {
-	recorder := PvRecorder{
-		FrameLength:         512,
-		DeviceIndex:         0,
-		BufferedFramesCount: 10,
-	}
+	recorder := NewPvRecorder(512)
+	recorder.DeviceIndex = 0
+
 	err := recorder.Init()
 	if err != nil {
 		t.Fatalf("Init failed: %v", err)
@@ -142,11 +129,9 @@ func TestGetIsRecording(t *testing.T) {
 }
 
 func TestGetSelectedDevice(t *testing.T) {
-	recorder := PvRecorder{
-		FrameLength:         512,
-		DeviceIndex:         0,
-		BufferedFramesCount: 10,
-	}
+	recorder := NewPvRecorder(512)
+	recorder.DeviceIndex = 0
+
 	err := recorder.Init()
 	if err != nil {
 		t.Fatalf("Init failed: %v", err)
@@ -169,14 +154,14 @@ func TestGetAvailableDevices(t *testing.T) {
 }
 
 func TestVersion(t *testing.T) {
-	version := Version()
+	version := Version
 	if len(version) == 0 {
 		t.Fatalf("Failed to get version")
 	}
 }
 
 func TestSampleRate(t *testing.T) {
-	sampleRate := SampleRate()
+	sampleRate := SampleRate
 	if sampleRate <= 0 {
 		t.Fatalf("Failed to get sample rate")
 	}

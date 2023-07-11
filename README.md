@@ -86,7 +86,7 @@ For more information about the Python demos go to [demo/python](demo/python).
 
 ### Go Demo
 
-The demo requires `cgo`, which on Windows may mean that you need to install a gcc compiler like [Mingw](http://mingw-w64.org) to build it properly.
+The demo requires `cgo`, which on Windows may mean that you need to install a gcc compiler like [MinGW](http://mingw-w64.org) to build it properly.
 
 From [demo/go](demo/go) run the following commands from the terminal.
 
