@@ -1,2 +1,0 @@
-[console_scripts]
-pv_recorder_demo = pvrecorderdemo.pv_recorder_demo:main
