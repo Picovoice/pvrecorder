@@ -120,20 +120,16 @@ Install the .NET SDK using NuGet or the dotnet CLI:
 dotnet add package PvRecorder
 ```
 
-Init and start `PvRecorder`:
+Initialize and begin recording:
 
 ```csharp
 using Pv;
 
-```csharp
-PvRecorder recorder = PvRecorder.Create(
-    frameLength: 512,
-);
-
+PvRecorder recorder = PvRecorder.Create(frameLength: 512);
 recorder.Start();
 ```
 
-Get the audio frames by calling the read function:
+Read a frame of audio:
 
 ```csharp
 while (true) {
@@ -148,16 +144,16 @@ To stop recording:
 recorder.Stop();
 ```
 
-Once you are done, free the used resources:
+Once you are done, free the used resources. You do not have to call `Stop()` before `Dispose()`:
 
 ```csharp
 recorder.Dispose();
 ```
 
-To have to resources freed immediately after use without explicitly calling the `Dispose` function, wrap PvRecorder in a using statement:
+To have resources freed immediately after use without explicitly calling `Dispose()`, wrap `PvRecorder` in a `using` statement:
 
 ```csharp
-using(PvRecorder recorder = PvRecorder.Create(frameLength: 512)) {
+using (PvRecorder recorder = PvRecorder.Create(frameLength: 512)) {
     // PvRecorder usage
 }
 ```
