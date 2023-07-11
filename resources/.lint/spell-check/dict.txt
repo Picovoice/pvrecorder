@@ -42,4 +42,5 @@ subchunk
 typedarray
 vtable
 wavfile
+wavefile
 Wunused
