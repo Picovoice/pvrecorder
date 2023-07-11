@@ -3,7 +3,7 @@
 ## Compatibility
 
 - Node.js 14+
-- Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64), Raspberry Pi (all variants), NVIDIA Jetson (Nano), and BeagleBone.
+- Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64), Raspberry Pi (2, 3, 4), NVIDIA Jetson (Nano), and BeagleBone.
 
 ## Installation
 
@@ -36,17 +36,17 @@ const recorder = new PvRecorder(512, 0);
 recorder.start()
 ```
 
-Get the pcm frames by calling the read function:
+Get a frame of audio by calling the read function:
 
 ```javascript
 while (recorder.isRecording) {
-    /*const pcm = recorder.readSync(), for synchronous calls*/
-    const pcm = await recorder.read();
-    // do something with pcm
+    /*const frame = recorder.readSync(), for synchronous calls*/
+    const frame = await recorder.read();
+    // do something with frame
 }
 ```
 
-To stop recording just run stop on the instance:
+To stop recording, run stop on the instance:
 
 ```javascript
 recorder.stop();

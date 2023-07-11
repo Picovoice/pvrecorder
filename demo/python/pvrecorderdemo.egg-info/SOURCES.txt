@@ -1,0 +1,11 @@
+MANIFEST.in
+README.md
+setup.py
+pvrecorderdemo/LICENSE
+pvrecorderdemo/pv_recorder_demo.py
+pvrecorderdemo.egg-info/PKG-INFO
+pvrecorderdemo.egg-info/SOURCES.txt
+pvrecorderdemo.egg-info/dependency_links.txt
+pvrecorderdemo.egg-info/entry_points.txt
+pvrecorderdemo.egg-info/requires.txt
+pvrecorderdemo.egg-info/top_level.txt

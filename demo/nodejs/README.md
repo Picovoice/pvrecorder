@@ -3,7 +3,7 @@
 ## Compatibility
 
 - Node.js 14+
-- Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64), Raspberry Pi (all variants), NVIDIA Jetson (Nano), and BeagleBone.
+- Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64), Raspberry Pi (2, 3, 4), NVIDIA Jetson (Nano), and BeagleBone.
 
 For more detailed information on how to use the pv_recorder Node.js sdk, see [demo.js](../../demo/nodejs/demo.js).
 
@@ -23,7 +23,7 @@ npm install -g @picovoice/porcupine-node-demo
 
 ## Usage
 
-In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{OUTPUT_WAV_PATH}` as the path to save the audio data in `.wav` format.
+In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{OUTPUT_WAV_PATH}` as the file path to save the audio data in `wav` format.
 
 `{AUDIO_DEVICE_INDEX}` defaults to -1 and `{OUTPUT_WAV_PATH}` can be empty if you wish to not save any data.
 

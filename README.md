@@ -100,7 +100,7 @@ With a working microphone connected to your device run the following in the term
 pvrecorder-node-demo --output_wav_path ${OUTPUT_WAV_PATH}
 ```
 
-Replace `{OUTPUT_WAV_PATH}` with the path to save the audio data in `wav` format.
+Replace `{OUTPUT_WAV_PATH}` with the file path to save the audio data in `wav` format.
 
 For more information about NodeJS demos go to [demo/nodejs](demo/nodejs/).
 
