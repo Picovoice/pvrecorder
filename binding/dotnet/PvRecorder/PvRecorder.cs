@@ -107,10 +107,10 @@ namespace Pv
         private static extern IntPtr pv_recorder_version();
 
         /// <summary>
-        /// Factory method for PvRecorder library.
-        /// </summary>        
+        /// Factory method for creating instances of PvRecorder.
+        /// </summary>
         /// <param name="frameLength">
-        /// Length of the audio frames to receive at each read call.
+        /// Length of the audio frame to receive with each call to read.
         /// </param>
         /// <param name="deviceIndex">
         /// The index of the audio device to capture audio from. A value of (-1) will use the default audio.
@@ -170,7 +170,7 @@ namespace Pv
         }
 
         /// <summary>
-        /// Starts recording audio.
+        /// Starts recording audio. Should be called before making any calls to `Read()` or `Stop()`.
         /// </summary>
         public void Start()
         {
@@ -182,7 +182,7 @@ namespace Pv
         }
 
         /// <summary>
-        /// Stops recording audio.
+        /// Stops recording audio. Should only be called after a successful call to `Start()`.
         /// </summary>
         public void Stop()
         {
@@ -194,7 +194,7 @@ namespace Pv
         }
 
         /// <summary>
-        /// Synchronously reads a frame of audio samples.
+        /// Synchronously reads a frame of audio samples. Call between `Start()` and `Stop()`.
         /// </summary>
         /// <returns>An array of audio samples with length of `frameLength` that was provided upon initialization.</returns>
         public short[] Read()
@@ -209,7 +209,7 @@ namespace Pv
         }
 
         /// <summary>
-        /// Enable or disable debug logging for PvRecorder.Debug logs will indicate when there are overflows
+        /// Enable or disable debug logging. Debug logs will indicate when there are overflows
         /// in the internal frame buffer and when an audio source is generating frames of silence.
         /// </summary>
         /// <param name="isDebugLoggingEnabled">Boolean indicating whether the debug logging is enabled or disabled.</param>
@@ -247,7 +247,7 @@ namespace Pv
 
 
         /// <summary>
-        /// Gets the current selected device.
+        /// Gets the current selected audio device.
         /// </summary>
         public string SelectedDevice
         {
@@ -263,9 +263,9 @@ namespace Pv
         }
 
         /// <summary>
-        /// Gets the available audio input devices of the current system.
+        /// Gets a list of the available audio input devices on the current system.
         /// </summary>
-        /// <returns>A list of strings containing the names of the audio devices.</returns>
+        /// <returns>An array of strings containing the names of the audio devices.</returns>
         public static string[] GetAvailableDevices()
         {
             int deviceListLength;
