@@ -28,7 +28,7 @@ func main() {
 	outputWavPath := flag.String("output_wav_path", "", "Output path to save recorded a wav file.")
 	flag.Parse()
 
-	log.Printf("pvrecorder.go version: %s\n", pvrecorder.Version())
+	log.Printf("pvrecorder.go version: %s\n", pvrecorder.Version)
 
 	if *showAudioDevices {
 		log.Println("Printing devices...")
@@ -79,7 +79,7 @@ func main() {
 		}
 		defer outputFile.Close()
 
-		outputWav = wav.NewEncoder(outputFile, PvRecorder.SampleRate(), 16, 1, 1)
+		outputWav = wav.NewEncoder(outputFile, pvrecorder.SampleRate, 16, 1, 1)
 		defer outputWav.Close()
 	}
 
