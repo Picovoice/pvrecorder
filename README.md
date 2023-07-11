@@ -119,14 +119,6 @@ Hit `Ctrl+C` to stop recording. If no audio device index (`-d`) is provided, the
 
 ### Python
 
-Getting the list of input devices does not require an instance:
-
-```python
-from pvrecorder import PvRecorder
-
-devices = PvRecorder.get_audio_devices()
-```
-
 To start recording initialize an instance and run start:
 
 ```python
