@@ -20,7 +20,7 @@ namespace PvRecorderDemo
 {
     class Demo
     {
-        private static readonly int FRAME_LENGTH = 512;        
+        private static readonly int FRAME_LENGTH = 512;
 
         /// <summary>
         /// Writes the RIFF header for a file in WAV format
@@ -120,7 +120,7 @@ namespace PvRecorderDemo
             try
             {
                 using (PvRecorder recorder = PvRecorder.Create(FRAME_LENGTH))
-                {                    
+                {
                     int totalSamplesWritten = 0;
                     BinaryWriter outputFileWriter = null;
                     if (outputWavPath != null)

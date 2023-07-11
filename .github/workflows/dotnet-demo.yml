@@ -31,12 +31,12 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
-    - name: Build .NET demo
+    - name: pack (tmp)
       run: dotnet pack -c Release
       working-directory: binding/dotnet/PvRecorder
 
-    - name: Restore local package
-      run: dotnet add package PvRecorder -s ../../binding/dotnet/PvRecorder
+    - name: restore (tmp)
+      run: dotnet add package PvRecorder -s ../../../binding/dotnet/PvRecorder/bin/Release
 
     - name: Build .NET demo
       run: dotnet build
