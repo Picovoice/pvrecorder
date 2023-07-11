@@ -13,4 +13,22 @@
     <ItemGroup>
         <ProjectReference Include="..\PvRecorder\PvRecorder.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\..\..\lib\windows\amd64\libpv_recorder.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>libpv_recorder.dll</Link>
+            <Visible>false</Visible>
+        </Content>
+        <Content Include="..\..\..\lib\linux\x86_64\libpv_recorder.so">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>libpv_recorder.so</Link>
+            <Visible>false</Visible>
+        </Content>
+        <Content Include="..\..\..\lib\mac\x86_64\libpv_recorder.dylib">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>libpv_recorder.dylib</Link>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
 </Project>
