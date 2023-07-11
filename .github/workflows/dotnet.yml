@@ -78,8 +78,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      with:
-        submodules: recursive
 
     - name: Build binding
       run: dotnet build PvRecorder/PvRecorder.csproj --framework net6.0
