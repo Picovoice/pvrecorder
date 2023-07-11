@@ -67,7 +67,7 @@ jobs:
       run: dotnet build PvRecorder/PvRecorder.csproj --framework ${{ matrix.binding-framework }}
 
     - name: Test
-      run: dotnet test --framework ${{ matrix.test-framework }}
+      run: dotnet test --framework ${{ matrix.test-framework }} --logger "console;verbosity=detailed"
 
   build-self-hosted:
     runs-on: ${{ matrix.machine }}
@@ -83,4 +83,4 @@ jobs:
       run: dotnet build PvRecorder/PvRecorder.csproj --framework net6.0
 
     - name: Test
-      run: dotnet test --framework net6.0
+      run: dotnet test --framework net6.0 --logger "console;verbosity=detailed"
