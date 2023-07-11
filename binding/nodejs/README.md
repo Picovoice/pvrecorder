@@ -1,6 +1,4 @@
-# PvRecorder
-
-PvRecorder Binding for Node.js.
+# PvRecorder Binding for Node.js
 
 ## Compatibility
 
@@ -15,20 +13,14 @@ yarn add @picovoice/pvrecorder-node
 
 ## Usage
 
-Getting the list of input audio devices does not require an instance:
-
-```javascript
-const { PvRecorder } = require("@picovoice/pvrecorder-node");
-
-const devices = PvRecorder.getAvailableDevices();
-```
-
 To start recording initialize the instance and run `start`:
 
 ```javascript
 const recorder = new PvRecorder(/*sets to default device*/-1, /*frame length*/ 512);
 recorder.start()
 ```
+
+(or)
 
 Get the pcm frames by calling the read function:
 

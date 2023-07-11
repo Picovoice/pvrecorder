@@ -39,13 +39,13 @@ class PvRecorder {
    * and audio frames could be dropped. A higher value will increase memory usage.
    */
   constructor(
-    deviceIndex: number,
     frameLength: number,
-    bufferedFramesCount = 32,
+    deviceIndex: number = -1,
+    bufferedFramesCount = 50,
   ) {
     let porcupineHandleAndStatus;
     try {
-      porcupineHandleAndStatus = PvRecorder._pvRecorder.init(deviceIndex, frameLength, bufferedFramesCount);
+      porcupineHandleAndStatus = PvRecorder._pvRecorder.init(frameLength, deviceIndex, bufferedFramesCount);
     } catch (err: any) {
       pvRecorderStatusToException(err.code, err);
     }

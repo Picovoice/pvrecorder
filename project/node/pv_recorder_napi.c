@@ -15,8 +15,8 @@ napi_value napi_pv_recorder_init(napi_env env, napi_callback_info info) {
         return NULL;
     }
 
-    int32_t device_index;
-    status = napi_get_value_int32(env, args[0], &device_index);
+    int32_t frame_length;
+    status = napi_get_value_int32(env, args[0], &frame_length);
     if (status != napi_ok) {
         napi_throw_error(
                 env,
@@ -25,8 +25,8 @@ napi_value napi_pv_recorder_init(napi_env env, napi_callback_info info) {
         return NULL;
     }
 
-    int32_t frame_length;
-    status = napi_get_value_int32(env, args[1], &frame_length);
+    int32_t device_index;
+    status = napi_get_value_int32(env, args[1], &device_index);
     if (status != napi_ok) {
         napi_throw_error(
                 env,
@@ -47,8 +47,8 @@ napi_value napi_pv_recorder_init(napi_env env, napi_callback_info info) {
 
     pv_recorder_t *handle = NULL;
     pv_recorder_status_t pv_recorder_status = pv_recorder_init(
-            device_index,
             frame_length,
+            device_index,
             buffered_frames_count,
             &handle);
     if (pv_recorder_status != PV_RECORDER_STATUS_SUCCESS) {
