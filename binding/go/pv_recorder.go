@@ -86,11 +86,11 @@ type PvRecorder struct {
 	// handle for pvRecorder instance in C.
 	handle uintptr
 
-	// Index of audio device to start recording and capture audio.
-	DeviceIndex int
-
 	// FrameLength to get for each read command.
 	FrameLength int
+
+	// Index of audio device to start recording and capture audio.
+	DeviceIndex int
 
 	// BufferedFramesCount is the number of audio frames buffered internally for reading - i.e. internal circular buffer
 	// will be of size `frame_length` * `buffered_frames_count`. If this value is too low, buffer overflows could occur.

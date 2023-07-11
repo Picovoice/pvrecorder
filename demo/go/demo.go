@@ -25,7 +25,7 @@ import (
 func main() {
 	showAudioDevices := flag.Bool("show_audio_devices", false, "Display all the available input devices")
 	audioDeviceIndex := flag.Int("audio_device_index", -1, "Index of audio input device to use.")
-	outputPath := flag.String("output_path", "", "Output path to save recorded a wav file.")
+	outputWavPath := flag.String("output_wav_path", "", "Output path to save recorded a wav file.")
 	flag.Parse()
 
 	log.Printf("pvrecorder.go version: %s\n", pvrecorder.Version())
@@ -71,8 +71,8 @@ func main() {
 	}()
 
 	var outputWav *wav.Encoder
-	if *outputPath != "" {
-		outputFilePath, _ := filepath.Abs(*outputPath)
+	if *outputWavPath != "" {
+		outputFilePath, _ := filepath.Abs(*outputWavPath)
 		outputFile, err := os.Create(outputFilePath)
 		if err != nil {
 			log.Fatalf("Failed to create output audio at path %s", outputFilePath)

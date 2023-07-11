@@ -1,25 +1,9 @@
-# PV_Recorder
-
-A cross platform audio recorder to read one channel and 16kHz samples.
-
-## Requirements
-
-- Go 1.16+
+# PvRecorder Binding for Go
 
 ## Compatibility
 
-- Windows (amd64)
-- macOS
-    - x86_64
-    - arm64
-- Linux (x86_64)
-- Raspberry Pi:
-    - Zero
-    - 2
-    - 3 (32 and 64 bit)
-    - 4 (32 and 64 bit)
-- NVIDIA Jetson Nano
-- BeagleBone
+- Go 1.16+
+- Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64), Raspberry Pi (all variants), NVIDIA Jetson (Nano), and BeagleBone.
 
 ## Installation
 
@@ -46,8 +30,8 @@ To start recording, initialize the instance and run start function:
 import . "github.com/Picovoice/pvrecorder/binding/go"
 
 recorder := PvRecorder{
+FrameLength: 512,
     DeviceIndex: -1, // Using -1 for index uses default audio input device.
-    FrameLength: 512,
     BufferedFramesCount: 10,
 }
 if err := recorder.Init(); err != nil {

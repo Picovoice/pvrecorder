@@ -21,8 +21,8 @@ func TestMain(m *testing.M) {
 
 func TestInvalidDeviceIndex(t *testing.T) {
 	recorder := PvRecorder{
-		DeviceIndex:         -2,
 		FrameLength:         512,
+		DeviceIndex:         -2,
 		BufferedFramesCount: 10,
 	}
 	err := recorder.Init()
@@ -35,8 +35,8 @@ func TestInvalidDeviceIndex(t *testing.T) {
 
 func TestInvalidFrameLength(t *testing.T) {
 	recorder := PvRecorder{
-		DeviceIndex:         0,
 		FrameLength:         0,
+		DeviceIndex:         0,
 		BufferedFramesCount: 10,
 	}
 	err := recorder.Init()
@@ -49,8 +49,8 @@ func TestInvalidFrameLength(t *testing.T) {
 
 func TestInvalidBufferedFramesCount(t *testing.T) {
 	recorder := PvRecorder{
-		DeviceIndex:         0,
 		FrameLength:         512,
+		DeviceIndex:         0,
 		BufferedFramesCount: 0,
 	}
 	err := recorder.Init()
@@ -63,8 +63,8 @@ func TestInvalidBufferedFramesCount(t *testing.T) {
 
 func TestStartStop(t *testing.T) {
 	recorder := PvRecorder{
-		DeviceIndex:         0,
 		FrameLength:         512,
+		DeviceIndex:         0,
 		BufferedFramesCount: 10,
 	}
 	err := recorder.Init()
@@ -82,8 +82,8 @@ func TestStartStop(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Read failed: %v", err)
 		}
-		if len(frame) != 512 {
-			t.Fatalf("Frame length is not 512")
+		if len(frame) != recorder.FrameLength {
+			t.Fatalf("Frame length is not equal")
 		}
 	}
 
@@ -92,8 +92,8 @@ func TestStartStop(t *testing.T) {
 
 func TestSetDebugLogging(t *testing.T) {
 	recorder := PvRecorder{
-		DeviceIndex:         0,
 		FrameLength:         512,
+		DeviceIndex:         0,
 		BufferedFramesCount: 10,
 	}
 	err := recorder.Init()
@@ -109,8 +109,8 @@ func TestSetDebugLogging(t *testing.T) {
 
 func TestGetIsRecording(t *testing.T) {
 	recorder := PvRecorder{
-		DeviceIndex:         0,
 		FrameLength:         512,
+		DeviceIndex:         0,
 		BufferedFramesCount: 10,
 	}
 	err := recorder.Init()
@@ -143,8 +143,8 @@ func TestGetIsRecording(t *testing.T) {
 
 func TestGetSelectedDevice(t *testing.T) {
 	recorder := PvRecorder{
-		DeviceIndex:         0,
 		FrameLength:         512,
+		DeviceIndex:         0,
 		BufferedFramesCount: 10,
 	}
 	err := recorder.Init()

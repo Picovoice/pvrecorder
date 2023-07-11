@@ -58,8 +58,8 @@ static void *load_symbol(void *handle, const char *symbol) {
 
 typedef int32_t (*pv_recorder_init_func)(int32_t, int32_t, int32_t, void **);
 
-int32_t pv_recorder_init_wrapper(void *f, int32_t device_index, int32_t frame_length, int32_t buffered_frames_count, void **object) {
-    return ((pv_recorder_init_func) f)(device_index, frame_length, buffered_frames_count, object);
+int32_t pv_recorder_init_wrapper(void *f, int32_t frame_length, int32_t device_index, int32_t buffered_frames_count, void **object) {
+    return ((pv_recorder_init_func) f)(frame_length, device_index, buffered_frames_count, object);
 }
 
 typedef void (*pv_recorder_delete_func)(void *);
@@ -155,15 +155,15 @@ var (
 
 func (np nativePvRecorderType) nativeInit(pvRecorder *PvRecorder) PvRecorderStatus {
 	var (
-		deviceIndex         = pvRecorder.DeviceIndex
 		frameLength         = pvRecorder.FrameLength
+		deviceIndex         = pvRecorder.DeviceIndex
 		bufferedFramesCount = pvRecorder.BufferedFramesCount
 		ptrC                = make([]unsafe.Pointer, 1)
 	)
 
 	var ret = C.pv_recorder_init_wrapper(pv_recorder_init_ptr,
-		(C.int32_t)(deviceIndex),
 		(C.int32_t)(frameLength),
+		(C.int32_t)(deviceIndex),
 		(C.int32_t)(bufferedFramesCount),
 		&ptrC[0])
 

@@ -90,17 +90,11 @@ The demo requires `cgo`, which on Windows may mean that you need to install a gc
 
 From [demo/go](demo/go) run the following commands from the terminal.
 
-To show the available audio devices run:
-
 ```console
-pv_recorder_demo --show_audio_devices
+go run demo.go --output_wav_path {OUTPUT_WAV_PATH}
 ```
 
-```console
-go run demo.go --audio_device_index {AUDIO_DEVICE_INDEX} --output_path {OUTPUT_PATH}
-```
-
-Replace `{AUDIO_DEVICE_INDEX}` with the index of the audio device to use, and `{OUTPUT_PATH}` with the path to save the audio data in `wav` format.
+Replace  `{OUTPUT_WAV_PATH}` with the path to save the audio data in `wav` format.
 
 For more information about Go demos go to [demo/go](demo/go).
 
@@ -191,8 +185,8 @@ To start recording, initialize the instance and run start function:
 import . "github.com/Picovoice/pvrecorder/binding/go"
 
 recorder := PvRecorder{
-    DeviceIndex: -1, // Using -1 for index uses default audio input device.
     FrameLength: 512,
+    DeviceIndex: -1, // Using -1 for index uses default audio input device.
     BufferedFramesCount: 10,
 }
 if err := recorder.Init(); err != nil {
