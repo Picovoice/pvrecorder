@@ -1,75 +1,70 @@
-# PV_Recorder
-
-A cross platform audio recorder to read one channel and 16kHz samples.
-
-## Requirements
-
-- Go 1.16+
+# PvRecorder Binding for Go
 
 ## Compatibility
 
-- Windows (amd64)
-- macOS
-    - x86_64
-    - arm64
-- Linux (x86_64)
-- Raspberry Pi:
-    - Zero
-    - 2
-    - 3 (32 and 64 bit)
-    - 4 (32 and 64 bit)
-- NVIDIA Jetson Nano
-- BeagleBone
+- Go 1.16+
+- Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64), Raspberry Pi (all variants), NVIDIA Jetson (Nano), and BeagleBone.
 
 ## Installation
 
 ```console
-go get github.com/Picovoice/pvrecorder/sdk/go
+go get github.com/Picovoice/pvrecorder/binding/go
 ```
 
 ## Usage
 
-To get the list of available devices:
+To start recording initialize an instance and run start:
 
 ```go
-import . "github.com/Picovoice/pvrecorder/sdk/go"
+import . "github.com/Picovoice/pvrecorder/binding/go"
 
-devices, err := GetAudioDevices()
+recorder = NewPvRecorder(/*FrameLength*/512)
+recorder.Init()
 if err != nil {
-    // error
+    // handle init error
+}
+defer recorder.Delete()
+
+err = recorder.Start()
+if err != nil {
+    // handle start error
 }
 ```
 
-To start recording, initialize the instance and run start function:
+(or)
+
+Use `GetAvailableDevices()` to get a list of available devices and then initialize the instance based on the index of a device:
 
 ```go
-import . "github.com/Picovoice/pvrecorder/sdk/go"
+import . "github.com/Picovoice/pvrecorder/binding/go"
 
-recorder := PvRecorder{
-    DeviceIndex: -1, // Using -1 for index uses default audio input device.
-    FrameLength: 512,
-    BufferSizeMSec: 1000,
-    LogOverflow: 1,
+devices = GetAvailableDevices() // select index of device
+
+recorder = NewPvRecorder(/*FrameLength*/512)
+recorder.DeviceIndex = 0
+recorder.Init()
+if err != nil {
+    // handle init error
 }
-if err := recorder.Init(); err != nil {
-    // error
-}
-if err := recorder.Start(); err != nil {
-    // error
+defer recorder.Delete()
+
+err = recorder.Start()
+if err != nil {
+    // handle start error
 }
 ```
 
-To read the pcm frames, run:
+Get a frame of audio by calling the `Read()` function:
 
 ```go
-pcm, err := recorder.Read()
+frame, err := recorder.Read()
 if err != nil {
     // handle error
 }
-// do something with pcm
+// do something with frame
 ```
 
-To stop recording just run stop on the instance:
+To stop recording, run stop on the instance:
 
 ```go
 recorder.Stop()
@@ -83,10 +78,4 @@ recorder.Delete()
 
 ### Demo
 
-For more detailed information on how to use the pv_recorder go sdk, please that a look at [demo/demo.go](../../demo/go/demo.go). 
-
-To run the demo:
-
-```console
-go run demo/demo.go
-```
+For more detailed information on how to use the PvRecorder Go binding, please that a look at [demo/demo.go](../../demo/go/demo.go). 

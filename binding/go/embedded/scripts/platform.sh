@@ -18,8 +18,9 @@ case $kernel in
     case $arch in
       "x86_64") ;;
       "arm"* | "aarch64")
+        bitwidth=$(getconf LONG_BIT)
         arch_info=''
-        if [[ $arch == "aarch64" ]]; then
+        if [[ $bitwidth == "64" ]]; then
           arch_info=-$arch
         fi
         IFS=$'\n'

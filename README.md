@@ -86,6 +86,18 @@ For more information about the Python demos go to [demo/python](demo/python).
 
 ### Go Demo
 
+The demo requires `cgo`, which on Windows may mean that you need to install a gcc compiler like [MinGW](http://mingw-w64.org) to build it properly.
+
+From [demo/go](demo/go) run the following commands from the terminal.
+
+```console
+go run demo.go --output_wav_path {OUTPUT_WAV_PATH}
+```
+
+Replace  `{OUTPUT_WAV_PATH}` with a file path to save the audio data in `wav` format.
+
+For more information about Go demos go to [demo/go](demo/go).
+
 ### Node.js Demo
 
 ### Rust Demo
@@ -149,6 +161,52 @@ recorder.delete()
 ### .NET
 
 ### Go
+
+To install the PvRecorder Go module to your project, use the command:
+
+```console
+go get github.com/Picovoice/pvrecorder/binding/go
+```
+
+To start recording initialize an instance and run start:
+
+```go
+import . "github.com/Picovoice/pvrecorder/binding/go"
+
+recorder = NewPvRecorder(/*FrameLength*/512)
+recorder.Init()
+if err != nil {
+    // handle init error
+}
+defer recorder.Delete()
+
+err = recorder.Start()
+if err != nil {
+    // handle start error
+}
+```
+
+Get a frame of audio by calling the `Read()` function:
+
+```go
+frame, err := recorder.Read()
+if err != nil {
+    // handle error
+}
+// do something with frame
+```
+
+To stop recording, run stop on the instance:
+
+```go
+recorder.Stop()
+```
+
+Once you are done, free the used resources. You do not have to call stop before delete:
+
+```go
+recorder.Delete()
+```
 
 ### Node.js
 

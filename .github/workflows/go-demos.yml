@@ -1,35 +1,23 @@
-name: Go
+name: Go Demos
 
 on:
   workflow_dispatch:
   push:
     branches: [ main ]
     paths:
-      - 'binding/go/**'
-      - '!binding/go/README.md'
-      - 'lib/beaglebone/**'
-      - 'lib/linux/**'
-      - 'lib/jetson/**'
-      - 'lib/mac/**'
-      - 'lib/raspberry-pi/**'
-      - 'lib/windows/**'
-      - '.github/workflows/go.yml'
+      - 'demo/go/**'
+      - '!demo/go/README.md'
+      - '.github/workflows/go-demos.yml'
   pull_request:
     branches: [ main, 'v[0-9]+.[0-9]+' ]
     paths:
-      - 'binding/go/**'
-      - '!binding/go/README.md'
-      - 'lib/beaglebone/**'
-      - 'lib/linux/**'
-      - 'lib/jetson/**'
-      - 'lib/mac/**'
-      - 'lib/raspberry-pi/**'
-      - 'lib/windows/**'
-      - '.github/workflows/go.yml'
+      - 'demo/go/**'
+      - '!demo/go/README.md'
+      - '.github/workflows/go-demos.yml'
 
 defaults:
   run:
-    working-directory: binding/go
+    working-directory: demo/go
 
 jobs:
   build-github-hosted:
@@ -37,7 +25,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         go: [ '1.16', '1.17', '1.18' ]
 
     steps:
@@ -50,17 +38,14 @@ jobs:
       with:
         go-version: ${{ matrix.go }}
 
-    - name: Pre-build dependencies
-      run: ./copy.sh
-
     - name: Install dependencies
       run: go get
 
     - name: Build
       run: go build
 
-    - name: Test
-      run: go test
+    - name: Run get audio devices
+      run: go run demo.go --show_audio_devices
 
   build-self-hosted:
     runs-on: ${{ matrix.machine }}
@@ -74,14 +59,11 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Pre-build dependencies
-      run: ./copy.sh
-
     - name: Install dependencies
       run: go get
 
     - name: Build
       run: go build
 
-    - name: Test
-      run: go test
+    - name: Run get audio devices
+      run: go run demo.go --show_audio_devices

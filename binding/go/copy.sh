@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Copying scripts..."
-cp -r ../../scripts/* ./embedded/scripts
+cp -r ../../resources/scripts/* ./embedded/scripts
 
 echo "Copying Linux lib..."
 cp ../../lib/linux/x86_64/libpv_recorder.so ./embedded/lib/linux/x86_64/libpv_recorder.so

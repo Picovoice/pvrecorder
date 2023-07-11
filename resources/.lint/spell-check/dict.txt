@@ -36,6 +36,7 @@ pvrecorder
 pvrecorderdemo
 repr
 RTLD
+stdbool
 stdint
 stdlib
 subchunk
