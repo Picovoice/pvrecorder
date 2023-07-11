@@ -200,11 +200,11 @@ PV_API pv_recorder_status_t pv_recorder_stop(pv_recorder_t *object) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
 
-    ma_mutex_lock(&object->mutex);
+//    ma_mutex_lock(&object->mutex);
 
     ma_result result = ma_device_stop(&(object->device));
     if (result != MA_SUCCESS) {
-        ma_mutex_unlock(&object->mutex);
+//        ma_mutex_unlock(&object->mutex);
         if (result == MA_DEVICE_NOT_INITIALIZED) {
             return PV_RECORDER_STATUS_DEVICE_NOT_INITIALIZED;
         } else {
@@ -216,7 +216,7 @@ PV_API pv_recorder_status_t pv_recorder_stop(pv_recorder_t *object) {
     pv_circular_buffer_reset(object->buffer);
     object->is_started = false;
 
-    ma_mutex_unlock(&object->mutex);
+//    ma_mutex_unlock(&object->mutex);
 
     return PV_RECORDER_STATUS_SUCCESS;
 }
