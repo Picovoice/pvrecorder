@@ -137,7 +137,7 @@ For more information about NodeJS demos go to [demo/nodejs](demo/nodejs/).
 Make sure there is a working microphone connected to your device. From [demo/rust/](demo/rust) run the following in the terminal to build and run the demo:
 
 ```console
-ccargo run --release -- --output_wav_path ${OUTPUT_WAV_PATH}
+cargo run --release -- --output_wav_path ${OUTPUT_WAV_PATH}
 ```
 
 For more information about the Rust demo go to [demo/rust](demo/rust).
