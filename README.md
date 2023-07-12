@@ -134,6 +134,14 @@ For more information about NodeJS demos go to [demo/nodejs](demo/nodejs/).
 
 ### Rust Demo
 
+Make sure there is a working microphone connected to your device. From [demo/rust/](demo/rust) run the following in the terminal to build and run the demo:
+
+```console
+ccargo run --release -- --output_wav_path ${OUTPUT_WAV_PATH}
+```
+
+For more information about the Rust demo go to [demo/rust](demo/rust).
+
 ### C Demo
 
 Run the following commands to build the demo app:
@@ -322,3 +330,33 @@ recorder.release();
 
 ### Rust
 
+Add `pv_recorder` to your app's `Cargo.toml` manifest:
+
+```toml
+[dependencies]
+pv_recorder = "*"
+```
+
+To start recording initialize the instance and run `start`:
+
+```rust
+use pv_recorder::RecorderBuilder
+
+let audio_devices = RecorderBuilder::default().get_audio_devices()?;
+recorder.start()?;
+```
+
+Get a frame of audio by calling the read function:
+
+```rust
+while recorder.is_recording() {
+    let frame = recorder.read()?;
+    // do something with pcm frame
+}
+```
+
+To stop recording, run stop on the instance:
+
+```rust
+recorder.stop()?;
+```

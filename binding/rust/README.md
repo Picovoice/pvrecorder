@@ -49,7 +49,7 @@ recorder.start()?
 Get the pcm frames by calling the read function:
 
 ```rust
-loop {
+while recorder.is_recording() {
     let frame = recorder.read()?;
     // do something with pcm frame
 }
