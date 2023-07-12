@@ -80,7 +80,7 @@ jobs:
         submodules: recursive
 
     - name: Rust pre-build
-      run: ./copy.sh
+      run: bash copy.sh
 
     - name: Install stable toolchain
       uses: actions-rs/toolchain@v1
