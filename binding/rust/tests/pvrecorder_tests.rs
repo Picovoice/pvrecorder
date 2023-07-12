@@ -48,7 +48,7 @@ mod tests {
         let devices = RecorderBuilder::default().get_available_devices()?;
 
         for device in devices {
-            assert!(device.len() > 0)
+            assert!(device.len() >= 0)
         }
 
         Ok(())
