@@ -84,6 +84,22 @@ For more information about the Python demos go to [demo/python](demo/python).
 
 ### .NET Demo
 
+From [demo/dotnet/PvRecorderDemo](demo/dotnet/PvRecorderDemo) run the
+following in the terminal to build the demo:
+
+```console
+dotnet build
+```
+
+Make sure there is a working microphone connected to your device. From [demo/dotnet/PvRecorderDemo](demo/dotnet/PvRecorderDemo) run the
+following in the terminal:
+
+```console
+dotnet run -- --output_wav_path ${OUTPUT_WAV_PATH}
+```
+
+For more information about the .NET demo go to [demo/dotnet](demo/dotnet).
+
 ### Go Demo
 
 The demo requires `cgo`, which on Windows may mean that you need to install a gcc compiler like [MinGW](http://mingw-w64.org) to build it properly.
@@ -159,6 +175,50 @@ recorder.delete()
 ```
 
 ### .NET
+
+Install the .NET SDK using NuGet or the dotnet CLI:
+
+```console
+dotnet add package PvRecorder
+```
+
+Initialize and begin recording:
+
+```csharp
+using Pv;
+
+PvRecorder recorder = PvRecorder.Create(frameLength: 512);
+recorder.Start();
+```
+
+Read a frame of audio:
+
+```csharp
+while (true) {
+    short[] frame = recorder.Read();
+    // do something with audio frame
+}
+```
+
+To stop recording:
+
+```csharp
+recorder.Stop();
+```
+
+Once you are done, free the used resources. You do not have to call `Stop()` before `Dispose()`:
+
+```csharp
+recorder.Dispose();
+```
+
+To have resources freed immediately after use without explicitly calling `Dispose()`, wrap `PvRecorder` in a `using` statement:
+
+```csharp
+using (PvRecorder recorder = PvRecorder.Create(frameLength: 512)) {
+    // PvRecorder usage
+}
+```
 
 ### Go
 

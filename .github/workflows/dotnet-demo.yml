@@ -1,0 +1,65 @@
+name: .NET Demo
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'demo/dotnet/**'
+      - '!demo/dotnet/README.md'
+      - '.github/workflows/dotnet-demo.yml'
+  pull_request:
+    branches: [ main, 'v[0-9]+.[0-9]+' ]
+    paths:
+      - 'demo/dotnet/**'
+      - '!demo/dotnet/README.md'
+      - '.github/workflows/dotnet-demo.yml'
+
+defaults:
+  run:
+    working-directory: demo/dotnet/PvRecorderDemo
+
+jobs:
+  build-github-hosted:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, mac-latest]
+        include:
+          - os: ubuntu-latest
+            pv_recorder_platform: linux
+          - os: windows-latest
+            pv_recorder_platform: windows
+          - os: mac-latest
+            pv_recorder_platform: mac
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up .NET 6.0
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+
+    - name: Build .NET demo
+      run: dotnet build
+
+    - name: Run .NET demo
+      run: dotnet run -- --show_audio_devices
+
+  build-self-hosted:
+    runs-on: ${{ matrix.machine }}
+
+    strategy:
+      matrix:
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build .NET demo
+      run: dotnet build
+
+    - name: Run .NET demo
+      run: dotnet run -- --show_audio_devices

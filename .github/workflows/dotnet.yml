@@ -29,52 +29,58 @@ on:
 
 defaults:
   run:
-    working-directory: sdk/dotnet
+    working-directory: binding/dotnet
 
 jobs:
   build-github-hosted:
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
+        dotnet-version: [2.0.x, 3.0.x, 3.1.x, 5.0.x, 6.0.x]
+        include:
+          - dotnet-version: 2.0.x
+            binding-framework: netstandard2.0
+            test-framework: netcoreapp2.0
+          - dotnet-version: 3.0.x
+            binding-framework: netcoreapp3.0
+            test-framework: netcoreapp3.0
+          - dotnet-version: 3.1.x
+            binding-framework: netcoreapp3.0
+            test-framework: netcoreapp3.1
+          - dotnet-version: 5.0.x
+            binding-framework: netcoreapp3.0
+            test-framework: net5.0
+          - dotnet-version: 6.0.x
+            binding-framework: net6.0
+            test-framework: net6.0
 
     steps:
     - uses: actions/checkout@v3
-      with:
-        submodules: recursive
 
-    - name: Setup .NET 6.0
+    - name: Set up .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: ${{ matrix.dotnet-version }}
 
-    - name: Restore dependencies
-      run: dotnet restore
+    - name: Build binding
+      run: dotnet build PvRecorder/PvRecorder.csproj --framework ${{ matrix.binding-framework }}
 
-    - name: Build
-      run: dotnet build -c Release --no-restore
-
-    - name: Run get audio devices
-      run: dotnet run --project Demo -c Release -- --show_audio_devices
+    - name: Test
+      run: dotnet test --framework ${{ matrix.test-framework }} -v n
 
   build-self-hosted:
     runs-on: ${{ matrix.machine }}
 
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone, pv-windows]
 
     steps:
     - uses: actions/checkout@v3
-      with:
-        submodules: recursive
 
-    - name: Restore dependencies
-      run: dotnet restore
+    - name: Build binding
+      run: dotnet build PvRecorder/PvRecorder.csproj --framework net6.0
 
-    - name: Build
-      run: dotnet build -c Release --no-restore
-
-    - name: Run get audio devices
-      run: dotnet run --project Demo -c Release -- --show_audio_devices
+    - name: Test
+      run: dotnet test --framework net6.0 -v n
