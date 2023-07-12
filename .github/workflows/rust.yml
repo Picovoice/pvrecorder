@@ -48,6 +48,10 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Rust dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt install libasound2-dev -y
+
     - name: Rust pre-build
       run: bash copy.sh
 
@@ -77,7 +81,12 @@ jobs:
         submodules: recursive
 
     - name: Rust pre-build
+      if: matrix.os != 'pv-windows'
       run: bash copy.sh
+
+    - name: Rust dependencies
+      if: matrix.os == 'pv-windows'
+      run: copy.bat
 
     - name: Install stable toolchain
       uses: actions-rs/toolchain@v1
