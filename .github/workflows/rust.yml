@@ -33,7 +33,6 @@ env:
 defaults:
   run:
     working-directory: binding/rust
-    shell: bash
 
 jobs:
   build-github-hosted:
@@ -81,13 +80,7 @@ jobs:
         submodules: recursive
 
     - name: Rust pre-build
-      if: matrix.machine != 'pv-windows'
-      run: bash copy.sh
-
-    - name: Rust dependencies
-      if: matrix.machine == 'pv-windows'
-      run: bash copy.sh
-      shell: pwsh
+      run: ./copy.sh
 
     - name: Install stable toolchain
       uses: actions-rs/toolchain@v1
