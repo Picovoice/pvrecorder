@@ -87,6 +87,7 @@ jobs:
     - name: Rust dependencies
       if: matrix.machine == 'pv-windows'
       run: copy.bat
+      shell: pwsh
 
     - name: Install stable toolchain
       uses: actions-rs/toolchain@v1
