@@ -32,7 +32,7 @@ env:
 
 defaults:
   run:
-    working-directory: sdk/rust
+    working-directory: binding/rust
     shell: bash
 
 jobs:
