@@ -39,6 +39,10 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: sudo apt install libasound2-dev -y
 
+    - name: Rust pre-build
+      run: bash copy.sh
+      working-directory: binding/rust
+
     - name: Install stable toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -61,6 +65,10 @@ jobs:
     - name: Rust dependencies
       if: matrix.os == 'ubuntu-latest'
       run: sudo apt install libasound2-dev -y
+
+    - name: Rust pre-build
+      run: bash copy.sh
+      working-directory: binding/rust
 
     - name: Install stable toolchain
       uses: actions-rs/toolchain@v1
