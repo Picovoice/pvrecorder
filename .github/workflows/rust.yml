@@ -61,8 +61,8 @@ jobs:
     - name: Build
       run: cargo build --verbose
 
-    - name: Run get audio devices
-      run: cargo run --release --example demo -- --show_audio_devices
+    - name: Test
+      run: cargo test --release
 
   build-self-hosted:
     runs-on: ${{ matrix.machine }}
@@ -88,5 +88,5 @@ jobs:
     - name: Build
       run: cargo build --verbose
 
-    - name: Run get audio devices
-      run: cargo run --release --example demo -- --show_audio_devices
+    - name: Test
+      run: cargo test --release
