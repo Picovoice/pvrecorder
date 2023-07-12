@@ -1,25 +1,23 @@
-name: Node.js
+name: Node.js Demos
 
 on:
   workflow_dispatch:
   push:
     branches: [ main ]
     paths:
-      - 'binding/nodejs/**'
-      - '!binding/nodejs/README.md'
-      - 'lib/node/**'
-      - '.github/workflows/nodejs.yml'
+      - 'demo/nodejs/**'
+      - '!demo/nodejs/README.md'
+      - '.github/workflows/nodejs-demos.yml'
   pull_request:
     branches: [ main, 'v[0-9]+.[0-9]+' ]
     paths:
-      - 'binding/nodejs/**'
-      - '!binding/nodejs/README.md'
-      - 'lib/node/**'
-      - '.github/workflows/nodejs.yml'
+      - 'demo/nodejs/**'
+      - '!demo/nodejs/README.md'
+      - '.github/workflows/nodejs-demos.yml'
 
 defaults:
   run:
-    working-directory: binding/nodejs
+    working-directory: demo/nodejs
 
 jobs:
   build-github-hosted:
@@ -46,14 +44,8 @@ jobs:
     - name: Install dependencies
       run: yarn install
 
-    - name: Setup build
-      run: yarn prepare
-
-    - name: Build
-      run: yarn build
-
-    - name: Test
-      run: yarn test
+    - name: Run get audio devices
+      run: node demo.js --show_audio_devices
 
   build-self-hosted:
     runs-on: ${{ matrix.machine }}
@@ -73,11 +65,5 @@ jobs:
     - name: Install dependencies
       run: yarn install
 
-    - name: Setup build
-      run: yarn prepare
-
-    - name: Build
-      run: yarn build
-
-    - name: Test
-      run: yarn test
+    - name: Run get audio devices
+      run: node demo.js --show_audio_devices

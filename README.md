@@ -116,6 +116,22 @@ For more information about Go demos go to [demo/go](demo/go).
 
 ### Node.js Demo
 
+Install the demo package:
+
+```console
+yarn global add @picovoice/pvrecorder-node-demo
+```
+
+With a working microphone connected to your device run the following in the terminal:
+
+```console
+pvrecorder-node-demo --output_wav_path ${OUTPUT_WAV_PATH}
+```
+
+Replace `{OUTPUT_WAV_PATH}` with the file path to save the audio data in `wav` format.
+
+For more information about NodeJS demos go to [demo/nodejs](demo/nodejs/).
+
 ### Rust Demo
 
 ### C Demo
@@ -269,6 +285,40 @@ recorder.Delete()
 ```
 
 ### Node.js
+
+Install Node.js binding:
+
+```console
+yarn add @picovoice/pvrecorder-node
+```
+
+To start recording initialize the instance and run `start`:
+
+```javascript
+const recorder = new PvRecorder(512);
+recorder.start()
+```
+
+Get a frame of audio by calling the read function:
+
+```javascript
+while (recorder.isRecording) {
+    const frame = await recorder.read();
+    // do something with frame
+}
+```
+
+To stop recording, run stop on the instance:
+
+```javascript
+recorder.stop();
+```
+
+Once you are done, free the used resources. You do not have to call stop before release:
+
+```javascript
+recorder.release();
+```
 
 ### Rust
 

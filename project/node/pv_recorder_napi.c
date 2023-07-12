@@ -15,8 +15,8 @@ napi_value napi_pv_recorder_init(napi_env env, napi_callback_info info) {
         return NULL;
     }
 
-    int32_t device_index;
-    status = napi_get_value_int32(env, args[0], &device_index);
+    int32_t frame_length;
+    status = napi_get_value_int32(env, args[0], &frame_length);
     if (status != napi_ok) {
         napi_throw_error(
                 env,
@@ -25,8 +25,8 @@ napi_value napi_pv_recorder_init(napi_env env, napi_callback_info info) {
         return NULL;
     }
 
-    int32_t frame_length;
-    status = napi_get_value_int32(env, args[1], &frame_length);
+    int32_t device_index;
+    status = napi_get_value_int32(env, args[1], &device_index);
     if (status != napi_ok) {
         napi_throw_error(
                 env,
@@ -47,8 +47,8 @@ napi_value napi_pv_recorder_init(napi_env env, napi_callback_info info) {
 
     pv_recorder_t *handle = NULL;
     pv_recorder_status_t pv_recorder_status = pv_recorder_init(
-            device_index,
             frame_length,
+            device_index,
             buffered_frames_count,
             &handle);
     if (pv_recorder_status != PV_RECORDER_STATUS_SUCCESS) {
@@ -284,6 +284,44 @@ napi_value napi_pv_recorder_read(napi_env env, napi_callback_info info) {
     return result;
 }
 
+napi_value napi_pv_recorder_get_is_recording(napi_env env, napi_callback_info info) {
+    size_t argc = 1;
+    napi_value args[1];
+    napi_status status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
+    if (status != napi_ok) {
+        napi_throw_error(
+                env,
+                pv_recorder_status_to_string(PV_RECORDER_STATUS_RUNTIME_ERROR),
+                "Unable to get input arguments");
+        return NULL;
+    }
+
+    uint64_t object_id = 0;
+    bool lossless = false;
+    status = napi_get_value_bigint_uint64(env, args[0], &object_id, &lossless);
+    if ((status != napi_ok) || !lossless) {
+        napi_throw_error(
+                env,
+                pv_recorder_status_to_string(PV_RECORDER_STATUS_RUNTIME_ERROR),
+                "Unable to get the address of the instance of PvRecorder properly");
+        return NULL;
+    }
+
+    bool is_recording = pv_recorder_get_is_recording((pv_recorder_t *)(uintptr_t) object_id);
+
+    napi_value result;
+    status = napi_get_boolean(env, is_recording, &result);
+    if (status != napi_ok) {
+        napi_throw_error(
+                env,
+                pv_recorder_status_to_string(PV_RECORDER_STATUS_INVALID_ARGUMENT),
+                "Unable to get is recording flag.");
+        return NULL;
+    }
+
+    return result;
+}
+
 napi_value napi_pv_recorder_set_debug_logging(napi_env env, napi_callback_info info) {
     size_t argc = 2;
     napi_value args[2];
@@ -313,7 +351,7 @@ napi_value napi_pv_recorder_set_debug_logging(napi_env env, napi_callback_info i
         napi_throw_error(
                 env,
                 pv_recorder_status_to_string(PV_RECORDER_STATUS_INVALID_ARGUMENT),
-                "Unable to get the log overflow flag");
+                "Unable to get debug logging flag");
         return NULL;
     }
 
@@ -465,6 +503,10 @@ napi_value Init(napi_env env, napi_value exports) {
     assert(status == napi_ok);
 
     desc = DECLARE_NAPI_METHOD("read", napi_pv_recorder_read);
+    status = napi_define_properties(env, exports, 1, &desc);
+    assert(status == napi_ok);
+
+    desc = DECLARE_NAPI_METHOD("get_is_recording", napi_pv_recorder_get_is_recording);
     status = napi_define_properties(env, exports, 1, &desc);
     assert(status == napi_ok);
 
