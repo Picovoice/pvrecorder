@@ -10,13 +10,13 @@
 To install the demos and make them available on the command line, use either of the following `yarn` or `npm` commands:
 
 ```console
-yarn global add @picovoice/porcupine-node-demo
+yarn global add @picovoice/pvrecorder-node-demo
 ```
 
 (or)
 
 ```console
-npm install -g @picovoice/porcupine-node-demo
+npm install -g @picovoice/pvrecorder-node-demo
 ```
 
 ## Usage
