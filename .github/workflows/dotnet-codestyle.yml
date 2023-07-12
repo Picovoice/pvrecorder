@@ -31,14 +31,6 @@ jobs:
       run: dotnet format --verify-no-changes
       working-directory: binding/dotnet
 
-    - name: pack (tmp)
-      run: dotnet pack -c Release
-      working-directory: binding/dotnet/PvRecorder
-
-    - name: restore (tmp)
-      run: dotnet add package PvRecorder -s ../../../binding/dotnet/PvRecorder/bin/Release
-      working-directory: demo/dotnet/PvRecorderDemo
-
     - name: Run Demo Codestyle
       run: dotnet format --verify-no-changes
       working-directory: demo/dotnet
