@@ -46,12 +46,12 @@ let recorder = RecorderBuilder::new().init()?;
 recorder.start()?
 ```
 
-Get the pcm frames by calling the read function:
+Get the pcm audio frames by calling the read function:
 
 ```rust
 while recorder.is_recording() {
     let frame = recorder.read()?;
-    // do something with pcm frame
+    // do something with frame
 }
 ```
 
