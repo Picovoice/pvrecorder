@@ -1,4 +1,10 @@
-# PvRecorder Demo
+# PvRecorder Demo for C
+
+This project contains a C command-line demo for PvRecorder that demonstrates how to use PvRecorder to record audio to a WAV file.
+
+## PvRecorder
+
+PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-time speech audio processing. It allows developers access to an audio device's input stream, broken up into data frames of a given size.
 
 ## Requirements
 

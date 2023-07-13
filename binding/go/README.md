@@ -1,9 +1,8 @@
 # PvRecorder Binding for Go
 
-# PvRecorder
+## PvRecorder
 
-PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-time speech audio processing. It allows developers access to an audio device's input
-stream, broken up into data frames of a given size.
+PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-time speech audio processing. It allows developers access to an audio device's input stream, broken up into data frames of a given size.
 
 ## Compatibility
 
