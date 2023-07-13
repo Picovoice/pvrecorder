@@ -11,7 +11,7 @@ pip3 install pvrecorder
 
 ## Usage
 
-To start recording initialize an instance and run start:
+Initialize and begin recording:
 
 ```python
 from pvrecorder import PvRecorder
@@ -27,26 +27,27 @@ Use `get_available_devices()` to get a list of available devices and then initia
 ```python
 from pvrecorder import PvRecorder
 
-devices = PvRecorder.get_available_devices() # select index of device
+devices = PvRecorder.get_available_devices()
 
 recorder = PvRecorder(frame_length=512, device_index=0)
 recorder.start()
 ```
 
-Get a frame of audio by calling the `read()` function:
+Read frames of audio:
 
 ```python
-frame = recorder.read()
-# do something with frame
+while recorder.is_recording:
+    frame = recorder.read()
+    # process audio frame
 ```
 
-To stop recording just run stop on the instance:
+To stop recording, call `stop()` on the instance:
 
 ```python
 recorder.stop()
 ```
 
-Once you are done, free the used resources. You do not have to call stop before delete:
+Once you are done, free the resources acquired by PvRecorder. You do not have to call `stop()` before `delete()`:
 
 ```python
 recorder.delete()

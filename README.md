@@ -18,7 +18,7 @@ Made in Vancouver, Canada by [Picovoice](https://picovoice.ai)
 <!-- markdown-link-check-enable -->
 [![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UCAdi9sTCXLosG1XeqDwLx7w?label=YouTube&style=social)](https://www.youtube.com/channel/UCAdi9sTCXLosG1XeqDwLx7w)
 
-PvRecorder is an easy-to-use cross-platform audio recorder designed for real-time audio processing. It allows developers access to an audio device's input stream, broken up into data frames of a given size.
+PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-time speech audio processing. It allows developers access to an audio device's input stream, broken up into data frames of a given size.
 
 ## Table of Contents
 - [PvRecorder](#pvrecorder)
@@ -98,7 +98,7 @@ following in the terminal:
 dotnet run -- --output_wav_path ${OUTPUT_WAV_PATH}
 ```
 
-For more information about the .NET demo go to [demo/dotnet](demo/dotnet).
+For more information about the .NET demo, go to [demo/dotnet](demo/dotnet).
 
 ### Go Demo
 
@@ -112,7 +112,7 @@ go run demo.go --output_wav_path {OUTPUT_WAV_PATH}
 
 Replace  `{OUTPUT_WAV_PATH}` with a file path to save the audio data in `wav` format.
 
-For more information about Go demos go to [demo/go](demo/go).
+For more information about Go demo, go to [demo/go](demo/go).
 
 ### Node.js Demo
 
@@ -130,7 +130,7 @@ pvrecorder-node-demo --output_wav_path ${OUTPUT_WAV_PATH}
 
 Replace `{OUTPUT_WAV_PATH}` with the file path to save the audio data in `wav` format.
 
-For more information about NodeJS demos go to [demo/nodejs](demo/nodejs/).
+For more information about NodeJS demo, go to [demo/nodejs](demo/nodejs/).
 
 ### Rust Demo
 
@@ -140,7 +140,7 @@ Make sure there is a working microphone connected to your device. From [demo/rus
 cargo run --release -- --output_wav_path ${OUTPUT_WAV_PATH}
 ```
 
-For more information about the Rust demo go to [demo/rust](demo/rust).
+For more information about the Rust demo, go to [demo/rust](demo/rust).
 
 ### C Demo
 
@@ -167,11 +167,13 @@ Record to a file with a given audio device index:
 
 Hit `Ctrl+C` to stop recording. If no audio device index (`-d`) is provided, the demo will use the system's default recording device.
 
+For more information about the C demo, go to [demo/c](demo/c).
+
 ## SDKs
 
 ### Python
 
-To start recording initialize an instance and run start:
+To start recording, initialize an instance and run `start()`:
 
 ```python
 from pvrecorder import PvRecorder
@@ -180,23 +182,27 @@ recorder = PvRecorder(frame_length=512)
 recorder.start()
 ```
 
-Get the frames by calling the read function:
+Read frames of audio:
 
 ```python
-frame = recorder.read()
+while recorder.is_recording:
+    frame = recorder.read()
+    # process audio frame
 ```
 
-To stop recording just run stop on the instance:
+To stop recording, run `stop()` on the instance:
 
 ```python
 recorder.stop()
 ```
 
-Once you are done, free the used resources. You do not have to call stop before delete:
+Once you are done, free the resources acquired by PvRecorder. You do not have to call `stop()` before `delete()`:
 
 ```python
 recorder.delete()
 ```
+
+For more information about the PvRecorder Python SDK, go to [binding/python](binding/python).
 
 ### .NET
 
@@ -215,12 +221,13 @@ PvRecorder recorder = PvRecorder.Create(frameLength: 512);
 recorder.Start();
 ```
 
-Read a frame of audio:
+Read frames of audio:
 
 ```csharp
-while (true) {
+while (recorder.IsRecording)
+{
     short[] frame = recorder.Read();
-    // do something with audio frame
+    // process audio frame
 }
 ```
 
@@ -230,19 +237,13 @@ To stop recording:
 recorder.Stop();
 ```
 
-Once you are done, free the used resources. You do not have to call `Stop()` before `Dispose()`:
+Once you are done, free the resources acquired by PvRecorder. You do not have to call `Stop()` before `Dispose()`:
 
 ```csharp
 recorder.Dispose();
 ```
 
-To have resources freed immediately after use without explicitly calling `Dispose()`, wrap `PvRecorder` in a `using` statement:
-
-```csharp
-using (PvRecorder recorder = PvRecorder.Create(frameLength: 512)) {
-    // PvRecorder usage
-}
-```
+For more information about the PvRecorder .NET SDK, go to [binding/dotnet](binding/dotnet).
 
 ### Go
 
@@ -252,7 +253,7 @@ To install the PvRecorder Go module to your project, use the command:
 go get github.com/Picovoice/pvrecorder/binding/go
 ```
 
-To start recording initialize an instance and run start:
+To start recording, initialize an instance and run `Start()`:
 
 ```go
 import . "github.com/Picovoice/pvrecorder/binding/go"
@@ -277,20 +278,21 @@ frame, err := recorder.Read()
 if err != nil {
     // handle error
 }
-// do something with frame
 ```
 
-To stop recording, run stop on the instance:
+To stop recording, call `Stop()` on the instance:
 
 ```go
 recorder.Stop()
 ```
 
-Once you are done, free the used resources. You do not have to call stop before delete:
+Once you are done, free the resources acquired by PvRecorder. You do not have to call `Stop()` before `Delete()`:
 
 ```go
 recorder.Delete()
 ```
+
+For more information about the PvRecorder Go SDK, go to [binding/go](binding/go).
 
 ### Node.js
 
@@ -300,33 +302,36 @@ Install Node.js binding:
 yarn add @picovoice/pvrecorder-node
 ```
 
-To start recording initialize the instance and run `start`:
+To start recording, initialize the instance and run `start()`:
 
 ```javascript
-const recorder = new PvRecorder(512);
+const frameLength = 512;
+const recorder = new PvRecorder(frameLength);
 recorder.start()
 ```
 
-Get a frame of audio by calling the read function:
+Read frames of audio:
 
 ```javascript
 while (recorder.isRecording) {
     const frame = await recorder.read();
-    // do something with frame
+    // process audio frame
 }
 ```
 
-To stop recording, run stop on the instance:
+To stop recording, call `stop()` on the instance:
 
 ```javascript
 recorder.stop();
 ```
 
-Once you are done, free the used resources. You do not have to call stop before release:
+Once you are done, free the resources acquired by PvRecorder. You do not have to call `stop()` before `release()`:
 
 ```javascript
 recorder.release();
 ```
+
+For more information about the PvRecorder Node.js SDK, go to [binding/nodejs](binding/nodejs).
 
 ### Rust
 
@@ -337,7 +342,7 @@ Add `pv_recorder` to your app's `Cargo.toml` manifest:
 pv_recorder = "*"
 ```
 
-To start recording initialize the instance and run `start`:
+To start recording, initialize the instance and run `start()`:
 
 ```rust
 use pv_recorder::PvRecorderBuilder
@@ -347,17 +352,34 @@ let recorder = PvRecorderBuilder::new(frame_length).init()?;
 recorder.start()?;
 ```
 
-Get a frame of audio by calling the read function:
+Read frames of audio:
 
 ```rust
 while recorder.is_recording() {
     let frame = recorder.read()?;
-    // do something with frame
+    // process audio frame
 }
 ```
 
-To stop recording, run stop on the instance:
+To stop recording, run `stop()` on the instance:
 
 ```rust
 recorder.stop()?;
 ```
+
+For more information about the PvRecorder Rust SDK, go to [binding/rust](binding/rust).
+
+## Releases
+
+### v1.2.0 - July 13th, 2023
+
+- API improvements
+- Improved docs
+- Added unit tests and actions for each SDK
+- Addressed race condition when stop is called during a read
+- Fixed .NET version support
+- Demos write to WAV files
+
+### v1.1.0 - November 10th, 2022
+
+- Added logs that warn users if recorded audio is silent for a few number of seconds.
