@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2022 Picovoice Inc.
+    Copyright 2021-2023 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -8,10 +8,8 @@
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
     specific language governing permissions and limitations under the License.
 */
-use clap::{App, Arg};
-use ctrlc;
-use hound;
-use pv_recorder::RecorderBuilder;
+use clap::{value_parser, Arg, ArgAction, Command};
+use pv_recorder::PvRecorderBuilder;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 const SAMPLE_RATE: usize = 16000;
@@ -21,7 +19,7 @@ static LISTENING: AtomicBool = AtomicBool::new(false);
 fn show_audio_devices() {
     println!("Printing audio devices...");
 
-    let audio_devices = RecorderBuilder::default().get_audio_devices();
+    let audio_devices = PvRecorderBuilder::default().get_available_devices();
     match audio_devices {
         Ok(audio_devices) => {
             for (idx, device) in audio_devices.iter().enumerate() {
@@ -30,44 +28,43 @@ fn show_audio_devices() {
         }
         Err(err) => panic!("Failed to get audio devices: {}", err),
     };
-    println!("");
+    println!();
 }
 
 fn main() {
-    let matches = App::new("PvRecorder Demo")
+    let matches = Command::new("PvRecorder Demo")
         .arg(
-            Arg::with_name("audio_device_index")
+            Arg::new("audio_device_index")
                 .long("audio_device_index")
                 .value_name("INDEX")
                 .help("Index of input audio device.")
-                .takes_value(true)
+                .value_parser(value_parser!(i32))
                 .default_value("-1"),
         )
         .arg(
-            Arg::with_name("output_path")
-                .long("output_path")
+            Arg::new("output_wav_path")
+                .long("output_wav_path")
                 .value_name("PATH")
                 .help("Path to write recorded audio wav file to.")
-                .takes_value(true)
                 .default_value("example.wav"),
         )
-        .arg(Arg::with_name("show_audio_devices").long("show_audio_devices"))
+        .arg(
+            Arg::new("show_audio_devices")
+                .long("show_audio_devices")
+                .action(ArgAction::SetTrue),
+        )
         .get_matches();
 
-    if matches.is_present("show_audio_devices") {
+    if matches.get_flag("show_audio_devices") {
         return show_audio_devices();
     }
 
-    let audio_device_index = matches
-        .value_of("audio_device_index")
-        .unwrap()
-        .parse()
-        .unwrap();
+    let audio_device_index = *matches.get_one::<i32>("audio_device_index").unwrap();
 
-    let output_path = matches.value_of("output_path").unwrap();
+    let output_wav_path = matches.get_one::<String>("output_wav_path").unwrap();
 
     println!("Initializing pvrecorder...");
-    let recorder = RecorderBuilder::new()
+    let recorder = PvRecorderBuilder::new(512)
         .device_index(audio_device_index)
         .init()
         .expect("Failed to initialize pvrecorder");
@@ -83,11 +80,8 @@ fn main() {
 
     let mut audio_data = Vec::new();
     while LISTENING.load(Ordering::SeqCst) {
-        let mut frame_buffer = vec![0; recorder.frame_length()];
-        recorder
-            .read(&mut frame_buffer)
-            .expect("Failed to read audio frame");
-        audio_data.extend_from_slice(&frame_buffer);
+        let frame = recorder.read().expect("Failed to read audio frame");
+        audio_data.extend_from_slice(&frame);
     }
 
     println!("Stop recording...");
@@ -100,7 +94,7 @@ fn main() {
         bits_per_sample: 16,
         sample_format: hound::SampleFormat::Int,
     };
-    let mut writer = hound::WavWriter::create(output_path, spec).unwrap();
+    let mut writer = hound::WavWriter::create(output_wav_path, spec).unwrap();
     for sample in audio_data {
         writer.write_sample(sample).unwrap();
     }

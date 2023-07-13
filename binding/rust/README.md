@@ -1,6 +1,4 @@
-# PvRecorder Rust Binding
-
-A cross platform audio recorder that captures single-channel audio at a sample rate of 16kHz.
+# PvRecorder Binding for Python
 
 ## Requirements
 
@@ -8,9 +6,9 @@ A cross platform audio recorder that captures single-channel audio at a sample r
 
 ## Compatibility
 
-- Windows (x86_64)
-- macOS (x86_64)
 - Linux (x86_64)
+- macOS (x86_64 and arm64)
+- Windows (x86_64)
 - Raspberry Pi:
     - Zero
     - 2
@@ -32,27 +30,27 @@ pv_recorder = "*"
 Getting the list of input devices does not require an instance:
 
 ```rust
-use pv_recorder::RecorderBuilder
+use pv_recorder::PvRecorderBuilder
 
-let audio_devices = RecorderBuilder::default().get_audio_devices()?;
+let audio_devices = PvRecorderBuilder::default().get_audio_devices()?;
 ```
 
 To start recording initialize an instance using the builder and run `start`:
 
 ```rust
-use pv_recorder::RecorderBuilder;
+use pv_recorder::PvRecorderBuilder;
 
-let recorder = RecorderBuilder::new().init()?;
+let frame_length = 512;
+let recorder = PvRecorderBuilder::new(frame_length).init()?;
 recorder.start()?
 ```
 
-Get the pcm frames by calling the read function:
+Get frame of audio by calling the `read()` function:
 
 ```rust
-loop {
-    let mut pcm_frame_buffer: [i16; FRAME_LENGTH] = [0; FRAME_LENGTH];
-    recorder.read(&mut pcm_frame_buffer)?;
-    // do something with pcm
+while recorder.is_recording() {
+    let frame = recorder.read()?;
+    // process audio frame
 }
 ```
 
@@ -62,28 +60,7 @@ To stop recording just run stop on the instance:
 recorder.stop()?;
 ```
 
-### Demo
+## Demo
 
-For more detailed information on how to use the pv_recorder Rust sdk, see [examples/demo.rs](../../demo/rust/demo.rs).
-
-In the following instructions, we will refer to  `{AUDIO_DEVICE_INDEX}` as the index of the audio device to use, and `{OUTPUT_PATH}` as the path to save the raw audio data
-
-`{AUDIO_DEVICE_INDEX}` defaults to -1 and `{OUTPUT_PATH}` can be empty if you wish to not save any data.
-
-To show the available audio devices run:
-
-```console
-cargo run --release --example demo -- --show_audio_devices
-```
-
-To run the audio recorder:
-
-```console
-cargo run --release --example demo -- --audio_device_index {AUDIO_DEVICE_INDEX} --output_path {OUTPUT_PATH}
-```
-
-See additional options by calling `-h/--help`:
-
-```console
-cargo run --release --example demo -- -h
-```
+The [PvRecorder Rust demo](https://github.com/Picovoice/pvrecorder/tree/main/demo/rust) is a Rust command-line application that demonstrates how to
+use PvRecorder to record audio to a file.

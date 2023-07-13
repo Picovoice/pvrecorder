@@ -42,6 +42,7 @@ stdlib
 subchunk
 typedarray
 vtable
-wavfile
 wavefile
+wavfile
 Wunused
+xcopy
