@@ -11,11 +11,11 @@
 
 #[cfg(test)]
 mod tests {
-    use pv_recorder::{RecorderBuilder, RecorderError};
+    use pv_recorder::{PvRecorderBuilder, PvRecorderError};
 
     #[test]
-    fn test_init() -> Result<(), RecorderError> {
-        let recorder = RecorderBuilder::new().device_index(0).init()?;
+    fn test_init() -> Result<(), PvRecorderError> {
+        let recorder = PvRecorderBuilder::new(512).device_index(0).init()?;
         assert!(recorder.sample_rate() > 0);
         assert!(recorder.selected_device().len() > 0);
         assert!(recorder.version().len() > 0);
@@ -24,10 +24,13 @@ mod tests {
     }
 
     #[test]
-    fn test_start_stop() -> Result<(), RecorderError> {
+    fn test_start_stop() -> Result<(), PvRecorderError> {
         let frame_length = 666;
 
-        let recorder = RecorderBuilder::new().device_index(0).frame_length(frame_length).init()?;
+        let recorder = PvRecorderBuilder::new(frame_length)
+            .device_index(0)
+            .frame_length(frame_length)
+            .init()?;
         recorder.set_debug_logging(true);
 
         assert!(recorder.is_recording() == false);
@@ -44,8 +47,8 @@ mod tests {
     }
 
     #[test]
-    fn test_get_available_devices() -> Result<(), RecorderError> {
-        let devices = RecorderBuilder::default().get_available_devices()?;
+    fn test_get_available_devices() -> Result<(), PvRecorderError> {
+        let devices = PvRecorderBuilder::default().get_available_devices()?;
 
         for device in devices {
             assert!(device.len() >= 0)

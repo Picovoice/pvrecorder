@@ -70,7 +70,7 @@ type PvRecorderSampleRate = unsafe extern "C" fn() -> i32;
 type PvRecorderVersion = unsafe extern "C" fn() -> *const c_char;
 
 #[derive(Clone, Debug)]
-pub enum RecorderErrorStatus {
+pub enum PvRecorderErrorStatus {
     LibraryError(PvRecorderStatus),
     LibraryLoadError,
     ArgumentError,
@@ -78,13 +78,13 @@ pub enum RecorderErrorStatus {
 }
 
 #[derive(Clone, Debug)]
-pub struct RecorderError {
-    status: RecorderErrorStatus,
+pub struct PvRecorderError {
+    status: PvRecorderErrorStatus,
     message: String,
 }
 
-impl RecorderError {
-    pub fn new(status: RecorderErrorStatus, message: impl Into<String>) -> Self {
+impl PvRecorderError {
+    pub fn new(status: PvRecorderErrorStatus, message: impl Into<String>) -> Self {
         Self {
             status,
             message: message.into(),
@@ -92,35 +92,35 @@ impl RecorderError {
     }
 }
 
-impl std::fmt::Display for RecorderError {
+impl std::fmt::Display for PvRecorderError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}: {:?}", self.message, self.status)
     }
 }
 
-impl std::error::Error for RecorderError {}
+impl std::error::Error for PvRecorderError {}
 
 const DEFAULT_DEVICE_INDEX: i32 = -1;
 const DEFAULT_FRAME_LENGTH: i32 = 512;
 const DEFAULT_BUFFERED_FRAMES_COUNT: i32 = 50;
 
-pub struct RecorderBuilder {
-    device_index: i32,
+pub struct PvRecorderBuilder {
     frame_length: i32,
+    device_index: i32,
     buffered_frames_count: i32,
     library_path: PathBuf,
 }
 
-impl Default for RecorderBuilder {
+impl Default for PvRecorderBuilder {
     fn default() -> Self {
-        Self::new()
+        Self::new(DEFAULT_FRAME_LENGTH)
     }
 }
 
-impl RecorderBuilder {
-    pub fn new() -> Self {
+impl PvRecorderBuilder {
+    pub fn new(frame_length: i32) -> Self {
         Self {
-            frame_length: DEFAULT_FRAME_LENGTH,
+            frame_length,
             device_index: DEFAULT_DEVICE_INDEX,
             buffered_frames_count: DEFAULT_BUFFERED_FRAMES_COUNT,
             library_path: pv_library_path(),
@@ -147,38 +147,48 @@ impl RecorderBuilder {
         self
     }
 
-    pub fn init(&self) -> Result<Recorder, RecorderError> {
-        let recorder_inner = RecorderInner::init(
+    pub fn init(&self) -> Result<PvRecorder, PvRecorderError> {
+        if self.frame_length <= 0 {
+            return Err(PvRecorderError::new(
+                PvRecorderErrorStatus::ArgumentError,
+                format!(
+                    "frame_length needs to be greater than or equal to 0, got: {}",
+                    self.frame_length
+                ),
+            ));
+        }
+
+        let recorder_inner = PvRecorderInner::init(
             self.frame_length,
             self.device_index,
             self.buffered_frames_count,
             &self.library_path,
         );
-        recorder_inner.map(|inner| Recorder {
+        recorder_inner.map(|inner| PvRecorder {
             inner: Arc::new(inner),
         })
     }
 
-    pub fn get_available_devices(&self) -> Result<Vec<String>, RecorderError> {
-        RecorderInner::get_available_devices(&self.library_path)
+    pub fn get_available_devices(&self) -> Result<Vec<String>, PvRecorderError> {
+        PvRecorderInner::get_available_devices(&self.library_path)
     }
 }
 
 #[derive(Clone)]
-pub struct Recorder {
-    inner: Arc<RecorderInner>,
+pub struct PvRecorder {
+    inner: Arc<PvRecorderInner>,
 }
 
-impl Recorder {
-    pub fn start(&self) -> Result<(), RecorderError> {
+impl PvRecorder {
+    pub fn start(&self) -> Result<(), PvRecorderError> {
         self.inner.start()
     }
 
-    pub fn stop(&self) -> Result<(), RecorderError> {
+    pub fn stop(&self) -> Result<(), PvRecorderError> {
         self.inner.stop()
     }
 
-    pub fn read(&self) -> Result<Vec<i16>, RecorderError> {
+    pub fn read(&self) -> Result<Vec<i16>, PvRecorderError> {
         self.inner.read()
     }
 
@@ -210,13 +220,13 @@ impl Recorder {
 unsafe fn load_library_fn<T>(
     library: &Library,
     function_name: &[u8],
-) -> Result<RawSymbol<T>, RecorderError> {
+) -> Result<RawSymbol<T>, PvRecorderError> {
     library
         .get(function_name)
         .map(|s: Symbol<T>| s.into_raw())
         .map_err(|err| {
-            RecorderError::new(
-                RecorderErrorStatus::LibraryLoadError,
+            PvRecorderError::new(
+                PvRecorderErrorStatus::LibraryLoadError,
                 format!(
                     "Failed to load function symbol from pvrecorder library: {}",
                     err
@@ -228,11 +238,11 @@ unsafe fn load_library_fn<T>(
 fn check_fn_call_status(
     status: PvRecorderStatus,
     function_name: &str,
-) -> Result<(), RecorderError> {
+) -> Result<(), PvRecorderError> {
     match status {
         PvRecorderStatus::SUCCESS => Ok(()),
-        _ => Err(RecorderError::new(
-            RecorderErrorStatus::LibraryError(status),
+        _ => Err(PvRecorderError::new(
+            PvRecorderErrorStatus::LibraryError(status),
             format!(
                 "Function '{}' in the pvrecorder library failed",
                 function_name
@@ -241,7 +251,7 @@ fn check_fn_call_status(
     }
 }
 
-struct RecorderInnerVTable {
+struct PvRecorderInnerVTable {
     pv_recorder_init: RawSymbol<PvRecorderInitFn>,
     pv_recorder_delete: RawSymbol<PvRecorderDeleteFn>,
     pv_recorder_start: RawSymbol<PvRecorderStartFn>,
@@ -258,8 +268,8 @@ struct RecorderInnerVTable {
     _lib_guard: Library,
 }
 
-impl RecorderInnerVTable {
-    pub fn new(lib: Library) -> Result<Self, RecorderError> {
+impl PvRecorderInnerVTable {
+    pub fn new(lib: Library) -> Result<Self, PvRecorderError> {
         // SAFETY: the library will be hold by this struct and therefore the symbols can't outlive the library
         unsafe {
             Ok(Self {
@@ -297,25 +307,25 @@ impl RecorderInnerVTable {
     }
 }
 
-struct RecorderInner {
+struct PvRecorderInner {
     cpvrecorder: *mut CPvRecorder,
     frame_length: i32,
     sample_rate: i32,
     selected_device: String,
     version: String,
-    vtable: RecorderInnerVTable,
+    vtable: PvRecorderInnerVTable,
 }
 
-impl RecorderInner {
+impl PvRecorderInner {
     pub fn init(
         frame_length: i32,
         device_index: i32,
         buffered_frames_count: i32,
         library_path: &Path,
-    ) -> Result<Self, RecorderError> {
+    ) -> Result<Self, PvRecorderError> {
         if frame_length <= 0 {
-            return Err(RecorderError::new(
-                RecorderErrorStatus::ArgumentError,
+            return Err(PvRecorderError::new(
+                PvRecorderErrorStatus::ArgumentError,
                 format!(
                     "frame_length value `{}` should be greater than zero",
                     frame_length
@@ -324,8 +334,8 @@ impl RecorderInner {
         }
 
         if device_index < -1 {
-            return Err(RecorderError::new(
-                RecorderErrorStatus::ArgumentError,
+            return Err(PvRecorderError::new(
+                PvRecorderErrorStatus::ArgumentError,
                 format!(
                     "device_index value `{}` should be greater than or equal to -1",
                     device_index
@@ -334,8 +344,8 @@ impl RecorderInner {
         }
 
         if buffered_frames_count <= 0 {
-            return Err(RecorderError::new(
-                RecorderErrorStatus::ArgumentError,
+            return Err(PvRecorderError::new(
+                PvRecorderErrorStatus::ArgumentError,
                 format!(
                     "buffered_frames_count value `{}` should be greater than zero",
                     buffered_frames_count
@@ -344,12 +354,12 @@ impl RecorderInner {
         }
 
         let lib = unsafe { Library::new(library_path) }.map_err(|err| {
-            RecorderError::new(
-                RecorderErrorStatus::LibraryLoadError,
+            PvRecorderError::new(
+                PvRecorderErrorStatus::LibraryLoadError,
                 format!("Failed to load pvrecorder dynamic library: {}", err),
             )
         })?;
-        let vtable = RecorderInnerVTable::new(lib)?;
+        let vtable = PvRecorderInnerVTable::new(lib)?;
 
         let mut cpvrecorder = std::ptr::null_mut();
 
@@ -366,8 +376,8 @@ impl RecorderInner {
         let selected_device = unsafe {
             let selected_device_c = (vtable.pv_recorder_get_selected_device)(cpvrecorder);
             String::from(CStr::from_ptr(selected_device_c).to_str().map_err(|_| {
-                RecorderError::new(
-                    RecorderErrorStatus::OtherError,
+                PvRecorderError::new(
+                    PvRecorderErrorStatus::OtherError,
                     "Failed to convert selected device string",
                 )
             })?)
@@ -378,8 +388,8 @@ impl RecorderInner {
         let version = unsafe {
             let version_c = (vtable.pv_recorder_version)();
             String::from(CStr::from_ptr(version_c).to_str().map_err(|_| {
-                RecorderError::new(
-                    RecorderErrorStatus::OtherError,
+                PvRecorderError::new(
+                    PvRecorderErrorStatus::OtherError,
                     "Failed to convert version string",
                 )
             })?)
@@ -395,17 +405,17 @@ impl RecorderInner {
         })
     }
 
-    fn start(&self) -> Result<(), RecorderError> {
+    fn start(&self) -> Result<(), PvRecorderError> {
         let status = unsafe { (self.vtable.pv_recorder_start)(self.cpvrecorder) };
         check_fn_call_status(status, "pv_recorder_start")
     }
 
-    fn stop(&self) -> Result<(), RecorderError> {
+    fn stop(&self) -> Result<(), PvRecorderError> {
         let status = unsafe { (self.vtable.pv_recorder_stop)(self.cpvrecorder) };
         check_fn_call_status(status, "pv_recorder_stop")
     }
 
-    fn read(&self) -> Result<Vec<i16>, RecorderError> {
+    fn read(&self) -> Result<Vec<i16>, PvRecorderError> {
         let mut frame = vec![0; self.frame_length() as usize];
         let status =
             unsafe { (self.vtable.pv_recorder_read)(self.cpvrecorder, frame.as_mut_ptr()) };
@@ -441,15 +451,15 @@ impl RecorderInner {
 
     pub fn get_available_devices<P: AsRef<Path>>(
         library_path: P,
-    ) -> Result<Vec<String>, RecorderError> {
+    ) -> Result<Vec<String>, PvRecorderError> {
         let lib = unsafe { Library::new(library_path.as_ref()) }.map_err(|err| {
-            RecorderError::new(
-                RecorderErrorStatus::LibraryLoadError,
+            PvRecorderError::new(
+                PvRecorderErrorStatus::LibraryLoadError,
                 format!("Failed to load pvrecorder dynamic library: {}", err),
             )
         })?;
 
-        let vtable = RecorderInnerVTable::new(lib)?;
+        let vtable = PvRecorderInnerVTable::new(lib)?;
 
         let mut device_list = Vec::new();
         let mut device_list_length = 0;
@@ -467,8 +477,8 @@ impl RecorderInner {
             for i in 0..device_list_length as usize {
                 let device = CStr::from_ptr(*device_list_ptr_ptr.add(i));
                 device_list.push(String::from(device.to_str().map_err(|_| {
-                    RecorderError::new(
-                        RecorderErrorStatus::OtherError,
+                    PvRecorderError::new(
+                        PvRecorderErrorStatus::OtherError,
                         "Failed to convert device strings",
                     )
                 })?));
@@ -480,10 +490,10 @@ impl RecorderInner {
     }
 }
 
-unsafe impl Send for RecorderInner {}
-unsafe impl Sync for RecorderInner {}
+unsafe impl Send for PvRecorderInner {}
+unsafe impl Sync for PvRecorderInner {}
 
-impl Drop for RecorderInner {
+impl Drop for PvRecorderInner {
     fn drop(&mut self) {
         unsafe {
             (self.vtable.pv_recorder_delete)(self.cpvrecorder);

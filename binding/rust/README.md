@@ -1,6 +1,4 @@
-# PvRecorder Rust Binding
-
-A cross platform audio recorder that captures single-channel audio at a sample rate of 16kHz.
+# PvRecorder Binding for Python
 
 ## Requirements
 
@@ -9,7 +7,7 @@ A cross platform audio recorder that captures single-channel audio at a sample r
 ## Compatibility
 
 - Linux (x86_64)
-- macOS (x86_64)
+- macOS (x86_64 and arm64)
 - Windows (x86_64)
 - Raspberry Pi:
     - Zero
@@ -32,26 +30,26 @@ pv_recorder = "*"
 Getting the list of input devices does not require an instance:
 
 ```rust
-use pv_recorder::RecorderBuilder
+use pv_recorder::PvRecorderBuilder
 
-let audio_devices = RecorderBuilder::default().get_audio_devices()?;
+let audio_devices = PvRecorderBuilder::default().get_audio_devices()?;
 ```
 
 To start recording initialize an instance using the builder and run `start`:
 
 ```rust
-use pv_recorder::RecorderBuilder;
+use pv_recorder::PvRecorderBuilder;
 
-let recorder = RecorderBuilder::new().init()?;
+let recorder = PvRecorderBuilder::new(512).init()?;
 recorder.start()?
 ```
 
-Get the pcm audio frames by calling the read function:
+Get frame of audio by calling the `read()` function:
 
 ```rust
 while recorder.is_recording() {
     let frame = recorder.read()?;
-    // do something with frame
+    // process audio frame
 }
 ```
 

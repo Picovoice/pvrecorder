@@ -340,9 +340,9 @@ pv_recorder = "*"
 To start recording initialize the instance and run `start`:
 
 ```rust
-use pv_recorder::RecorderBuilder
+use pv_recorder::PvRecorderBuilder
 
-let audio_devices = RecorderBuilder::default().get_audio_devices()?;
+let recorder = PvRecorderBuilder::new(512).init()?;
 recorder.start()?;
 ```
 

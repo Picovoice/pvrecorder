@@ -8,8 +8,8 @@
     an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
     specific language governing permissions and limitations under the License.
 */
-use clap::{Arg, ArgAction, Command, value_parser};
-use pv_recorder::RecorderBuilder;
+use clap::{value_parser, Arg, ArgAction, Command};
+use pv_recorder::PvRecorderBuilder;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 const SAMPLE_RATE: usize = 16000;
@@ -19,7 +19,7 @@ static LISTENING: AtomicBool = AtomicBool::new(false);
 fn show_audio_devices() {
     println!("Printing audio devices...");
 
-    let audio_devices = RecorderBuilder::default().get_available_devices();
+    let audio_devices = PvRecorderBuilder::default().get_available_devices();
     match audio_devices {
         Ok(audio_devices) => {
             for (idx, device) in audio_devices.iter().enumerate() {
@@ -64,7 +64,7 @@ fn main() {
     let output_wav_path = matches.get_one::<String>("output_wav_path").unwrap();
 
     println!("Initializing pvrecorder...");
-    let recorder = RecorderBuilder::new()
+    let recorder = PvRecorderBuilder::new(512)
         .device_index(audio_device_index)
         .init()
         .expect("Failed to initialize pvrecorder");
