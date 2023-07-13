@@ -80,7 +80,15 @@ jobs:
         submodules: recursive
 
     - name: Rust pre-build
+      if: matrix.machine != 'pv-windows'
       run: bash copy.sh
+
+    - name: Rust pre-build windows
+      if: matrix.machine == 'pv-windows'
+      run: |
+        New-Item -Path "." -Name "data" -ItemType "directory"
+        New-Item -Path ".\data" -Name "lib" -ItemType "directory"
+        Copy-Item -Path "..\..\lib\windows" -Destination ".\data\lib" -Recurse
 
     - name: Install stable toolchain
       uses: actions-rs/toolchain@v1
