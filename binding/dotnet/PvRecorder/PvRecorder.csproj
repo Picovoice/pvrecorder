@@ -1,0 +1,137 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net6.0;netcoreapp3.0;netstandard2.0</TargetFrameworks>
+        <Version>1.2.1</Version>
+        <Authors>Picovoice</Authors>
+        <Company />
+        <Product>PvRecorder</Product>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/Picovoice/pvrecorder</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Picovoice/pvrecorder.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>audio, audio recorder, audio capture, audio recording, audio processing, real-time processing</PackageTags>
+        <PackageReleaseNotes>See https://github.com/Picovoice/pvrecorder/ </PackageReleaseNotes>
+        <Copyright>Picovoice 2021-2023</Copyright>
+        <Description>PvRecorder is a cross-platform audio recorder for .NET designed for real-time processing.</Description>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageIcon>pv_circle_512.png</PackageIcon>
+    </PropertyGroup>
+
+    <!--Target files-->
+    <ItemGroup>
+        <Content Include="PvRecorder.netstandard2.0.targets">
+            <PackagePath>
+                build/netstandard2.0/PvRecorder.targets;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="PvRecorder.targets">
+            <PackagePath>
+                build/netcoreapp3.0/PvRecorder.targets;
+                build/net6.0/PvRecorder.targets;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <!--.NET Standard 2.0+ libs-->
+    <ItemGroup>
+        <Content Include="..\..\..\lib\windows\amd64\libpv_recorder.dll">
+            <PackagePath>
+                build/netstandard2.0/libpv_recorder.dll;
+                build/netcoreapp3.0/lib/windows/amd64/libpv_recorder.dll;
+                build/net6.0/lib/windows/amd64/libpv_recorder.dll;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\windows\amd64\libpv_recorder.dll</Link>
+            <Visible>false</Visible>
+        </Content>
+        <Content Include="..\..\..\lib\linux\x86_64\libpv_recorder.so">
+            <PackagePath>
+                build/netstandard2.0/libpv_recorder.so;
+                build/netcoreapp3.0/lib/linux/x86_64/libpv_recorder.so;
+                build/net6.0/lib/linux/x86_64/libpv_recorder.so;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\linux\x86_64\libpv_recorder.so</Link>
+            <Visible>false</Visible>
+        </Content>
+        <Content Include="..\..\..\lib\mac\x86_64\libpv_recorder.dylib">
+            <PackagePath>
+                build/netstandard2.0/libpv_recorder.dylib;
+                build/netcoreapp3.0/lib/mac/x86_64/libpv_recorder.dylib;
+                build/net6.0/lib/mac/x86_64/libpv_recorder.dylib;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\mac\x86_64\libpv_recorder.dylib</Link>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+
+    <!--.NET Core 3.0+ libs-->
+    <ItemGroup>
+        <Content Include="..\..\..\lib\beaglebone\libpv_recorder.so">
+            <PackagePath>
+                build/netcoreapp3.0/lib/beaglebone/libpv_recorder.so;
+                build/net6.0/lib/beaglebone/libpv_recorder.so;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\beaglebone\libpv_recorder.so</Link>
+            <Visible>false</Visible>
+        </Content>
+        <Content Include="..\..\..\lib\raspberry-pi\**\*" Exclude="..\..\..\lib\raspberry-pi\arm11\*">
+            <PackagePath>
+                build/netcoreapp3.0/lib/raspberry-pi;
+                build/net6.0/lib/raspberry-pi;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\raspberry-pi\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Visible>false</Visible>
+        </Content>
+        <Content Include="..\..\..\lib\jetson\cortex-a57-aarch64\libpv_recorder.so">
+            <PackagePath>
+                build/netcoreapp3.0/lib/jetson/cortex-a57-aarch64/libpv_recorder.so;
+                build/net6.0/lib/jetson/cortex-a57-aarch64/libpv_recorder.so;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\jetson\cortex-a57-aarch64\libpv_recorder.so</Link>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+
+    <!--.NET 6.0+ libs-->
+    <ItemGroup>
+        <Content Include="..\..\..\lib\mac\arm64\libpv_recorder.dylib">
+            <PackagePath>
+                build/net6.0/lib/mac/arm64/libpv_recorder.dylib;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\mac\arm64\libpv_recorder.dylib</Link>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+
+    <!--Resource files-->
+    <ItemGroup>
+        <Content Include="..\..\..\resources\scripts\*">
+            <PackagePath>
+                build/netstandard2.0/scripts;
+                build/netcoreapp3.0/scripts;
+                build/net6.0/scripts;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>scripts\%(Filename)%(Extension)</Link>
+            <Visible>False</Visible>
+        </Content>
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Content\" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="Content\pv_circle_512.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
+</Project>

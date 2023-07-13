@@ -5,8 +5,8 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'sdk/rust/**'
-      - '!sdk/rust/README.md'
+      - 'binding/rust/**'
+      - '!binding/rust/README.md'
       - 'lib/beaglebone/**'
       - 'lib/linux/**'
       - 'lib/jetson/**'
@@ -15,10 +15,10 @@ on:
       - 'lib/windows/**'
       - '.github/workflows/rust.yml'
   pull_request:
-    branches: [ main ]
+    branches: [ main, 'v[0-9]+.[0-9]+' ]
     paths:
-      - 'sdk/rust/**'
-      - '!sdk/rust/README.md'
+      - 'binding/rust/**'
+      - '!binding/rust/README.md'
       - 'lib/beaglebone/**'
       - 'lib/linux/**'
       - 'lib/jetson/**'
@@ -32,8 +32,7 @@ env:
 
 defaults:
   run:
-    working-directory: sdk/rust
-    shell: bash
+    working-directory: binding/rust
 
 jobs:
   build-github-hosted:
@@ -41,12 +40,16 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
 
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
+
+    - name: Rust dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt install libasound2-dev -y
 
     - name: Rust pre-build
       run: bash copy.sh
@@ -61,15 +64,15 @@ jobs:
     - name: Build
       run: cargo build --verbose
 
-    - name: Run get audio devices
-      run: cargo run --release --example demo -- --show_audio_devices
+    - name: Test
+      run: cargo test --release
 
   build-self-hosted:
     runs-on: ${{ matrix.machine }}
 
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone, pv-windows]
 
     steps:
     - uses: actions/checkout@v3
@@ -77,7 +80,15 @@ jobs:
         submodules: recursive
 
     - name: Rust pre-build
+      if: matrix.machine != 'pv-windows'
       run: bash copy.sh
+
+    - name: Rust pre-build windows
+      if: matrix.machine == 'pv-windows'
+      run: |
+        New-Item -Path "." -Name "data" -ItemType "directory"
+        New-Item -Path ".\data" -Name "lib" -ItemType "directory"
+        Copy-Item -Path "..\..\lib\windows" -Destination ".\data\lib" -Recurse
 
     - name: Install stable toolchain
       uses: actions-rs/toolchain@v1
@@ -88,5 +99,5 @@ jobs:
     - name: Build
       run: cargo build --verbose
 
-    - name: Run get audio devices
-      run: cargo run --release --example demo -- --show_audio_devices
+    - name: Test
+      run: cargo test --release

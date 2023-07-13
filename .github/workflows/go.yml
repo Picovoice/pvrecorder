@@ -5,8 +5,8 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'sdk/go/**'
-      - '!sdk/go/README.md'
+      - 'binding/go/**'
+      - '!binding/go/README.md'
       - 'lib/beaglebone/**'
       - 'lib/linux/**'
       - 'lib/jetson/**'
@@ -15,10 +15,10 @@ on:
       - 'lib/windows/**'
       - '.github/workflows/go.yml'
   pull_request:
-    branches: [ main ]
+    branches: [ main, 'v[0-9]+.[0-9]+' ]
     paths:
-      - 'sdk/go/**'
-      - '!sdk/go/README.md'
+      - 'binding/go/**'
+      - '!binding/go/README.md'
       - 'lib/beaglebone/**'
       - 'lib/linux/**'
       - 'lib/jetson/**'
@@ -29,7 +29,7 @@ on:
 
 defaults:
   run:
-    working-directory: sdk/go
+    working-directory: binding/go
 
 jobs:
   build-github-hosted:
@@ -37,8 +37,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        go: [ '1.16', '1.17' ]
+        os: [ubuntu-latest, macos-latest]
+        go: [ '1.16', '1.17', '1.18' ]
 
     steps:
     - uses: actions/checkout@v3
@@ -59,15 +59,15 @@ jobs:
     - name: Build
       run: go build
 
-    - name: Run get audio devices
-      run: go run demo/demo.go --show_audio_devices
+    - name: Test
+      run: go test
 
   build-self-hosted:
     runs-on: ${{ matrix.machine }}
 
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone, pv-windows]
 
     steps:
     - uses: actions/checkout@v3
@@ -83,5 +83,5 @@ jobs:
     - name: Build
       run: go build
 
-    - name: Run get audio devices
-      run: go run demo/demo.go --show_audio_devices
+    - name: Test
+      run: go test

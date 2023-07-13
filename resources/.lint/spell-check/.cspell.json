@@ -1,0 +1,44 @@
+{
+  "language": "en",
+  "dictionaries": [
+    "dict"
+  ],
+  "dictionaryDefinitions": [
+    {
+      "name": "dict",
+      "path": "./dict.txt",
+      "addWords": true
+    }
+  ],
+  "ignorePaths": [
+    "**/CMakeLists.txt",
+    "**/Preload.CMake",
+
+    // submodules
+    "../../project/src/miniaudio",
+
+    // binaries
+    "**/*.a",
+    "**/*.dll",
+    "**/*.dylib",
+    "**/*.mp3",
+    "**/*.node",
+    "**/*.ppn",
+    "**/*.so",
+    "**/*.wasm",
+    "**/*.wav",
+
+    // .NET
+    "**/*.csproj",
+    "**/*.targets",
+
+    // javascript
+    "**/package.json",
+    "**/packages-lock.json",
+    "**/tsconfig.json",
+    "**/tslint.json",
+
+    // rust
+    "**/Cargo.toml"
+  ]
+}

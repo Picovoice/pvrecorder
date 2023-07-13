@@ -5,21 +5,21 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'sdk/nodejs/**'
-      - '!sdk/nodejs/README.md'
+      - 'binding/nodejs/**'
+      - '!binding/nodejs/README.md'
       - 'lib/node/**'
       - '.github/workflows/nodejs.yml'
   pull_request:
-    branches: [ main ]
+    branches: [ main, 'v[0-9]+.[0-9]+' ]
     paths:
-      - 'sdk/nodejs/**'
-      - '!sdk/nodejs/README.md'
+      - 'binding/nodejs/**'
+      - '!binding/nodejs/README.md'
       - 'lib/node/**'
       - '.github/workflows/nodejs.yml'
 
 defaults:
   run:
-    working-directory: sdk/nodejs
+    working-directory: binding/nodejs
 
 jobs:
   build-github-hosted:
@@ -27,8 +27,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: [14.x, 16.x]
+        os: [ubuntu-latest, macos-latest]
+        node-version: [14.x, 16.x, 18.x, 20.x]
 
     steps:
     - uses: actions/checkout@v3
@@ -52,15 +52,15 @@ jobs:
     - name: Build
       run: yarn build
 
-    - name: Run get audio devices
-      run: node demo/demo.js --show_audio_devices
+    - name: Test
+      run: yarn test
 
   build-self-hosted:
     runs-on: ${{ matrix.machine }}
 
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone, pv-windows]
 
     steps:
     - uses: actions/checkout@v3
@@ -79,5 +79,5 @@ jobs:
     - name: Build
       run: yarn build
 
-    - name: Run get audio devices
-      run: node demo/demo.js --show_audio_devices
+    - name: Test
+      run: yarn test

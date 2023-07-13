@@ -1,0 +1,69 @@
+name: Go Demos
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'demo/go/**'
+      - '!demo/go/README.md'
+      - '.github/workflows/go-demos.yml'
+  pull_request:
+    branches: [ main, 'v[0-9]+.[0-9]+' ]
+    paths:
+      - 'demo/go/**'
+      - '!demo/go/README.md'
+      - '.github/workflows/go-demos.yml'
+
+defaults:
+  run:
+    working-directory: demo/go
+
+jobs:
+  build-github-hosted:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        go: [ '1.16', '1.17', '1.18' ]
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Setup go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ matrix.go }}
+
+    - name: Install dependencies
+      run: go get
+
+    - name: Build
+      run: go build
+
+    - name: Run get audio devices
+      run: go run demo.go --show_audio_devices
+
+  build-self-hosted:
+    runs-on: ${{ matrix.machine }}
+
+    strategy:
+      matrix:
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone, pv-windows]
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Install dependencies
+      run: go get
+
+    - name: Build
+      run: go build
+
+    - name: Run get audio devices
+      run: go run demo.go --show_audio_devices
