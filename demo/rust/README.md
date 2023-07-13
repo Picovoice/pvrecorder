@@ -14,7 +14,7 @@ It provides developers with access to the input stream of an audio device, which
 ## Compatibility
 
 - Linux (x86_64)
-- macOS (x86_64)
+- macOS (x86_64 and arm64)
 - Windows (x86_64)
 - Raspberry Pi:
     - Zero

@@ -40,7 +40,8 @@ To start recording initialize an instance using the builder and run `start`:
 ```rust
 use pv_recorder::PvRecorderBuilder;
 
-let recorder = PvRecorderBuilder::new(512).init()?;
+let frame_length = 512;
+let recorder = PvRecorderBuilder::new(frame_length).init()?;
 recorder.start()?
 ```
 
