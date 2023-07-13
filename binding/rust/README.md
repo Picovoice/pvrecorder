@@ -1,5 +1,9 @@
 # PvRecorder Binding for Python
 
+## PvRecorder
+
+PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-time speech audio processing. It allows developers access to an audio device's input stream, broken up into data frames of a given size.
+
 ## Requirements
 
 - Rust 1.54+
@@ -35,7 +39,7 @@ use pv_recorder::PvRecorderBuilder
 let audio_devices = PvRecorderBuilder::default().get_audio_devices()?;
 ```
 
-To start recording initialize an instance using the builder and run `start`:
+To start recording, initialize an instance using the builder and call `start()`:
 
 ```rust
 use pv_recorder::PvRecorderBuilder;
@@ -45,7 +49,7 @@ let recorder = PvRecorderBuilder::new(frame_length).init()?;
 recorder.start()?
 ```
 
-Get frame of audio by calling the `read()` function:
+Read frames of audio:
 
 ```rust
 while recorder.is_recording() {
@@ -54,7 +58,7 @@ while recorder.is_recording() {
 }
 ```
 
-To stop recording just run stop on the instance:
+To stop recording, call `stop()` on the instance:
 
 ```rust
 recorder.stop()?;

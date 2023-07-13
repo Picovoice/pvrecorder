@@ -4,8 +4,7 @@ This project contains a Rust command-line demo for PvRecorder that demonstrates 
 
 ## PvRecorder
 
-PvRecorder is a user-friendly, cross-platform audio recorder that has been specifically designed for real-time audio processing.
-It provides developers with access to the input stream of an audio device, which is divided into data frames of a given size.
+PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-time speech audio processing. It allows developers access to an audio device's input stream, broken up into data frames of a given size.
 
 ## Requirements
 

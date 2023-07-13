@@ -2,8 +2,7 @@
 
 # PvRecorder
 
-PvRecorder is an easy-to-use cross-platform audio recorder designed for real-time audio processing.
-It allows developers access to an audio device's input stream, broken up into data frames of a given size.
+PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-time speech audio processing. It allows developers access to an audio device's input stream, broken up into data frames of a given size.
 
 ## Requirements
 
@@ -54,12 +53,13 @@ PvRecorder recorder = PvRecorder.Create(frameLength: 512);
 recorder.Start();
 ```
 
-Read a frame of audio:
+Read frames of audio:
 
 ```csharp
-while (true) {
+while (recorder.IsRecording)
+{
     short[] frame = recorder.Read();
-    // do something with audio frame
+    // process audio frame
 }
 ```
 
@@ -69,12 +69,12 @@ To stop recording:
 recorder.Stop();
 ```
 
-Once you are done, free the used resources. You do not have to call `Stop()` before `Dispose()`:
+Once you are done, free the resources acquired by PvRecorder. You do not have to call `Stop()` before `Dispose()`:
 
 ```csharp
 recorder.Dispose();
 ```
- 
+
 To have resources freed immediately after use without explicitly calling the `Dispose()` function, wrap `PvRecorder` in a `using` statement:
 
 ```csharp

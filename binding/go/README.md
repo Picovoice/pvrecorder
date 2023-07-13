@@ -1,5 +1,9 @@
 # PvRecorder Binding for Go
 
+## PvRecorder
+
+PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-time speech audio processing. It allows developers access to an audio device's input stream, broken up into data frames of a given size.
+
 ## Compatibility
 
 - Go 1.16+
@@ -13,7 +17,7 @@ go get github.com/Picovoice/pvrecorder/binding/go
 
 ## Usage
 
-To start recording initialize an instance and run start:
+Initialize and begin recording:
 
 ```go
 import . "github.com/Picovoice/pvrecorder/binding/go"
@@ -61,16 +65,15 @@ frame, err := recorder.Read()
 if err != nil {
     // handle error
 }
-// do something with frame
 ```
 
-To stop recording, run stop on the instance:
+To stop recording, call `Stop()` on the instance:
 
 ```go
 recorder.Stop()
 ```
 
-Once you are done, free the used resources. You do not have to call stop before delete:
+Once you are done, free the resources acquired by PvRecorder. You do not have to call `stop()` before `delete()`:
 
 ```go
 recorder.Delete()
@@ -78,4 +81,4 @@ recorder.Delete()
 
 ### Demo
 
-For more detailed information on how to use the PvRecorder Go binding, please that a look at [demo/demo.go](../../demo/go/demo.go). 
+For more detailed information on how to use the PvRecorder Go binding, please that a look at [demo/demo.go](../../demo/go/demo.go).

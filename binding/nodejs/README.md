@@ -1,5 +1,9 @@
 # PvRecorder Binding for Node.js
 
+## PvRecorder
+
+PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-time speech audio processing. It allows developers access to an audio device's input stream, broken up into data frames of a given size.
+
 ## Compatibility
 
 - Node.js 14+
@@ -13,12 +17,12 @@ yarn add @picovoice/pvrecorder-node
 
 ## Usage
 
-To start recording initialize the instance and run `start`:
+Initialize and begin recording:
 
 ```javascript
 const { PvRecorder } = require("@picovoice/pvrecorder-node");
 
-const recorder = new PvRecorder(/*frame length*/ 512);
+const recorder = new PvRecorder(/*frameLength*/ 512);
 recorder.start()
 ```
 
@@ -36,23 +40,23 @@ const recorder = new PvRecorder(512, /*device index*/0);
 recorder.start()
 ```
 
-Get a frame of audio by calling the read function:
+Read frames of audio:
 
 ```javascript
 while (recorder.isRecording) {
     // const frame = recorder.readSync(), for synchronous calls
     const frame = await recorder.read();
-    // do something with frame
+    // process audio frame
 }
 ```
 
-To stop recording, run stop on the instance:
+To stop recording, call `stop()` on the instance:
 
 ```javascript
 recorder.stop();
 ```
 
-Once you are done, free the used resources. You do not have to call stop before release:
+Once you are done, free the resources acquired by PvRecorder. You do not have to call `stop()` before `release()`:
 
 ```javascript
 recorder.release();
