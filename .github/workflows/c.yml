@@ -6,6 +6,7 @@ on:
     branches: [ main ]
     paths:
       - 'demo/c/**'
+      - '!demo/c/README.md'
       - 'project/**'
       - '!project/README.md'
       - '.github/workflows/c.yml'
@@ -14,6 +15,7 @@ on:
     branches: [ main, 'v[0-9]+.[0-9]+' ]
     paths:
       - 'demo/c/**'
+      - '!demo/c/README.md'
       - 'project/**'
       - '!project/README.md'
       - '.github/workflows/c.yml'
