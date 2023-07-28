@@ -31,7 +31,7 @@ jobs:
             pv_recorder_platform: linux
           - os: windows-latest
             pv_recorder_platform: windows
-          - os: mac-latest
+          - os: macos-latest
             pv_recorder_platform: mac
 
     steps:
