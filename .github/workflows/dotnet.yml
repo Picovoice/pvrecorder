@@ -76,12 +76,23 @@ jobs:
       matrix:
         machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone, pv-windows]
         test-framework: [netcoreapp2.1, netcoreapp3.0, netcoreapp3.1, net5.0, net6.0]
+        include:
+          - test-framework: netcoreapp2.1
+            binding-framework: netstandard2.0
+          - test-framework: netcoreapp3.0
+            binding-framework: netcoreapp3.0
+          - test-framework: netcoreapp3.1
+            binding-framework: netcoreapp3.0
+          - test-framework: net5.0
+            binding-framework: netcoreapp3.0
+          - test-framework: net6.0
+            binding-framework: net6.0
 
     steps:
     - uses: actions/checkout@v3
 
     - name: Build binding
-      run: dotnet build PvRecorder/PvRecorder.csproj --framework net6.0
+      run: dotnet build PvRecorder/PvRecorder.csproj --framework ${{ matrix.binding-framework }}
 
     - name: Test
-      run: dotnet test --framework net6.0 -v n
+      run: dotnet test --framework ${{ matrix.test-framework }} -v n
