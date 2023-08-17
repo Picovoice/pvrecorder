@@ -36,7 +36,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, pv-windows]
+        os: [ubuntu-latest, macos-latest]
         dotnet-version: [2.1.x, 3.0.x, 3.1.x, 5.0.x, 6.0.x]
         include:
           - dotnet-version: 2.1.x
@@ -74,7 +74,8 @@ jobs:
 
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone]
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, jetson, beaglebone, pv-windows]
+        test-framework: [netcoreapp2.1, netcoreapp3.0, netcoreapp3.1, net5.0, net6.0]
 
     steps:
     - uses: actions/checkout@v3
