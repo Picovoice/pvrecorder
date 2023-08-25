@@ -58,9 +58,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: tmp0
-      run: rm -rf ~/.nuget/packages/pvrecorder
-
     - name: Build .NET demo
       run: dotnet build
 
