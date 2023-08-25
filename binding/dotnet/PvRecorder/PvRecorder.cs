@@ -328,12 +328,12 @@ namespace Pv
             string scriptPath;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                scriptPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "scripts/platform.bat");
+                scriptPath = Path.Combine(AppContext.BaseDirectory, "scripts/platform.bat");
             }
             else
             {
-                Console.WriteLine(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "scripts/platform.sh"));
-                scriptPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "scripts/platform.sh");
+                Console.WriteLine(Path.Combine(AppContext.BaseDirectory, "scripts/platform.sh"));
+                scriptPath = Path.Combine(AppContext.BaseDirectory, "scripts/platform.sh");
             }
 
             var process = new Process();
