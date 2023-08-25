@@ -325,15 +325,23 @@ namespace Pv
         /// <returns>A string representing the absolute path of the library.</returns>
         private static string GetLibraryPath()
         {
+            string scriptPath;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                scriptPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "scripts/platform.bat");
+            }
+            else
+            {
+                scriptPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "scripts/platform.sh");
+            }
+
             var process = new Process();
             var processStartInfo = new ProcessStartInfo()
             {
-                FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "platform.bat" : "platform.sh",
-                WorkingDirectory = Path.Combine(AppContext.BaseDirectory, "scripts"),
+                FileName = scriptPath,
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             };
-
             process.StartInfo = processStartInfo;
             process.Start();
             process.WaitForExit();
