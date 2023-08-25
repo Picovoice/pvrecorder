@@ -42,17 +42,6 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
-    - name: tmp1
-      run: dotnet build -c Release
-      working-directory: binding/dotnet/PvRecorder
-
-    - name: tmp2
-      run: dotnet pack -c Release
-      working-directory: binding/dotnet/PvRecorder
-
-    - name: tmp3
-      run: dotnet add package PvRecorder -s ../../../binding/dotnet/PvRecorder/bin/Release
-
     - name: Build .NET demo
       run: dotnet build
 
@@ -71,17 +60,6 @@ jobs:
 
     - name: tmp0
       run: rm -rf ~/.nuget/packages/pvrecorder
-
-    - name: tmp1
-      run: dotnet build -c Release
-      working-directory: binding/dotnet/PvRecorder
-
-    - name: tmp2
-      run: dotnet pack -c Release
-      working-directory: binding/dotnet/PvRecorder
-
-    - name: tmp3
-      run: dotnet add package PvRecorder -s ../../../binding/dotnet/PvRecorder/bin/Release
 
     - name: Build .NET demo
       run: dotnet build
