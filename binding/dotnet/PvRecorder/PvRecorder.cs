@@ -332,6 +332,7 @@ namespace Pv
             }
             else
             {
+                Console.WriteLine(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "scripts/platform.sh"));
                 scriptPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "scripts/platform.sh");
             }
 
