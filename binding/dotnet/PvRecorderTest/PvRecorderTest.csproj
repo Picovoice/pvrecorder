@@ -13,7 +13,6 @@
     <ItemGroup>
         <ProjectReference Include="..\PvRecorder\PvRecorder.csproj" />
     </ItemGroup>
-
     <ItemGroup>
         <Content Include="..\..\..\lib\windows\amd64\libpv_recorder.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
