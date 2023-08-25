@@ -332,7 +332,6 @@ namespace Pv
             }
             else
             {
-                Console.WriteLine(Path.Combine(AppContext.BaseDirectory, "scripts/platform.sh"));
                 scriptPath = Path.Combine(AppContext.BaseDirectory, "scripts/platform.sh");
             }
 
