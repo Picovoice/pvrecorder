@@ -328,11 +328,11 @@ namespace Pv
             string scriptPath;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                scriptPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "scripts/platform.bat");
+                scriptPath = Path.Combine(AppContext.BaseDirectory, "scripts/platform.bat");
             }
             else
             {
-                scriptPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "scripts/platform.sh");
+                scriptPath = Path.Combine(AppContext.BaseDirectory, "scripts/platform.sh");
             }
 
             var process = new Process();
@@ -342,7 +342,6 @@ namespace Pv
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             };
-
             process.StartInfo = processStartInfo;
             process.Start();
             process.WaitForExit();
@@ -371,7 +370,7 @@ namespace Pv
                 libName = $"{LIBRARY}.so";
             }
 
-            return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), $"lib/{osName}/{cpu}/{libName}");
+            return Path.Combine(AppContext.BaseDirectory, $"lib/{osName}/{cpu}/{libName}");
         }
 
         /// <summary>

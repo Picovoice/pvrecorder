@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net5.0;netcoreapp3.1;netcoreapp3.0;netcoreapp2.0;</TargetFrameworks>
+        <TargetFrameworks>net6.0;net5.0;netcoreapp3.1;netcoreapp3.0;netcoreapp2.1;</TargetFrameworks>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
 
@@ -13,7 +13,6 @@
     <ItemGroup>
         <ProjectReference Include="..\PvRecorder\PvRecorder.csproj" />
     </ItemGroup>
-
     <ItemGroup>
         <Content Include="..\..\..\lib\windows\amd64\libpv_recorder.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
