@@ -11,7 +11,7 @@
 - Linux (x86_64)
 - macOS (x86_64, arm64)
 - Windows (amd64)
-- Raspberry Pi (Zero, 2, 3 and 4)
+- Raspberry Pi (Zero, 2, 3, 4 and 5)
 - NVIDIA Jetson Nano
 - BeagleBone
 
