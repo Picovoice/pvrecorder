@@ -5,7 +5,7 @@ if(NOT PV_RECORDER_PLATFORM)
     message(FATAL_ERROR "No `PV_RECORDER_PLATFORM` value was given. Valid platforms are: \n"
             "linux, mac-arm64, mac-x86_64, windows, raspberry-pi, raspberry-pi2, "
             "raspberry-pi3-32, raspberry-pi3-64, raspberry-pi4-32, raspberry-pi4-64, "
-            "jetson-nano, beaglebone")
+            "raspberry-pi5-32, raspberry-pi5-64, jetson-nano, beaglebone")
 endif()
 
 if (${PV_RECORDER_PLATFORM} STREQUAL "beaglebone")
