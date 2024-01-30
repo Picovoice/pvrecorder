@@ -44,6 +44,7 @@ fn find_machine_type() -> String {
         "0xd03" => "cortex-a53",
         "0xd07" => "cortex-a57",
         "0xd08" => "cortex-a72",
+        "0xd0b" => "cortex-a76",
         "0xc08" => "beaglebone",
         _ => "unsupported",
     };
@@ -73,7 +74,7 @@ fn base_library_path() -> PathBuf {
 
 #[cfg(all(target_os = "linux", any(target_arch = "arm", target_arch = "aarch64")))]
 fn base_library_path() -> PathBuf {
-    const RPI_MACHINES: [&str; 4] = ["arm11", "cortex-a7", "cortex-a53", "cortex-a72"];
+    const RPI_MACHINES: [&str; 5] = ["arm11", "cortex-a7", "cortex-a53", "cortex-a72", "cortex-a76"];
     const JETSON_MACHINES: [&str; 1] = ["cortex-a57"];
 
     let machine = find_machine_type();

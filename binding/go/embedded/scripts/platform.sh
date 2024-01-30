@@ -32,6 +32,7 @@ case $kernel in
             "0xd03") kernel="raspberry-pi" arch="cortex-a53"$arch_info ;;
             "0xd07") kernel="jetson" arch="cortex-a57"$arch_info ;;
             "0xd08") kernel="raspberry-pi" arch="cortex-a72"$arch_info ;;
+            "0xd0b") kernel="raspberry-pi" arch="cortex-a76"$arch_info ;;
             "0xc08") kernel="beaglebone" arch=$arch_info ;;
             *) exit 1;;
         esac
