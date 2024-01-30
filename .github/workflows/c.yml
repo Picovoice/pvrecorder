@@ -64,6 +64,9 @@ jobs:
           - machine: rpi4-64
             pv_recorder_platform: raspberry-pi4-64
             output_dir: raspberry-pi/cortex-a72-aarch64
+          - machine: rpi5-64
+            pv_recorder_platform: raspberry-pi5-64
+            output_dir: raspberry-pi/cortex-a76-aarch64
           - machine: jetson
             pv_recorder_platform: jetson-nano
             output_dir: jetson/cortex-a57-aarch64
