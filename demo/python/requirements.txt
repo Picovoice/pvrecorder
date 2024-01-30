@@ -1,1 +1,1 @@
-pvrecorder==1.2.1
+pvrecorder==1.2.2
