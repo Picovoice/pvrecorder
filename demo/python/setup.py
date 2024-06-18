@@ -46,6 +46,6 @@ setuptools.setup(
             'pv_recorder_demo=pvrecorderdemo.pv_recorder_demo:main',
         ],
     ),
-    python_requires='>=3.5',
+    python_requires='>=3.8',
     keywords="Audio Recorder",
 )
