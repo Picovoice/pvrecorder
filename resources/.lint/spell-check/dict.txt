@@ -13,6 +13,7 @@ dlsym
 DOUTPUT
 dylib
 ERRORLEVEL
+FARPROC
 fprintf
 fvisibility
 gendef
