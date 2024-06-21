@@ -38,6 +38,7 @@ add_dependencies(pv_recorder_napi node_headers)
 
 if (${PV_RECORDER_PLATFORM} STREQUAL "windows")
     add_dependencies(pv_recorder_napi node_win_lib)
+    target_sources(pv_recorder_napi PRIVATE delayhook.c)
 endif()
 
 target_include_directories(pv_recorder_napi PUBLIC ${PROJECT_SOURCE_DIR}/../include)
