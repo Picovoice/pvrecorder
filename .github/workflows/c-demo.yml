@@ -33,7 +33,7 @@ jobs:
           - os: windows-latest
             pv_recorder_platform: windows
           - os: macos-latest
-            pv_recorder_platform: mac-x86_64
+            pv_recorder_platform: mac-arm64
 
     steps:
       - uses: actions/checkout@v3
