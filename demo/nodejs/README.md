@@ -9,7 +9,7 @@ PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-ti
 ## Compatibility
 
 - Node.js 14+
-- Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64), Raspberry Pi (2, 3, 4, 5), NVIDIA Jetson (Nano), and BeagleBone.
+- Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64), Raspberry Pi (2, 3, 4, 5), NVIDIA Jetson (Nano).
 
 ## Installation:
 
