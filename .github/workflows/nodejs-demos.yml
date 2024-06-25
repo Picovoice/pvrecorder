@@ -52,7 +52,7 @@ jobs:
 
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-64, jetson, pv-windows, pv-ios]
+        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-64, jetson, beaglebone, pv-windows, pv-ios]
 
     steps:
     - uses: actions/checkout@v3
