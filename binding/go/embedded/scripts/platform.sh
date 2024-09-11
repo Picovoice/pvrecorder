@@ -28,12 +28,9 @@ case $kernel in
         cpu_part=$(awk -F' ' '{print $NF}' <<< $cpu_part_list)
         case $cpu_part in
             "0xb76") kernel="raspberry-pi" arch="arm11"$arch_info;;
-            "0xc07") kernel="raspberry-pi" arch="cortex-a7"$arch_info ;;
             "0xd03") kernel="raspberry-pi" arch="cortex-a53"$arch_info ;;
-            "0xd07") kernel="jetson" arch="cortex-a57"$arch_info ;;
             "0xd08") kernel="raspberry-pi" arch="cortex-a72"$arch_info ;;
             "0xd0b") kernel="raspberry-pi" arch="cortex-a76"$arch_info ;;
-            "0xc08") kernel="beaglebone" arch=$arch_info ;;
             *) exit 1;;
         esac
     esac
