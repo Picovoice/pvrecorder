@@ -7,9 +7,7 @@ on:
     paths:
       - 'binding/rust/**'
       - '!binding/rust/README.md'
-      - 'lib/beaglebone/**'
       - 'lib/linux/**'
-      - 'lib/jetson/**'
       - 'lib/mac/**'
       - 'lib/raspberry-pi/**'
       - 'lib/windows/**'
@@ -19,9 +17,7 @@ on:
     paths:
       - 'binding/rust/**'
       - '!binding/rust/README.md'
-      - 'lib/beaglebone/**'
       - 'lib/linux/**'
-      - 'lib/jetson/**'
       - 'lib/mac/**'
       - 'lib/raspberry-pi/**'
       - 'lib/windows/**'
@@ -72,7 +68,7 @@ jobs:
 
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-64, jetson, beaglebone, pv-windows]
+        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64, pv-windows]
 
     steps:
     - uses: actions/checkout@v3
