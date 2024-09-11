@@ -8,7 +8,7 @@ if(NOT PV_RECORDER_PLATFORM)
             "raspberry-pi5-64")
 endif()
 
-elseif (${PV_RECORDER_PLATFORM} STREQUAL "mac-arm64")
+if (${PV_RECORDER_PLATFORM} STREQUAL "mac-arm64")
     set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/mac/arm64)
 elseif (${PV_RECORDER_PLATFORM} STREQUAL "mac-x86_64")
     set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/mac/x86_64)

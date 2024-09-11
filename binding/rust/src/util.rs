@@ -71,7 +71,7 @@ fn base_library_path() -> PathBuf {
 
 #[cfg(all(target_os = "linux", any(target_arch = "arm", target_arch = "aarch64")))]
 fn base_library_path() -> PathBuf {
-    const RPI_MACHINES: [&str; 5] = ["arm11", "cortex-a53", "cortex-a72", "cortex-a76"];
+    const RPI_MACHINES: [&str; 4] = ["arm11", "cortex-a53", "cortex-a72", "cortex-a76"];
 
     let machine = find_machine_type();
     match machine.as_str() {

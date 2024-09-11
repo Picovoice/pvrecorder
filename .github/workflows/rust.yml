@@ -36,7 +36,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v3
@@ -68,7 +68,7 @@ jobs:
 
     strategy:
       matrix:
-        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64, pv-windows]
+        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64, pv-windows, pv-ios]
 
     steps:
     - uses: actions/checkout@v3

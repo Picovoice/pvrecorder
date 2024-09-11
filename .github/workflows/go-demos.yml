@@ -46,7 +46,7 @@ jobs:
 
       # ************** REMOVE AFTER RELEASE ********************
     - name: Get Go SDK from branch
-      run: go get github.com/Picovoice/pvspeaker/binding/go/v3/@ac44e4f64941ef6a121d3ee2d9628d1856d800b6
+      run: go get github.com/Picovoice/pvrecorder/binding/go/v3/@ac44e4f64941ef6a121d3ee2d9628d1856d800b6
       # ********************************************************
 
 #    - name: Install dependencies
@@ -72,7 +72,7 @@ jobs:
 
       # ************** REMOVE AFTER RELEASE ********************
     - name: Get Go SDK from branch
-      run: go get github.com/Picovoice/pvspeaker/binding/go/v3/@ac44e4f64941ef6a121d3ee2d9628d1856d800b6
+      run: go get github.com/Picovoice/pvrecorder/binding/go/v3/@ac44e4f64941ef6a121d3ee2d9628d1856d800b6
       # ********************************************************
 
 #    - name: Install dependencies

@@ -4,7 +4,7 @@ describe("Test PvRecorder", () => {
   test("invalid device index", () => {
     const f = () => {
       new PvRecorder(512, -2);
-    }
+    };
 
     expect(f).toThrow(Error);
   });
@@ -12,7 +12,7 @@ describe("Test PvRecorder", () => {
   test("invalid frame length", () => {
     const f = () => {
       new PvRecorder(0, 0);
-    }
+    };
 
     expect(f).toThrow(Error);
   });
@@ -20,7 +20,7 @@ describe("Test PvRecorder", () => {
   test("invalid buffered frames count", () => {
     const f = () => {
       new PvRecorder(512, 0, 0);
-    }
+    };
 
     expect(f).toThrow(Error);
   });

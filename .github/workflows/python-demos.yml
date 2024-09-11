@@ -66,7 +66,10 @@ jobs:
       run: pip install wheel && cd ../../binding/python && python3 setup.py sdist bdist_wheel && pip install dist/pvrecorder-1.2.3-py3-none-any.whl
 
     - name: Install dependencies
-      run: pip3 install -r requirements.txt
+      run: |
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip3 install -r requirements.txt
 
     - name: Run demo
       run: python3 pv_recorder_demo.py --show_audio_devices
