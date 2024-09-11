@@ -3,7 +3,7 @@ name: .NET
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+#    branches: [ main ]
     paths:
       - 'binding/dotnet/**'
       - '!binding/dotnet/README.md'
