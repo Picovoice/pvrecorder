@@ -63,7 +63,10 @@ jobs:
 
       # TODO: remove after release
     - name: Build dependencies
-      run: pip install wheel && cd ../../binding/python && python3 setup.py sdist bdist_wheel && pip install dist/pvrecorder-1.2.3-py3-none-any.whl
+      run: |
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install wheel && cd ../../binding/python && python3 setup.py sdist bdist_wheel && pip install dist/pvrecorder-1.2.3-py3-none-any.whl
 
     - name: Install dependencies
       run: |
