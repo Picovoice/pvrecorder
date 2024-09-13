@@ -31,16 +31,6 @@ jobs:
       run: dotnet format --verify-no-changes
       working-directory: binding/dotnet
 
-      # ************** REMOVE AFTER RELEASE ********************
-    - name: Pack .NET SDK
-      run: dotnet pack -c Release
-      working-directory: binding/dotnet
-
-    - name: Add local NuGet package file
-      run: dotnet add package -s ../../../binding/dotnet/PvRecorder/bin/Release PvRecorder
-      working-directory: demo/dotnet/PvRecorderDemo
-      # ********************************************************
-
     - name: Run Demo Codestyle
       run: dotnet format --verify-no-changes
       working-directory: demo/dotnet

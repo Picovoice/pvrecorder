@@ -42,15 +42,6 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-      # ************** REMOVE AFTER RELEASE ********************
-    - name: Pack .NET SDK
-      run: dotnet pack -c Release
-      working-directory: binding/dotnet
-
-    - name: Add local NuGet package file
-      run: dotnet add package -s ../../../binding/dotnet/PvRecorder/bin/Release PvRecorder
-      # ********************************************************
-
     - name: Build .NET demo
       run: dotnet build
 
@@ -66,15 +57,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-
-      # ************** REMOVE AFTER RELEASE ********************
-    - name: Pack .NET SDK
-      run: dotnet pack -c Release
-      working-directory: binding/dotnet
-
-    - name: Add local NuGet package file
-      run: dotnet add package -s ../../../binding/dotnet/PvRecorder/bin/Release PvRecorder
-      # ********************************************************
 
     - name: Build .NET demo
       run: dotnet build
