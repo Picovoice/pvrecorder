@@ -38,9 +38,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Pre-build dependencies
-      run: npm install yarn
-
     - name: Install dependencies
       run: yarn install
 
@@ -52,15 +49,12 @@ jobs:
 
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-64, jetson, beaglebone, pv-windows, pv-ios]
+        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64, pv-windows, pv-ios]
 
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
-
-    - name: Pre-build dependencies
-      run: npm install yarn
 
     - name: Install dependencies
       run: yarn install

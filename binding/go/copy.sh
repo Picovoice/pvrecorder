@@ -15,9 +15,3 @@ cp ../../lib/mac/arm64/libpv_recorder.dylib ./embedded/lib/mac/arm64/libpv_recor
 
 echo "Copying RPi lib..."
 cp -r ../../lib/raspberry-pi/* ./embedded/lib/raspberry-pi/
-
-echo "Copying Jetson lib..."
-cp ../../lib/jetson/cortex-a57-aarch64/libpv_recorder.so ./embedded/lib/jetson/cortex-a57-aarch64/libpv_recorder.so
-
-echo "Copying BeagleBone lib..."
-cp ../../lib/beaglebone/libpv_recorder.so ./embedded/lib/beaglebone/libpv_recorder.so

@@ -47,11 +47,8 @@ jobs:
     runs-on: ${{ matrix.machine }}
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-64, jetson, beaglebone]
+        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64]
         include:
-          - machine: rpi2
-            pv_recorder_platform: raspberry-pi2
-            output_dir: raspberry-pi/cortex-a7
           - machine: rpi3-32
             pv_recorder_platform: raspberry-pi3
             output_dir: raspberry-pi/cortex-a53
@@ -64,15 +61,12 @@ jobs:
           - machine: rpi4-64
             pv_recorder_platform: raspberry-pi4-64
             output_dir: raspberry-pi/cortex-a72-aarch64
+          - machine: rpi5-32
+            pv_recorder_platform: raspberry-pi5
+            output_dir: raspberry-pi/cortex-a76
           - machine: rpi5-64
             pv_recorder_platform: raspberry-pi5-64
             output_dir: raspberry-pi/cortex-a76-aarch64
-          - machine: jetson
-            pv_recorder_platform: jetson-nano
-            output_dir: jetson/cortex-a57-aarch64
-          - machine: beaglebone
-            pv_recorder_platform: beaglebone
-            output_dir: beaglebone
 
     steps:
       - uses: actions/checkout@v3

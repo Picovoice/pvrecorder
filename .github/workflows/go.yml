@@ -7,9 +7,7 @@ on:
     paths:
       - 'binding/go/**'
       - '!binding/go/README.md'
-      - 'lib/beaglebone/**'
       - 'lib/linux/**'
-      - 'lib/jetson/**'
       - 'lib/mac/**'
       - 'lib/raspberry-pi/**'
       - 'lib/windows/**'
@@ -19,9 +17,7 @@ on:
     paths:
       - 'binding/go/**'
       - '!binding/go/README.md'
-      - 'lib/beaglebone/**'
       - 'lib/linux/**'
-      - 'lib/jetson/**'
       - 'lib/mac/**'
       - 'lib/raspberry-pi/**'
       - 'lib/windows/**'
@@ -37,19 +33,13 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
         go: [ '1.16', '1.17', '1.18', '1.19', '1.20', '1.21', 'stable' ]
 
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
-
-    - name: Set up Mingw
-      uses: egor-tensin/setup-mingw@v2
-      if: ${{ (matrix.os == 'windows-latest') && (matrix.go != 'stable') && (matrix.go < 1.20) }}
-      with:
-        version: 11.2.0
 
     - name: Setup go
       uses: actions/setup-go@v4
@@ -60,7 +50,7 @@ jobs:
       run: ./copy.sh
 
     - name: Install dependencies
-      run: go get
+      run: go install
 
     - name: Build
       run: go build
@@ -73,7 +63,7 @@ jobs:
 
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-64, jetson, beaglebone, pv-windows]
+        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64, pv-windows, pv-ios]
 
     steps:
     - uses: actions/checkout@v3

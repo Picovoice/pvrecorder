@@ -7,9 +7,7 @@ on:
     paths:
       - 'binding/dotnet/**'
       - '!binding/dotnet/README.md'
-      - 'lib/beaglebone/**'
       - 'lib/linux/**'
-      - 'lib/jetson/**'
       - 'lib/mac/**'
       - 'lib/raspberry-pi/**'
       - 'lib/windows/**'
@@ -19,9 +17,7 @@ on:
     paths:
       - 'binding/dotnet/**'
       - '!binding/dotnet/README.md'
-      - 'lib/beaglebone/**'
       - 'lib/linux/**'
-      - 'lib/jetson/**'
       - 'lib/mac/**'
       - 'lib/raspberry-pi/**'
       - 'lib/windows/**'
@@ -36,8 +32,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        dotnet-version: [2.1.x, 3.0.x, 3.1.x, 5.0.x, 6.0.x]
+        os: [ubuntu-latest]
+        dotnet-version: [2.1.x, 3.0.x, 3.1.x, 5.0.x, 6.0.x, 8.0.x]
         include:
           - dotnet-version: 2.1.x
             binding-framework: netstandard2.0
@@ -54,6 +50,9 @@ jobs:
           - dotnet-version: 6.0.x
             binding-framework: net6.0
             test-framework: net6.0
+          - dotnet-version: 8.0.x
+            binding-framework: net8.0
+            test-framework: net8.0
 
     steps:
     - uses: actions/checkout@v3
@@ -74,13 +73,13 @@ jobs:
 
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-64, jetson, beaglebone, pv-windows]
+        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64, pv-windows, pv-ios]
 
     steps:
     - uses: actions/checkout@v3
 
     - name: Build binding
-      run: dotnet build PvRecorder/PvRecorder.csproj --framework net6.0
+      run: dotnet build PvRecorder/PvRecorder.csproj --framework net8.0
 
     - name: Test
-      run: dotnet test --framework net6.0 -v n
+      run: dotnet test --framework net8.0 -v n

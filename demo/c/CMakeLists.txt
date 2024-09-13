@@ -3,25 +3,19 @@ project(pv_recorder_demo VERSION 1.2.0 DESCRIPTION "Picovoice audio recorder lib
 
 if(NOT PV_RECORDER_PLATFORM)
     message(FATAL_ERROR "No `PV_RECORDER_PLATFORM` value was given. Valid platforms are: \n"
-            "linux, mac-arm64, mac-x86_64, windows, raspberry-pi, raspberry-pi2, "
-            "raspberry-pi3-32, raspberry-pi3-64, raspberry-pi4-32, raspberry-pi4-64, "
-            "raspberry-pi5-32, raspberry-pi5-64, jetson-nano, beaglebone")
+            "linux, mac-arm64, mac-x86_64, windows, raspberry-pi, raspberry-pi3-32, "
+            "raspberry-pi3-64, raspberry-pi4-32, raspberry-pi4-64, raspberry-pi5-32, "
+            "raspberry-pi5-64")
 endif()
 
-if (${PV_RECORDER_PLATFORM} STREQUAL "beaglebone")
-    set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/beaglebone)
-elseif (${PV_RECORDER_PLATFORM} STREQUAL "mac-arm64")
+if (${PV_RECORDER_PLATFORM} STREQUAL "mac-arm64")
     set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/mac/arm64)
 elseif (${PV_RECORDER_PLATFORM} STREQUAL "mac-x86_64")
     set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/mac/x86_64)
 elseif (${PV_RECORDER_PLATFORM} STREQUAL "linux")
     set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/linux/x86_64)
-elseif (${PV_RECORDER_PLATFORM} STREQUAL "jetson-nano")
-    set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/jetson/cortex-a57-aarch64)
 elseif (${PV_RECORDER_PLATFORM} STREQUAL "raspberry-pi")
     set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/raspberry-pi/arm11)
-elseif (${PV_RECORDER_PLATFORM} STREQUAL "raspberry-pi2")
-    set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/raspberry-pi/cortex-a7)
 elseif (${PV_RECORDER_PLATFORM} STREQUAL "raspberry-pi3")
     set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/raspberry-pi/cortex-a53)
 elseif (${PV_RECORDER_PLATFORM} STREQUAL "raspberry-pi3-64")

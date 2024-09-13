@@ -1,5 +1,5 @@
 #
-# Copyright 2021-2023 Picovoice Inc.
+# Copyright 2021-2024 Picovoice Inc.
 #
 # You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
 # file accompanying this source.
@@ -28,7 +28,7 @@ shutil.copytree(
     os.path.join(os.path.dirname(__file__), '../../resources/scripts'),
     os.path.join(package_folder, 'resources/scripts'))
 
-platforms = ('beaglebone', 'jetson', 'linux', 'mac', 'raspberry-pi', 'windows')
+platforms = ('linux', 'mac', 'raspberry-pi', 'windows')
 
 os.mkdir(os.path.join(package_folder, 'lib'))
 for platform in platforms:
@@ -40,8 +40,6 @@ MANIFEST_IN = """
 include pvrecorder/LICENSE
 include pvrecorder/__init__.py
 include pvrecorder/_pv_recorder.py
-include pvrecorder/lib/beaglebone/libpv_recorder.so
-recursive-include pvrecorder/lib/jetson *
 include pvrecorder/lib/linux/x86_64/libpv_recorder.so
 include pvrecorder/lib/mac/x86_64/libpv_recorder.dylib
 include pvrecorder/lib/mac/arm64/libpv_recorder.dylib
@@ -58,7 +56,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md'), 'r') as f:
 
 setuptools.setup(
     name="pvrecorder",
-    version="1.2.2",
+    version="1.2.3",
     author="Picovoice",
     author_email="hello@picovoice.ai",
     description="Recorder library for Picovoice.",

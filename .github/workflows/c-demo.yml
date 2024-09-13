@@ -53,10 +53,8 @@ jobs:
     runs-on: ${{ matrix.machine }}
     strategy:
       matrix:
-        machine: [rpi2, rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-64, jetson, beaglebone]
+        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64]
         include:
-          - machine: rpi2
-            pv_recorder_platform: raspberry-pi2
           - machine: rpi3-32
             pv_recorder_platform: raspberry-pi3
           - machine: rpi3-64
@@ -65,12 +63,10 @@ jobs:
             pv_recorder_platform: raspberry-pi4
           - machine: rpi4-64
             pv_recorder_platform: raspberry-pi4-64
+          - machine: rpi5-32
+            pv_recorder_platform: raspberry-pi5
           - machine: rpi5-64
             pv_recorder_platform: raspberry-pi5-64
-          - machine: jetson
-            pv_recorder_platform: jetson-nano
-          - machine: beaglebone
-            pv_recorder_platform: beaglebone
 
     steps:
       - uses: actions/checkout@v3
