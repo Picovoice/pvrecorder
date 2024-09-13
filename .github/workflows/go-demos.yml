@@ -44,13 +44,8 @@ jobs:
       with:
         go-version: ${{ matrix.go }}
 
-      # ************** REMOVE AFTER RELEASE ********************
-    - name: Get Go SDK from branch
-      run: go get github.com/Picovoice/pvrecorder/binding/go/v3/@ac44e4f64941ef6a121d3ee2d9628d1856d800b6
-      # ********************************************************
-
-#    - name: Install dependencies
-#      run: go get
+    - name: Install dependencies
+      run: go get
 
     - name: Build
       run: go build
@@ -70,13 +65,8 @@ jobs:
       with:
         submodules: recursive
 
-      # ************** REMOVE AFTER RELEASE ********************
-    - name: Get Go SDK from branch
-      run: go get github.com/Picovoice/pvrecorder/binding/go/v3/@ac44e4f64941ef6a121d3ee2d9628d1856d800b6
-      # ********************************************************
-
-#    - name: Install dependencies
-#      run: go get
+    - name: Install dependencies
+      run: go get
 
     - name: Build
       run: go build
