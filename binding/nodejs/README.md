@@ -64,4 +64,4 @@ recorder.release();
 
 ## Demos
 
-[@picovoice/pvrecorder-demo](https://www.npmjs.com/package/@picovoice/pvrecorder-demo) provides command-line utilities for recording audio to a file.
+[@picovoice/pvrecorder-node-demo](https://www.npmjs.com/package/@picovoice/pvrecorder-node-demo) provides command-line utilities for recording audio to a file.
