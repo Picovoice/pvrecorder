@@ -3,6 +3,7 @@
   "version": "1.2.4",
   "description": "Audio recorder sdk for Nodejs.",
   "main": "dist/index.js",
+  "types": "dist/types",
   "keywords": [
     "audio, audio recorder"
   ],
