@@ -340,7 +340,8 @@ namespace Pv
             {
                 FileName = scriptPath,
                 UseShellExecute = false,
-                RedirectStandardOutput = true
+                RedirectStandardOutput = true,
+                WindowStyle = ProcessWindowStyle.Hidden
             };
             process.StartInfo = processStartInfo;
             process.Start();
