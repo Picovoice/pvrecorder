@@ -33,7 +33,7 @@ jobs:
             pv_recorder_platform: linux
             output_dir: linux/x86_64
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -51,11 +51,10 @@ jobs:
           raspberry-pi,
           raspberry-pi3,
           raspberry-pi3-64,
-          raspberry-pi4-32,
+          raspberry-pi4,
           raspberry-pi4-64,
-          raspberry-pi5-32,
-          raspberry-pi5-64,
-
+          raspberry-pi5,
+          raspberry-pi5-64
         ]
         include:
           - pv_recorder_platform: raspberry-pi
@@ -81,7 +80,7 @@ jobs:
             output_dir: raspberry-pi/cortex-a76-aarch64
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -102,7 +101,7 @@ jobs:
           - pv_recorder_platform: mac-x86_64
             output_dir: mac/x86_64
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -126,7 +125,7 @@ jobs:
             output_dir: windows/arm64
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -143,7 +142,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
@@ -156,7 +155,7 @@ jobs:
           for DIR in artifacts/*; do cp -a $DIR/* all-libs/lib/; done
 
       - name: Upload all artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: all-libs
           path: all-libs
