@@ -115,6 +115,15 @@ jobs:
 
   build-windows:
     runs-on: pv-windows
+    strategy:
+      matrix:
+        pv_recorder_platform: [windows-amd64, windows-arm64]
+        include:
+          - pv_recorder_platform: windows-amd64
+            output_dir: windows/amd64
+          - pv_recorder_platform: windows-arm64
+            output_dir: windows/arm64
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -123,8 +132,8 @@ jobs:
       - uses: ./.github/actions/c-template
         name: Build and test
         with:
-          pv_recorder_platform: windows
-          output_dir: windows/amd64
+          pv_recorder_platform: ${{ matrix.pv_recorder_platform }}
+          output_dir: ${{ matrix.output_dir }}
           shell: pwsh
 
   collect-artifacts:
