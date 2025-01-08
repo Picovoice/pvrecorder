@@ -43,42 +43,24 @@ jobs:
           pv_recorder_platform: ${{ matrix.pv_recorder_platform }}
           output_dir: ${{ matrix.output_dir }}
 
-  build-rpi0:
-    runs-on: ${{ matrix.machine }}
-    strategy:
-      matrix:
-        pv_recorder_platform: [
-          raspberry-pi
-        ]
-        include:
-          - pv_recorder_platform: raspberry-pi
-            machine: rpi3-32
-            output_dir: raspberry-pi/arm11
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - uses: ./.github/actions/c-template
-        name: Build and test
-        with:
-          pv_recorder_platform: ${{ matrix.pv_recorder_platform }}
-          output_dir: ${{ matrix.output_dir }}
-
   build-rpis:
     runs-on: ${{ matrix.machine }}
     strategy:
       matrix:
         pv_recorder_platform: [
+          raspberry-pi,
           raspberry-pi3,
           raspberry-pi3-64,
           raspberry-pi4-32,
           raspberry-pi4-64,
           raspberry-pi5-32,
-          raspberry-pi5-64
+          raspberry-pi5-64,
+
         ]
         include:
+          - pv_recorder_platform: raspberry-pi
+            machine: rpi3-32
+            output_dir: raspberry-pi/arm11
           - pv_recorder_platform: raspberry-pi3
             machine: rpi3-32
             output_dir: raspberry-pi/cortex-a53
@@ -157,7 +139,7 @@ jobs:
 
   collect-artifacts:
     runs-on: ubuntu-latest
-    needs: [build-linux, build-rpi0, build-rpis, build-mac, build-windows]
+    needs: [build-linux, build-rpis, build-mac, build-windows]
 
     steps:
       - name: Download artifacts
