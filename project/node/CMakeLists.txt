@@ -3,9 +3,19 @@ project(pv_recorder_napi)
 
 include(ExternalProject)
 
-set(NODE_VERSION 18.16.1)
+if (${PV_RECORDER_PLATFORM} STREQUAL "windows-amd64" OR ${PV_RECORDER_PLATFORM} STREQUAL "windows-arm64")
+    if (NOT PV_WINDOWS_NODE_ARCH)
+        message(FATAL_ERROR "`PV_WINDOWS_NODE_ARCH` is a required value")
+    endif ()
+endif ()
 
-ExternalProject_Add(node_headers
+set(NODE_VERSION 18.16.1)
+if (PV_WINDOWS_NODE_ARCH STREQUAL "win-arm64")
+  set(NODE_VERSION 22.11.0)
+endif ()
+
+ExternalProject_Add(
+  node_headers
   URL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-headers.tar.xz
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
@@ -14,15 +24,22 @@ ExternalProject_Add(node_headers
 ExternalProject_Get_Property(node_headers SOURCE_DIR)
 set(NODE_INCLUDE_DIR ${SOURCE_DIR}/include/node/)
 
-if (${PV_RECORDER_PLATFORM} STREQUAL "windows")
-  set(NODE_WIN_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/node_win_lib )
-  ExternalProject_Add(node_win_lib
-    URL https://nodejs.org/dist/v${NODE_VERSION}/win-x64/node.exe 
+if (${PV_RECORDER_PLATFORM} STREQUAL "windows-amd64" OR ${PV_RECORDER_PLATFORM} STREQUAL "windows-arm64")
+  set(NODE_WIN_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/node_win_lib)
+
+  set(dlltool_param "-y")
+  if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    set(dlltool_param "-l")
+  endif ()
+
+  ExternalProject_Add(
+    node_win_lib
+    URL https://nodejs.org/dist/v${NODE_VERSION}/${PV_WINDOWS_NODE_ARCH}/node.exe
     DOWNLOAD_NO_EXTRACT on
     DOWNLOAD_DIR ${NODE_WIN_LIB_DIR}
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND gendef.exe ${NODE_WIN_LIB_DIR}/node.exe 
-          COMMAND dlltool.exe -d node.def -y ${NODE_WIN_LIB_DIR}/node.a
+    BUILD_COMMAND gendef.exe ${NODE_WIN_LIB_DIR}/node.exe
+    COMMAND dlltool.exe -d node.def ${dlltool_param} ${NODE_WIN_LIB_DIR}/node.a
     INSTALL_COMMAND ""
   )
   set(NODE_LIB ${NODE_WIN_LIB_DIR}/node.a)
@@ -36,7 +53,7 @@ set_target_properties(pv_recorder_napi PROPERTIES
 )
 add_dependencies(pv_recorder_napi node_headers)
 
-if (${PV_RECORDER_PLATFORM} STREQUAL "windows")
+if (${PV_RECORDER_PLATFORM} STREQUAL "windows-amd64" OR ${PV_RECORDER_PLATFORM} STREQUAL "windows-arm64")
     add_dependencies(pv_recorder_napi node_win_lib)
     target_sources(pv_recorder_napi PRIVATE delayhook.c)
 endif()
