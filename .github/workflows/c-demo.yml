@@ -68,7 +68,7 @@ jobs:
           - machine: rpi5-64
             pv_recorder_platform: raspberry-pi5-64
           - machine: pv-windows-arm64
-            pv_speaker_platform: windows-arm64
+            pv_recorder_platform: windows-arm64
             shell: pwsh
 
     steps:

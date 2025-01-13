@@ -22,7 +22,7 @@ include = [
 [lib]
 name = "pv_recorder"
 path = "src/lib.rs"
-crate_type = ["lib"]
+crate-type = ["lib"]
 
 [dependencies]
 libc = "0.2"

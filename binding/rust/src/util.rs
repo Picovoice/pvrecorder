@@ -59,12 +59,12 @@ fn base_library_path() -> PathBuf {
     PathBuf::from("mac/arm64/libpv_recorder.dylib")
 }
 
-#[cfg(target_os = "windows", target_arch = "x86_64")]
+#[cfg(all(target_os = "windows", target_arch = "x86_64"))]
 fn base_library_path() -> PathBuf {
     PathBuf::from("windows/amd64/libpv_recorder.dll")
 }
 
-#[cfg(target_os = "windows", target_arch = "aarch64")]
+#[cfg(all(target_os = "windows", target_arch = "aarch64"))]
 fn base_library_path() -> PathBuf {
     PathBuf::from("windows/arm64/libpv_recorder.dll")
 }
