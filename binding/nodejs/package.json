@@ -1,6 +1,6 @@
 {
   "name": "@picovoice/pvrecorder-node",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Audio recorder sdk for Nodejs.",
   "main": "dist/index.js",
   "types": "dist/types",
