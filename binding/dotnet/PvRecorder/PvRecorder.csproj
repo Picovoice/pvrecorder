@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>net8.0;net6.0;netcoreapp3.0;netstandard2.0</TargetFrameworks>
-        <Version>1.2.8</Version>
+        <Version>1.2.9</Version>
         <Authors>Picovoice</Authors>
         <Company />
         <Product>PvRecorder</Product>
@@ -47,6 +47,17 @@
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\windows\amd64\libpv_recorder.dll</Link>
+            <Visible>false</Visible>
+        </Content>
+        <Content Include="..\..\..\lib\windows\arm64\libpv_recorder.dll">
+            <PackagePath>
+                build/netstandard2.0/libpv_recorder.dll;
+                build/netcoreapp3.0/lib/windows/arm64/libpv_recorder.dll;
+                build/net6.0/lib/windows/arm64/libpv_recorder.dll;
+                build/net8.0/lib/windows/arm64/libpv_recorder.dll;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\windows\arm64\libpv_recorder.dll</Link>
             <Visible>false</Visible>
         </Content>
         <Content Include="..\..\..\lib\linux\x86_64\libpv_recorder.so">
@@ -101,19 +112,6 @@
     </ItemGroup>
 
     <!--Resource files-->
-    <ItemGroup>
-        <Content Include="..\..\..\resources\scripts\*">
-            <PackagePath>
-                build/netstandard2.0/scripts;
-                build/netcoreapp3.0/scripts;
-                build/net6.0/scripts;
-                build/net8.0/scripts;
-            </PackagePath>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>scripts\%(Filename)%(Extension)</Link>
-            <Visible>False</Visible>
-        </Content>
-    </ItemGroup>
     <ItemGroup>
         <Folder Include="Content\" />
     </ItemGroup>
