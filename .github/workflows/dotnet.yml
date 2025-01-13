@@ -31,36 +31,47 @@ jobs:
   build-github-hosted:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        dotnet-version: [2.1.x, 3.0.x, 3.1.x, 5.0.x, 6.0.x, 8.0.x]
+        os: [ubuntu-latest, macos-13]
+        dotnet-version: [6.0.x, 8.0.x]
         include:
-          - dotnet-version: 2.1.x
-            binding-framework: netstandard2.0
-            test-framework: netcoreapp2.1.30
-          - dotnet-version: 3.0.x
-            binding-framework: netcoreapp3.0
-            test-framework: netcoreapp3.0
-          - dotnet-version: 3.1.x
-            binding-framework: netcoreapp3.0
-            test-framework: netcoreapp3.1
-          - dotnet-version: 5.0.x
-            binding-framework: netcoreapp3.0
-            test-framework: net5.0
           - dotnet-version: 6.0.x
             binding-framework: net6.0
             test-framework: net6.0
           - dotnet-version: 8.0.x
             binding-framework: net8.0
             test-framework: net8.0
+          - os: macos-13
+            dotnet-version: 2.1.x
+            binding-framework: netstandard2.0
+            test-framework: netcoreapp2.1
+          - os: macos-13
+            dotnet-version: 3.0.x
+            binding-framework: netcoreapp3.0
+            test-framework: netcoreapp3.0
+          - os: macos-13
+            dotnet-version: 3.1.x
+            binding-framework: netcoreapp3.0
+            test-framework: netcoreapp3.1
+          - os: macos-13
+            dotnet-version: 5.0.x
+            binding-framework: netcoreapp3.0
+            test-framework: net5.0
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
+
+    - name: Set up .NET (8)
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.dotnet-version == '6.0.x' }}
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
 
     - name: Build binding
       run: dotnet build PvRecorder/PvRecorder.csproj --framework ${{ matrix.binding-framework }}
@@ -72,14 +83,39 @@ jobs:
     runs-on: ${{ matrix.machine }}
 
     strategy:
+      fail-fast: false
       matrix:
-        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64, pv-windows, pv-ios]
+        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64, pv-windows, pv-ios, pv-windows-arm64]
+        dotnet-version: [6.0.x, 8.0.x]
+        include:
+          - dotnet-version: 6.0.x
+            binding-framework: net6.0
+            test-framework: net6.0
+          - dotnet-version: 8.0.x
+            binding-framework: net8.0
+            test-framework: net8.0
+          - machine: pv-windows
+            dotnet-version: 2.1.x
+            binding-framework: netstandard2.0
+            test-framework: netcoreapp2.1
+          - machine: pv-windows
+            dotnet-version: 3.0.x
+            binding-framework: netcoreapp3.0
+            test-framework: netcoreapp3.0
+          - machine: pv-windows
+            dotnet-version: 3.1.x
+            binding-framework: netcoreapp3.0
+            test-framework: netcoreapp3.1
+          - machine: pv-windows
+            dotnet-version: 5.0.x
+            binding-framework: netcoreapp3.0
+            test-framework: net5.0
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Build binding
-      run: dotnet build PvRecorder/PvRecorder.csproj --framework net8.0
+      run: dotnet build PvRecorder/PvRecorder.csproj --framework ${{ matrix.binding-framework }}
 
     - name: Test
-      run: dotnet test --framework net8.0 -v n
+      run: dotnet test --framework ${{ matrix.test-framework }} -v n
