@@ -1,5 +1,5 @@
 /*
-    Copyright 2021-2024 Picovoice Inc.
+    Copyright 2021-2025 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -59,9 +59,14 @@ fn base_library_path() -> PathBuf {
     PathBuf::from("mac/arm64/libpv_recorder.dylib")
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(target_os = "windows", target_arch = "x86_64")]
 fn base_library_path() -> PathBuf {
     PathBuf::from("windows/amd64/libpv_recorder.dll")
+}
+
+#[cfg(target_os = "windows", target_arch = "aarch64")]
+fn base_library_path() -> PathBuf {
+    PathBuf::from("windows/arm64/libpv_recorder.dll")
 }
 
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
