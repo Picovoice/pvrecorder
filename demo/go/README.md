@@ -9,7 +9,7 @@ PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-ti
 ## Compatibility
 
 - Go 1.16+
-- Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64), and Raspberry Pi (Zero, 3, 4, 5).
+- Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64 and arm64), and Raspberry Pi (Zero, 3, 4, 5).
 - **Windows**: The demo requires `cgo`, which means that you need to install a gcc compiler like [Mingw](http://mingw-w64.org/) to build it properly.
 
 ## Usage
