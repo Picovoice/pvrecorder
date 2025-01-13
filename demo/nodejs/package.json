@@ -1,6 +1,6 @@
 {
   "name": "@picovoice/pvrecorder-node-demo",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Picovoice PvRecorder demo",
   "scripts": {
     "demo": "node demo.js"
@@ -14,7 +14,7 @@
   "author": "Picovoice, Inc.",
   "license": "Apache-2.0",
   "dependencies": {
-    "@picovoice/pvrecorder-node": "~1.2.4",
+    "@picovoice/pvrecorder-node": "../../binding/nodejs",
     "commander": "^6.1.0",
     "wavefile": "^11.0.0"
   },

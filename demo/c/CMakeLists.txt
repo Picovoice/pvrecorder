@@ -3,9 +3,9 @@ project(pv_recorder_demo VERSION 1.2.0 DESCRIPTION "Picovoice audio recorder lib
 
 if(NOT PV_RECORDER_PLATFORM)
     message(FATAL_ERROR "No `PV_RECORDER_PLATFORM` value was given. Valid platforms are: \n"
-            "linux, mac-arm64, mac-x86_64, windows, raspberry-pi, raspberry-pi3-32, "
-            "raspberry-pi3-64, raspberry-pi4-32, raspberry-pi4-64, raspberry-pi5-32, "
-            "raspberry-pi5-64")
+            "linux, mac-arm64, mac-x86_64, windows-amd64, windows-arm64, "
+            "raspberry-pi, raspberry-pi3-32, raspberry-pi3-64, "
+            "raspberry-pi4-32, raspberry-pi4-64, raspberry-pi5-32, raspberry-pi5-64")
 endif()
 
 if (${PV_RECORDER_PLATFORM} STREQUAL "mac-arm64")
@@ -28,8 +28,10 @@ elseif (${PV_RECORDER_PLATFORM} STREQUAL "raspberry-pi5")
     set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/raspberry-pi/cortex-a76)
 elseif (${PV_RECORDER_PLATFORM} STREQUAL "raspberry-pi5-64")
     set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/raspberry-pi/cortex-a76-aarch64)
-elseif (${PV_RECORDER_PLATFORM} STREQUAL "windows")
+elseif (${PV_RECORDER_PLATFORM} STREQUAL "windows-amd64")
     set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/windows/amd64)
+elseif (${PV_RECORDER_PLATFORM} STREQUAL "windows-arm64")
+    set(PV_RECORDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../../lib/windows/arm64)
 else ()
     message(FATAL_ERROR "Unknown platform `${PV_RECORDER_PLATFORM}`.")
 endif ()

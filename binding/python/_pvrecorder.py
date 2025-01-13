@@ -1,5 +1,5 @@
 #
-# Copyright 2021-2023 Picovoice Inc.
+# Copyright 2021-2025 Picovoice Inc.
 #
 # You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
 # file accompanying this source.
@@ -18,29 +18,64 @@ from typing import *
 
 CALLBACK = CFUNCTYPE(None, POINTER(c_int16))
 
+_RASPBERRY_PI_MACHINES = {
+    "cortex-a53",
+    "cortex-a72",
+    "cortex-a76",
+    "cortex-a53-aarch64",
+    "cortex-a72-aarch64",
+    "cortex-a76-aarch64",
+}
+
+
+def _linux_machine() -> str:
+    machine = platform.machine()
+    if machine == "x86_64":
+        return machine
+    elif machine in ["aarch64", "armv7l"]:
+        arch_info = ("-" + machine) if '64bit' in platform.architecture()[0] else ""
+    else:
+        raise NotImplementedError("Unsupported CPU architecture: `%s`" % machine)
+
+    cpu_info = ""
+    try:
+        cpu_info = subprocess.check_output(["cat", "/proc/cpuinfo"]).decode("utf-8")
+        cpu_part_list = [x for x in cpu_info.split("\n") if "CPU part" in x]
+        cpu_part = cpu_part_list[0].split(" ")[-1].lower()
+    except Exception as e:
+        raise RuntimeError("Failed to identify the CPU with `%s`\nCPU info: `%s`" % (e, cpu_info))
+
+    if "0xd03" == cpu_part:
+        return "cortex-a53" + arch_info
+    elif "0xd08" == cpu_part:
+        return "cortex-a72" + arch_info
+    elif "0xd0b" == cpu_part:
+        return "cortex-a76" + arch_info
+    else:
+        raise NotImplementedError("Unsupported CPU: `%s`." % cpu_part)
+
 
 def default_library_path(relative: str = ''):
     """A helper function to get the library path."""
+    if platform.system() == "Darwin":
+        if platform.machine() == "x86_64":
+            return os.path.join(os.path.dirname(__file__), relative, "lib/mac/x86_64/libpv_recorder.dylib")
+        elif platform.machine() == "arm64":
+            return os.path.join(os.path.dirname(__file__), relative, "lib/mac/arm64/libpv_recorder.dylib")
+    elif platform.system() == "Linux":
+        linux_machine = _linux_machine()
+        if linux_machine == "x86_64":
+            return os.path.join(os.path.dirname(__file__), relative, "lib/linux/x86_64/libpv_recorder.so")
+        elif linux_machine in _RASPBERRY_PI_MACHINES:
+            return os.path.join(
+                os.path.dirname(__file__), relative, "lib/raspberry-pi/%s/libpv_recorder.so" % linux_machine)
+    elif platform.system() == "Windows":
+        if platform.machine().lower() == "amd64":
+            return os.path.join(os.path.dirname(__file__), relative, "lib/windows/amd64/libpv_recorder.dll")
+        elif platform.machine().lower() == "arm64":
+            return os.path.join(os.path.dirname(__file__), relative, "lib/windows/arm64/libpv_recorder.dll")
 
-    if platform.system() == "Windows":
-        script_path = os.path.join(os.path.dirname(__file__), relative, "resources", "scripts", "platform.bat")
-    else:
-        script_path = os.path.join(os.path.dirname(__file__), relative, "resources", "scripts", "platform.sh")
-
-    command = subprocess.run(script_path, stdout=subprocess.PIPE)
-
-    if command.returncode != 0:
-        raise RuntimeError("Current system is not supported.")
-    os_name, cpu = str(command.stdout.decode("utf-8")).split(" ")
-
-    if os_name == "windows":
-        extension = "dll"
-    elif os_name == "mac":
-        extension = "dylib"
-    else:
-        extension = "so"
-
-    return os.path.join(os.path.dirname(__file__), relative, "lib", os_name, cpu, "libpv_recorder.%s" % extension)
+    raise NotImplementedError("Unsupported platform.")
 
 
 class PvRecorder(object):

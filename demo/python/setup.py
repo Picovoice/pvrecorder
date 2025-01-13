@@ -23,7 +23,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md'), 'r') as f:
 
 setuptools.setup(
     name="pvrecorderdemo",
-    version="1.2.3",
+    version="1.2.4",
     author="Picovoice",
     author_email="hello@picovoice.ai",
     description="Recorder library for Picovoice.",
@@ -31,7 +31,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Picovoice/pvrecorder",
     packages=["pvrecorderdemo"],
-    install_requires=["pvrecorder==1.2.3"],
+    install_requires=["pvrecorder==1.2.4"],
     include_package_data=True,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
