@@ -50,9 +50,6 @@ jobs:
     - name: Rust pre-build
       run: bash copy.sh
 
-    - name: Install stable toolchain
-      uses: dtolnay/rust-toolchain@stable
-
     - name: Build
       run: cargo build --verbose
 
@@ -81,9 +78,6 @@ jobs:
         New-Item -Path "." -Name "data" -ItemType "directory"
         New-Item -Path ".\data" -Name "lib" -ItemType "directory"
         Copy-Item -Path "..\..\lib\windows" -Destination ".\data\lib" -Recurse
-
-    - name: Install stable toolchain
-      uses: dtolnay/rust-toolchain@stable
 
     - name: Build
       run: cargo build --verbose
