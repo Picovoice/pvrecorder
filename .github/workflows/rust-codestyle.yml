@@ -43,11 +43,7 @@ jobs:
       working-directory: binding/rust
 
     - name: Install stable toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-        override: true
+      uses: dtolnay/rust-toolchain@stable
 
     - name: Run clippy
       run: cargo clippy -- -D warnings
@@ -69,11 +65,7 @@ jobs:
       working-directory: binding/rust
 
     - name: Install stable toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-        override: true
+      uses: dtolnay/rust-toolchain@stable
 
     - name: Run clippy
       run: cargo clippy -- -D warnings
