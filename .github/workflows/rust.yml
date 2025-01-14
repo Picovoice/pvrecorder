@@ -76,7 +76,7 @@ jobs:
         submodules: recursive
 
     - name: Rust pre-build
-      if: matrix.machine != 'pv-windows' || matrix.machine != 'pv-windows-arm64'
+      if: matrix.machine != 'pv-windows' && matrix.machine != 'pv-windows-arm64'
       run: bash copy.sh
 
     - name: Rust pre-build windows
