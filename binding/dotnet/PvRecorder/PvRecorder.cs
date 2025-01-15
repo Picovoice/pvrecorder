@@ -1,5 +1,5 @@
 ﻿/*
-    Copyright 2021-2023 Picovoice Inc.
+    Copyright 2021-2025 Picovoice Inc.
 
     You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
     file accompanying this source.
@@ -61,7 +61,7 @@ namespace Pv
 #pragma warning disable IDE0059
 
             IntPtr libHandle = IntPtr.Zero;
-            NativeLibrary.TryLoad(GetLibraryPath(), out libHandle);
+            NativeLibrary.TryLoad(Utils.PvLibraryPath(libraryName), out libHandle);
             return libHandle;
         }
 
@@ -317,61 +317,6 @@ namespace Pv
                 default:
                     return new PvRecorderException("Unknown status returned from PvRecorder.");
             }
-        }
-
-        /// <summary>
-        /// Helper function to get the library path of pv_recorder.
-        /// </summary>
-        /// <returns>A string representing the absolute path of the library.</returns>
-        private static string GetLibraryPath()
-        {
-            string scriptPath;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                scriptPath = Path.Combine(AppContext.BaseDirectory, "scripts/platform.bat");
-            }
-            else
-            {
-                scriptPath = Path.Combine(AppContext.BaseDirectory, "scripts/platform.sh");
-            }
-
-            var process = new Process();
-            var processStartInfo = new ProcessStartInfo()
-            {
-                FileName = scriptPath,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                WindowStyle = ProcessWindowStyle.Hidden
-            };
-            process.StartInfo = processStartInfo;
-            process.Start();
-            process.WaitForExit();
-
-            if (process.ExitCode != 0)
-            {
-                throw new SystemException("System is not supported.");
-            }
-
-            string[] output = process.StandardOutput.ReadToEnd().Split(' ');
-            string osName = output[0];
-            string cpu = output[1];
-
-            string libName;
-
-            if (osName == "windows")
-            {
-                libName = $"{LIBRARY}.dll";
-            }
-            else if (osName == "mac")
-            {
-                libName = $"{LIBRARY}.dylib";
-            }
-            else
-            {
-                libName = $"{LIBRARY}.so";
-            }
-
-            return Path.Combine(AppContext.BaseDirectory, $"lib/{osName}/{cpu}/{libName}");
         }
 
         /// <summary>

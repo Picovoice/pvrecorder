@@ -8,6 +8,7 @@ cp ../../lib/linux/x86_64/libpv_recorder.so ./embedded/lib/linux/x86_64/libpv_re
 
 echo "Copying Windows lib..."
 cp ../../lib/windows/amd64/libpv_recorder.dll ./embedded/lib/windows/amd64/libpv_recorder.dll
+cp ../../lib/windows/arm64/libpv_recorder.dll ./embedded/lib/windows/arm64/libpv_recorder.dll
 
 echo "Copying macOS lib..."
 cp ../../lib/mac/x86_64/libpv_recorder.dylib ./embedded/lib/mac/x86_64/libpv_recorder.dylib

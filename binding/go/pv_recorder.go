@@ -1,4 +1,4 @@
-// Copyright 2021-2023 Picovoice Inc.
+// Copyright 2021-2025 Picovoice Inc.
 //
 // You may not use this file except in compliance with the license. A copy of the license is
 // located in the "LICENSE" file accompanying this source.
@@ -115,6 +115,9 @@ type nativePvRecorderType struct{}
 
 // private vars
 var (
+	osName, cpu      = getOS()
+	extractionDir    = filepath.Join(os.TempDir(), "cheetah")
+
 	libName          = extractLib()
 	nativePvRecorder = nativePvRecorderType{}
 )
@@ -229,54 +232,95 @@ func GetAvailableDevices() ([]string, error) {
 	return deviceNames, nil
 }
 
-func extractLib() string {
-	extractionDir := filepath.Join(os.TempDir(), "pvRecorder")
+func getOS() (string, string) {
+	switch os := runtime.GOOS; os {
+	case "darwin":
+		return "mac", getMacArch()
+	case "linux":
+		osName, cpu := getLinuxDetails()
+		return osName, cpu
+	case "windows":
+		return "windows", getWinArch()
+	default:
+		log.Fatalf("%s is not a supported OS", os)
+		return "", ""
+	}
+}
 
-	var scriptPath string
-	if runtime.GOOS == "windows" {
-		scriptPath = "embedded/scripts/platform.bat"
+func getMacArch() string {
+	if runtime.GOARCH == "arm64" {
+		return "arm64"
 	} else {
-		scriptPath = "embedded/scripts/platform.sh"
+		return "x86_64"
+	}
+}
+
+func getWinArch() string {
+	if runtime.GOARCH == "arm64" {
+		return "arm64"
+	} else {
+		return "amd64"
+	}
+}
+
+func getLinuxDetails() (string, string) {
+	var archInfo = ""
+
+	if runtime.GOARCH == "amd64" {
+		return "linux", "x86_64"
+	} else if runtime.GOARCH == "arm64" {
+		archInfo = "-aarch64"
 	}
 
-	script := extractFile(scriptPath, extractionDir)
-	cmd := exec.Command(script)
-	stdout, err := cmd.Output()
+	cmd := exec.Command("cat", "/proc/cpuinfo")
+	cpuInfo, err := cmd.Output()
 
 	if err != nil {
-		log.Fatal("System is not supported.")
+		log.Fatalf("Failed to get CPU details: %s", err.Error())
 	}
 
-	systemInfo := strings.Split(string(stdout), " ")
-	osName := systemInfo[0]
-	cpu := systemInfo[1]
-
-	libFile := "libpv_recorder"
-	if runtime.GOOS == "windows" {
-		libFile += ".dll"
-	} else if runtime.GOOS == "darwin" {
-		libFile += ".dylib"
-	} else if runtime.GOOS == "linux" {
-		libFile += ".so"
-	} else {
-		log.Fatalf("OS: %s is not supported.", runtime.GOOS)
+	var cpuPart = ""
+	for _, line := range strings.Split(string(cpuInfo), "\n") {
+		if strings.Contains(line, "CPU part") {
+			split := strings.Split(line, " ")
+			cpuPart = strings.ToLower(split[len(split)-1])
+			break
+		}
 	}
 
-	var srcPath string
-	if cpu == "" {
-		srcPath = fmt.Sprintf("embedded/lib/%s/%s", osName, libFile)
-	} else {
-		srcPath = fmt.Sprintf("embedded/lib/%s/%s/%s", osName, cpu, libFile)
+	switch cpuPart {
+	case "0xb76":
+		return "raspberry-pi", "arm11" + archInfo
+	case "0xd03":
+		return "raspberry-pi", "cortex-a53" + archInfo
+	case "0xd08":
+		return "raspberry-pi", "cortex-a72" + archInfo
+	case "0xd0b":
+		return "raspberry-pi", "cortex-a76" + archInfo
+	default:
+		log.Fatalf("Unsupported CPU:\n%s", cpuPart)
+		return "", ""
+	}
+}
+
+func extractLib() string {
+	var libPath string
+	switch os := runtime.GOOS; os {
+	case "darwin":
+		libPath = fmt.Sprintf("embedded/lib/%s/%s/libpv_cheetah.dylib", osName, cpu)
+	case "linux":
+		if cpu == "" {
+			libPath = fmt.Sprintf("embedded/lib/%s/libpv_cheetah.so", osName)
+		} else {
+			libPath = fmt.Sprintf("embedded/lib/%s/%s/libpv_cheetah.so", osName, cpu)
+		}
+	case "windows":
+		libPath = fmt.Sprintf("embedded/lib/%s/amd64/libpv_cheetah.dll", osName)
+	default:
+		log.Fatalf("%s is not a supported OS", os)
 	}
 
-	srcHash := sha256sum(srcPath)
-	hashedExtractionDir := filepath.Join(extractionDir, srcHash)
-	destPath := filepath.Join(hashedExtractionDir, srcPath)
-	if _, err := os.Stat(destPath); errors.Is(err, os.ErrNotExist) {
-		return extractFile(srcPath, hashedExtractionDir)
-	} else {
-		return destPath
-	}
+	return extractFile(libPath, extractionDir)
 }
 
 func extractFile(srcFile string, dstDir string) string {

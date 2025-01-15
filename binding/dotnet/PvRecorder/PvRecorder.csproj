@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>net8.0;net6.0;netcoreapp3.0;netstandard2.0</TargetFrameworks>
-        <Version>1.2.8</Version>
+        <Version>1.2.9</Version>
         <Authors>Picovoice</Authors>
         <Company />
         <Product>PvRecorder</Product>
@@ -49,17 +49,6 @@
             <Link>lib\windows\amd64\libpv_recorder.dll</Link>
             <Visible>false</Visible>
         </Content>
-        <Content Include="..\..\..\lib\linux\x86_64\libpv_recorder.so">
-            <PackagePath>
-                build/netstandard2.0/libpv_recorder.so;
-                build/netcoreapp3.0/lib/linux/x86_64/libpv_recorder.so;
-                build/net6.0/lib/linux/x86_64/libpv_recorder.so;
-                build/net8.0/lib/linux/x86_64/libpv_recorder.so;
-            </PackagePath>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>lib\linux\x86_64\libpv_recorder.so</Link>
-            <Visible>false</Visible>
-        </Content>
         <Content Include="..\..\..\lib\mac\x86_64\libpv_recorder.dylib">
             <PackagePath>
                 build/netstandard2.0/libpv_recorder.dylib;
@@ -73,22 +62,26 @@
         </Content>
     </ItemGroup>
 
-    <!--.NET Core 3.0+ libs-->
-    <ItemGroup>
-        <Content Include="..\..\..\lib\raspberry-pi\**\*" Exclude="..\..\..\lib\raspberry-pi\arm11\*">
-            <PackagePath>
-                build/netcoreapp3.0/lib/raspberry-pi;
-                build/net6.0/lib/raspberry-pi;
-                build/net8.0/lib/raspberry-pi;
-            </PackagePath>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>lib\raspberry-pi\%(RecursiveDir)%(Filename)%(Extension)</Link>
-            <Visible>false</Visible>
-        </Content>
-    </ItemGroup>
-
     <!--.NET 6.0+ libs-->
     <ItemGroup>
+        <Content Include="..\..\..\lib\windows\arm64\libpv_recorder.dll">
+            <PackagePath>
+                build/net6.0/lib/windows/arm64/libpv_recorder.dll;
+                build/net8.0/lib/windows/arm64/libpv_recorder.dll;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\windows\arm64\libpv_recorder.dll</Link>
+            <Visible>false</Visible>
+        </Content>
+        <Content Include="..\..\..\lib\linux\x86_64\libpv_recorder.so">
+            <PackagePath>
+                build/net6.0/lib/linux/x86_64/libpv_recorder.so;
+                build/net8.0/lib/linux/x86_64/libpv_recorder.so;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\linux\x86_64\libpv_recorder.so</Link>
+            <Visible>false</Visible>
+        </Content>
         <Content Include="..\..\..\lib\mac\arm64\libpv_recorder.dylib">
             <PackagePath>
                 build/net6.0/lib/mac/arm64/libpv_recorder.dylib;
@@ -98,22 +91,18 @@
             <Link>lib\mac\arm64\libpv_recorder.dylib</Link>
             <Visible>false</Visible>
         </Content>
+        <Content Include="..\..\..\lib\raspberry-pi\**\*" Exclude="..\..\..\lib\raspberry-pi\arm11\*">
+            <PackagePath>
+                build/net6.0/lib/raspberry-pi;
+                build/net8.0/lib/raspberry-pi;
+            </PackagePath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>lib\raspberry-pi\%(RecursiveDir)%(Filename)%(Extension)</Link>
+            <Visible>false</Visible>
+        </Content>
     </ItemGroup>
 
     <!--Resource files-->
-    <ItemGroup>
-        <Content Include="..\..\..\resources\scripts\*">
-            <PackagePath>
-                build/netstandard2.0/scripts;
-                build/netcoreapp3.0/scripts;
-                build/net6.0/scripts;
-                build/net8.0/scripts;
-            </PackagePath>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>scripts\%(Filename)%(Extension)</Link>
-            <Visible>False</Visible>
-        </Content>
-    </ItemGroup>
     <ItemGroup>
         <Folder Include="Content\" />
     </ItemGroup>

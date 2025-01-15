@@ -43,11 +43,7 @@ jobs:
       working-directory: binding/rust
 
     - name: Install stable toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-        override: true
+      uses: dtolnay/rust-toolchain@stable
 
     - name: Rust build demo
       run: cargo build --verbose
@@ -60,7 +56,7 @@ jobs:
 
     strategy:
       matrix:
-        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64]
+        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64, pv-windows-arm64]
 
     steps:
     - uses: actions/checkout@v3
@@ -68,12 +64,6 @@ jobs:
     - name: Rust pre-build
       run: bash copy.sh
       working-directory: binding/rust
-
-    - name: Install stable toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        override: true
 
     - name: Rust build demo
       run: cargo build --verbose

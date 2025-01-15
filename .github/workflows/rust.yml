@@ -50,13 +50,6 @@ jobs:
     - name: Rust pre-build
       run: bash copy.sh
 
-    - name: Install stable toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
-        override: true
-
     - name: Build
       run: cargo build --verbose
 
@@ -68,7 +61,7 @@ jobs:
 
     strategy:
       matrix:
-        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64, pv-windows, pv-ios]
+        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64, pv-windows, pv-windows-arm64, pv-ios]
 
     steps:
     - uses: actions/checkout@v3
@@ -76,21 +69,15 @@ jobs:
         submodules: recursive
 
     - name: Rust pre-build
-      if: matrix.machine != 'pv-windows'
+      if: matrix.machine != 'pv-windows' && matrix.machine != 'pv-windows-arm64'
       run: bash copy.sh
 
     - name: Rust pre-build windows
-      if: matrix.machine == 'pv-windows'
+      if: matrix.machine == 'pv-windows' || matrix.machine == 'pv-windows-arm64'
       run: |
         New-Item -Path "." -Name "data" -ItemType "directory"
         New-Item -Path ".\data" -Name "lib" -ItemType "directory"
         Copy-Item -Path "..\..\lib\windows" -Destination ".\data\lib" -Recurse
-
-    - name: Install stable toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        override: true
 
     - name: Build
       run: cargo build --verbose

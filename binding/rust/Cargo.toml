@@ -1,6 +1,6 @@
 [package]
 name = "pv_recorder"
-version = "1.2.3"
+version = "1.2.4"
 edition = "2018"
 description = "Rust recorder library for Picovoice"
 license = "Apache-2.0"
@@ -22,7 +22,7 @@ include = [
 [lib]
 name = "pv_recorder"
 path = "src/lib.rs"
-crate_type = ["lib"]
+crate-type = ["lib"]
 
 [dependencies]
 libc = "0.2"

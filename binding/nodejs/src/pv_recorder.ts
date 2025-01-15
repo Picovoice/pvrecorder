@@ -16,13 +16,14 @@ import * as path from "path";
 
 import PvRecorderStatus from "./pv_recorder_status_t";
 import pvRecorderStatusToException from "./errors";
+import { getSystemLibraryPath } from './platforms';
 
 /**
  * PvRecorder class for recording audio.
  */
 class PvRecorder {
   // eslint-disable-next-line
-  private static _pvRecorder = require(PvRecorder._getLibraryPath());
+  private static _pvRecorder = require(getSystemLibraryPath());
 
   private readonly _handle: number;
   private readonly _frameLength: number;
@@ -180,20 +181,6 @@ class PvRecorder {
       throw new Error("Failed to get audio devices.");
     }
     return devices;
-  }
-
-  private static _getLibraryPath(): string {
-    let scriptPath;
-    if (os.platform() === "win32") {
-      scriptPath = path.resolve(__dirname, "..", "scripts", "platform.bat");
-    } else {
-      scriptPath = path.resolve(__dirname, "..", "scripts", "platform.sh");
-    }
-
-    const output = execSync(`"${scriptPath}"`).toString();
-    const [osName, cpu] = output.split(" ");
-
-    return path.resolve(__dirname, "..", "lib", osName, cpu, "pv_recorder.node");
   }
 }
 

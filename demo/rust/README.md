@@ -14,7 +14,7 @@ PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-ti
 
 - Linux (x86_64)
 - macOS (x86_64 and arm64)
-- Windows (x86_64)
+- Windows (x86_64 and arm64)
 - Raspberry Pi:
     - Zero
     - 3 (32 and 64 bit)

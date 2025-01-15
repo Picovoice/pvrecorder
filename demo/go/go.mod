@@ -3,6 +3,6 @@ module pvrecorderdemo
 go 1.16
 
 require (
-	github.com/Picovoice/pvrecorder/binding/go v1.2.3
+	github.com/Picovoice/pvrecorder/binding/go v1.2.4
 	github.com/go-audio/wav v1.0.0
 )

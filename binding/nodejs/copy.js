@@ -25,17 +25,3 @@ ncp(
         console.log("Successfully copied library.");
     }
 )
-
-console.log("Copying scripts...");
-
-// Scripts
-ncp(
-    "../../resources/scripts",
-    "./scripts",
-    function (err) {
-        if (err) {
-            return console.error(err);
-        }
-        console.log("Successfully copied scripts.")
-    }
-)
