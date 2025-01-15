@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@picovoice/pvrecorder-node@~1.2.4":
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/@picovoice/pvrecorder-node/-/pvrecorder-node-1.2.4.tgz#1e67a1f82a144ad3c8e3f77c18fdbfe1ab5880cf"
-  integrity sha512-s8l6LtJnTHZ+FfIgXJZ9d8pKONSWs04v5q83F2zmfRr9IV1m7SQ5RlsmL0FO7NsB0GjIar3qHndryAQCjgSInw==
+"@picovoice/pvrecorder-node@=1.2.5":
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/@picovoice/pvrecorder-node/-/pvrecorder-node-1.2.5.tgz#a47e11d347979ef0f1b083657ff69dd9bd2efe5c"
+  integrity sha512-bnid5oInf22JRdrZ75z8ooewOza0whYI9w/oSQSZbkDvddylPPrY6x+1L1qIyf5Tb8ZtzKQL+aQ9m8SazgRHFg==
 
 commander@^6.1.0:
   version "6.2.1"
