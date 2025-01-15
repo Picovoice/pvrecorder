@@ -33,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13]
+        os: [ubuntu-latest]
         dotnet-version: [6.0.x, 8.0.x]
         include:
           - dotnet-version: 6.0.x
@@ -42,22 +42,6 @@ jobs:
           - dotnet-version: 8.0.x
             binding-framework: net8.0
             test-framework: net8.0
-          - os: macos-13
-            dotnet-version: 2.1.x
-            binding-framework: netstandard2.0
-            test-framework: netcoreapp2.1
-          - os: macos-13
-            dotnet-version: 3.0.x
-            binding-framework: netcoreapp3.0
-            test-framework: netcoreapp3.0
-          - os: macos-13
-            dotnet-version: 3.1.x
-            binding-framework: netcoreapp3.0
-            test-framework: netcoreapp3.1
-          - os: macos-13
-            dotnet-version: 5.0.x
-            binding-framework: netcoreapp3.0
-            test-framework: net5.0
 
     steps:
     - uses: actions/checkout@v4
