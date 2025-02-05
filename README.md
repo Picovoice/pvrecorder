@@ -6,7 +6,6 @@
 <!-- markdown-link-check-disable -->
 [![PyPI](https://img.shields.io/pypi/v/pvrecorder)](https://pypi.org/project/pvrecorder/)
 [![Nuget](https://img.shields.io/nuget/v/pvrecorder)](https://www.nuget.org/packages/pvrecorder/)
-[![Go Reference](https://pkg.go.dev/badge/github.com/Picovoice/pvrecorder/binding/go.svg)](https://pkg.go.dev/github.com/Picovoice/pvrecorder/binding/go)
 [![npm](https://img.shields.io/npm/v/@picovoice/pvrecorder-node?label=npm%20%5Bnode%5D)](https://www.npmjs.com/package/@picovoice/pvrecorder-node)
 [![Crates.io](https://img.shields.io/crates/v/pv_recorder)](https://crates.io/crates/pv_recorder)
 <!-- markdown-link-check-enable -->
@@ -27,14 +26,12 @@ PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-ti
   - [Demos](#demos)
     - [Python](#python-demo)
     - [.NET](#net-demo)
-    - [Go](#go-demo)
     - [Node.js](#nodejs-demo)
     - [Rust](#rust-demo)
     - [C](#c-demo)
   - [SDKs](#sdks)
     - [Python](#python)
     - [.NET](#net)
-    - [Go](#go)
     - [Node.js](#nodejs)
     - [Rust](#rust)
 
@@ -99,20 +96,6 @@ dotnet run -- --output_wav_path ${OUTPUT_WAV_PATH}
 ```
 
 For more information about the .NET demo, go to [demo/dotnet](demo/dotnet).
-
-### Go Demo
-
-The demo requires `cgo`, which on Windows may mean that you need to install a gcc compiler like [MinGW](http://mingw-w64.org) to build it properly.
-
-From [demo/go](demo/go) run the following commands from the terminal.
-
-```console
-go run demo.go --output_wav_path {OUTPUT_WAV_PATH}
-```
-
-Replace  `{OUTPUT_WAV_PATH}` with a file path to save the audio data in `wav` format.
-
-For more information about Go demo, go to [demo/go](demo/go).
 
 ### Node.js Demo
 
@@ -244,55 +227,6 @@ recorder.Dispose();
 ```
 
 For more information about the PvRecorder .NET SDK, go to [binding/dotnet](binding/dotnet).
-
-### Go
-
-To install the PvRecorder Go module to your project, use the command:
-
-```console
-go get github.com/Picovoice/pvrecorder/binding/go
-```
-
-To start recording, initialize an instance and run `Start()`:
-
-```go
-import . "github.com/Picovoice/pvrecorder/binding/go"
-
-recorder = NewPvRecorder(/*FrameLength*/512)
-recorder.Init()
-if err != nil {
-    // handle init error
-}
-defer recorder.Delete()
-
-err = recorder.Start()
-if err != nil {
-    // handle start error
-}
-```
-
-Get a frame of audio by calling the `Read()` function:
-
-```go
-frame, err := recorder.Read()
-if err != nil {
-    // handle error
-}
-```
-
-To stop recording, call `Stop()` on the instance:
-
-```go
-recorder.Stop()
-```
-
-Once you are done, free the resources acquired by PvRecorder. You do not have to call `Stop()` before `Delete()`:
-
-```go
-recorder.Delete()
-```
-
-For more information about the PvRecorder Go SDK, go to [binding/go](binding/go).
 
 ### Node.js
 
