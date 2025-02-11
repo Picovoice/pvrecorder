@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>net8.0;net6.0;netcoreapp3.0;netstandard2.0</TargetFrameworks>
-        <Version>1.2.9</Version>
+        <Version>1.2.10</Version>
         <Authors>Picovoice</Authors>
         <Company />
         <Product>PvRecorder</Product>
@@ -16,6 +16,7 @@
         <Description>PvRecorder is a cross-platform audio recorder for .NET designed for real-time processing.</Description>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <PackageIcon>pv_circle_512.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <!--Target files-->
@@ -110,6 +111,10 @@
         <None Include="Content\pv_circle_512.png">
             <Pack>True</Pack>
             <PackagePath></PackagePath>
+        </None>
+        <None Include="..\README.md">
+            <Pack>True</Pack>
+            <PackagePath>README.md</PackagePath>
         </None>
     </ItemGroup>
 </Project>
