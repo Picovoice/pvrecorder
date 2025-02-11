@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>net8.0;net6.0;netcoreapp3.0;netstandard2.0</TargetFrameworks>
-        <Version>1.2.9</Version>
+        <Version>1.2.10</Version>
         <Authors>Picovoice</Authors>
         <Company />
         <Product>PvRecorder</Product>
@@ -16,21 +16,22 @@
         <Description>PvRecorder is a cross-platform audio recorder for .NET designed for real-time processing.</Description>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <PackageIcon>pv_circle_512.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <!--Target files-->
     <ItemGroup>
         <Content Include="PvRecorder.netstandard2.0.targets">
             <PackagePath>
-                build/netstandard2.0/PvRecorder.targets;
+                buildTransitive/netstandard2.0/PvRecorder.targets;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
         <Content Include="PvRecorder.targets">
             <PackagePath>
-                build/netcoreapp3.0/PvRecorder.targets;
-                build/net6.0/PvRecorder.targets;
-                build/net8.0/PvRecorder.targets;
+                buildTransitive/netcoreapp3.0/PvRecorder.targets;
+                buildTransitive/net6.0/PvRecorder.targets;
+                buildTransitive/net8.0/PvRecorder.targets;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
@@ -40,10 +41,10 @@
     <ItemGroup>
         <Content Include="..\..\..\lib\windows\amd64\libpv_recorder.dll">
             <PackagePath>
-                build/netstandard2.0/libpv_recorder.dll;
-                build/netcoreapp3.0/lib/windows/amd64/libpv_recorder.dll;
-                build/net6.0/lib/windows/amd64/libpv_recorder.dll;
-                build/net8.0/lib/windows/amd64/libpv_recorder.dll;
+                buildTransitive/netstandard2.0/libpv_recorder.dll;
+                buildTransitive/netcoreapp3.0/lib/windows/amd64/libpv_recorder.dll;
+                buildTransitive/net6.0/lib/windows/amd64/libpv_recorder.dll;
+                buildTransitive/net8.0/lib/windows/amd64/libpv_recorder.dll;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\windows\amd64\libpv_recorder.dll</Link>
@@ -51,10 +52,10 @@
         </Content>
         <Content Include="..\..\..\lib\mac\x86_64\libpv_recorder.dylib">
             <PackagePath>
-                build/netstandard2.0/libpv_recorder.dylib;
-                build/netcoreapp3.0/lib/mac/x86_64/libpv_recorder.dylib;
-                build/net6.0/lib/mac/x86_64/libpv_recorder.dylib;
-                build/net8.0/lib/mac/x86_64/libpv_recorder.dylib;
+                buildTransitive/netstandard2.0/libpv_recorder.dylib;
+                buildTransitive/netcoreapp3.0/lib/mac/x86_64/libpv_recorder.dylib;
+                buildTransitive/net6.0/lib/mac/x86_64/libpv_recorder.dylib;
+                buildTransitive/net8.0/lib/mac/x86_64/libpv_recorder.dylib;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\mac\x86_64\libpv_recorder.dylib</Link>
@@ -66,8 +67,8 @@
     <ItemGroup>
         <Content Include="..\..\..\lib\windows\arm64\libpv_recorder.dll">
             <PackagePath>
-                build/net6.0/lib/windows/arm64/libpv_recorder.dll;
-                build/net8.0/lib/windows/arm64/libpv_recorder.dll;
+                buildTransitive/net6.0/lib/windows/arm64/libpv_recorder.dll;
+                buildTransitive/net8.0/lib/windows/arm64/libpv_recorder.dll;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\windows\arm64\libpv_recorder.dll</Link>
@@ -75,8 +76,8 @@
         </Content>
         <Content Include="..\..\..\lib\linux\x86_64\libpv_recorder.so">
             <PackagePath>
-                build/net6.0/lib/linux/x86_64/libpv_recorder.so;
-                build/net8.0/lib/linux/x86_64/libpv_recorder.so;
+                buildTransitive/net6.0/lib/linux/x86_64/libpv_recorder.so;
+                buildTransitive/net8.0/lib/linux/x86_64/libpv_recorder.so;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\linux\x86_64\libpv_recorder.so</Link>
@@ -84,8 +85,8 @@
         </Content>
         <Content Include="..\..\..\lib\mac\arm64\libpv_recorder.dylib">
             <PackagePath>
-                build/net6.0/lib/mac/arm64/libpv_recorder.dylib;
-                build/net8.0/lib/mac/arm64/libpv_recorder.dylib;
+                buildTransitive/net6.0/lib/mac/arm64/libpv_recorder.dylib;
+                buildTransitive/net8.0/lib/mac/arm64/libpv_recorder.dylib;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\mac\arm64\libpv_recorder.dylib</Link>
@@ -93,8 +94,8 @@
         </Content>
         <Content Include="..\..\..\lib\raspberry-pi\**\*" Exclude="..\..\..\lib\raspberry-pi\arm11\*">
             <PackagePath>
-                build/net6.0/lib/raspberry-pi;
-                build/net8.0/lib/raspberry-pi;
+                buildTransitive/net6.0/lib/raspberry-pi;
+                buildTransitive/net8.0/lib/raspberry-pi;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\raspberry-pi\%(RecursiveDir)%(Filename)%(Extension)</Link>
@@ -110,6 +111,10 @@
         <None Include="Content\pv_circle_512.png">
             <Pack>True</Pack>
             <PackagePath></PackagePath>
+        </None>
+        <None Include="..\README.md">
+            <Pack>True</Pack>
+            <PackagePath>README.md</PackagePath>
         </None>
     </ItemGroup>
 </Project>
