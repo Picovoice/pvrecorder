@@ -21,6 +21,9 @@ with open(os.path.join(os.path.dirname(__file__), 'MANIFEST.in'), 'w') as f:
 with open(os.path.join(os.path.dirname(__file__), 'README.md'), 'r') as f:
     long_description = f.read()
 
+with open(os.path.join(os.path.dirname(__file__), "requirements.txt"), "r") as f:
+    dependencies = f.read().strip().splitlines()
+
 setuptools.setup(
     name="pvrecorderdemo",
     version="1.2.4",
@@ -31,7 +34,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Picovoice/pvrecorder",
     packages=["pvrecorderdemo"],
-    install_requires=["pvrecorder==1.2.4"],
+    install_requires=dependencies,
     include_package_data=True,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -46,6 +49,6 @@ setuptools.setup(
             'pv_recorder_demo=pvrecorderdemo.pv_recorder_demo:main',
         ],
     ),
-    python_requires='>=3.8',
+    python_requires='>=3.9',
     keywords="Audio Recorder",
 )
