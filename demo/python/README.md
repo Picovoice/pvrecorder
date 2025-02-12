@@ -8,7 +8,7 @@ PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-ti
 
 ## Compatibility
 
-- Python 3.8+
+- Python 3.9+
 - Runs on Linux (x86_64), macOS (x86_64 and arm64), Windows (x86_64 and arm64), and Raspberry Pi (Zero, 3, 4, 5).
 
 ## Installation

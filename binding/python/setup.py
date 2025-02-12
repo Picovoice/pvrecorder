@@ -53,7 +53,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md'), 'r') as f:
 
 setuptools.setup(
     name="pvrecorder",
-    version="1.2.4",
+    version="1.2.5",
     author="Picovoice",
     author_email="hello@picovoice.ai",
     description="Recorder library for Picovoice.",
@@ -71,6 +71,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Topic :: Multimedia :: Sound/Audio :: Speech"
     ],
-    python_requires='>=3.8',
+    python_requires='>=3.9',
     keywords="Audio Recorder",
 )
