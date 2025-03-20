@@ -33,6 +33,7 @@ static const int32_t ABSOLUTE_SILENCE_THRESHOLD = 1;
 
 struct pv_recorder {
     ma_context context;
+    ma_device_config device_config;
     ma_device device;
     pv_circular_buffer_t *buffer;
     int32_t frame_length;
@@ -54,6 +55,22 @@ static void pv_recorder_ma_callback(ma_device *device, void *output, const void 
     }
 
     ma_mutex_unlock(&object->mutex);
+}
+
+static pv_recorder_status_t ma_result_to_pv_recorder_status(ma_result result) {
+    switch (result) {
+        case MA_SUCCESS:
+            return PV_RECORDER_STATUS_SUCCESS;
+        case MA_NO_BACKEND:
+        case MA_FAILED_TO_INIT_BACKEND:
+            return PV_RECORDER_STATUS_BACKEND_ERROR;
+        case MA_OUT_OF_MEMORY:
+            return PV_RECORDER_STATUS_OUT_OF_MEMORY;
+        case MA_DEVICE_ALREADY_INITIALIZED:
+            return PV_RECORDER_STATUS_DEVICE_ALREADY_INITIALIZED;
+        default:
+            return PV_RECORDER_STATUS_RUNTIME_ERROR;
+    }
 }
 
 PV_API pv_recorder_status_t pv_recorder_init(
@@ -84,22 +101,15 @@ PV_API pv_recorder_status_t pv_recorder_init(
     ma_result result = ma_context_init(NULL, 0, NULL, &(o->context));
     if (result != MA_SUCCESS) {
         pv_recorder_delete(o);
-        if ((result == MA_NO_BACKEND) || (result == MA_FAILED_TO_INIT_BACKEND)) {
-            return PV_RECORDER_STATUS_BACKEND_ERROR;
-        } else if (result == MA_OUT_OF_MEMORY) {
-            return PV_RECORDER_STATUS_OUT_OF_MEMORY;
-        } else {
-            return PV_RECORDER_STATUS_RUNTIME_ERROR;
-        }
+        return ma_result_to_pv_recorder_status(result);
     }
 
-    ma_device_config device_config;
-    device_config = ma_device_config_init(ma_device_type_capture);
-    device_config.capture.format = ma_format_s16;
-    device_config.capture.channels = 1;
-    device_config.sampleRate = ma_standard_sample_rate_16000;
-    device_config.dataCallback = pv_recorder_ma_callback;
-    device_config.pUserData = o;
+    o->device_config = ma_device_config_init(ma_device_type_capture);
+    o->device_config.capture.format = ma_format_s16;
+    o->device_config.capture.channels = 1;
+    o->device_config.sampleRate = ma_standard_sample_rate_16000;
+    o->device_config.dataCallback = pv_recorder_ma_callback;
+    o->device_config.pUserData = o;
 
     if (device_index != PV_RECORDER_DEFAULT_DEVICE_INDEX) {
         ma_device_info *capture_info = NULL;
@@ -112,39 +122,25 @@ PV_API pv_recorder_status_t pv_recorder_init(
                 &count);
         if (result != MA_SUCCESS) {
             pv_recorder_delete(o);
-            if (result == MA_OUT_OF_MEMORY) {
-                return PV_RECORDER_STATUS_OUT_OF_MEMORY;
-            } else {
-                return PV_RECORDER_STATUS_RUNTIME_ERROR;
-            }
+            return ma_result_to_pv_recorder_status(result);
         }
         if (device_index >= count) {
             pv_recorder_delete(o);
             return PV_RECORDER_STATUS_INVALID_ARGUMENT;
         }
-        device_config.capture.pDeviceID = &capture_info[device_index].id;
+        o->device_config.capture.pDeviceID = &capture_info[device_index].id;
     }
 
-    result = ma_device_init(&(o->context), &device_config, &(o->device));
+    result = ma_device_init(&(o->context), &(o->device_config), &(o->device));
     if (result != MA_SUCCESS) {
         pv_recorder_delete(o);
-        if (result == MA_DEVICE_ALREADY_INITIALIZED) {
-            return PV_RECORDER_STATUS_DEVICE_ALREADY_INITIALIZED;
-        } else if (result == MA_OUT_OF_MEMORY) {
-            return PV_RECORDER_STATUS_OUT_OF_MEMORY;
-        } else {
-            return PV_RECORDER_STATUS_RUNTIME_ERROR;
-        }
+        return ma_result_to_pv_recorder_status(result);
     }
 
     result = ma_mutex_init(&(o->mutex));
     if (result != MA_SUCCESS) {
         pv_recorder_delete(o);
-        if (result == MA_OUT_OF_MEMORY) {
-            return PV_RECORDER_STATUS_OUT_OF_MEMORY;
-        } else {
-            return PV_RECORDER_STATUS_RUNTIME_ERROR;
-        }
+        return ma_result_to_pv_recorder_status(result);
     }
 
     const int32_t buffer_capacity = frame_length * buffered_frames_count;
@@ -180,14 +176,26 @@ PV_API pv_recorder_status_t pv_recorder_start(pv_recorder_t *object) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
 
-    ma_result result = ma_device_start(&(object->device));
-    if (result != MA_SUCCESS) {
-        if (result == MA_DEVICE_NOT_INITIALIZED) {
-            return PV_RECORDER_STATUS_DEVICE_NOT_INITIALIZED;
+    ma_result result = MA_SUCCESS;
+    if (object->is_started) {
+        if (ma_device_is_started(&(object->device))) {
+            return PV_RECORDER_STATUS_SUCCESS;
         } else {
-            // device already started
-            return PV_RECORDER_STATUS_INVALID_STATE;
+            ma_device_uninit(&(object->device));
+            object->is_started = false;
         }
+    }
+
+    if (ma_device_get_state(&(object->device)) == ma_device_state_uninitialized) {
+        result = ma_device_init(&(object->context), &(object->device_config), &(object->device));
+        if (result != MA_SUCCESS) {
+            return ma_result_to_pv_recorder_status(result);
+        }
+    }
+
+    result = ma_device_start(&(object->device));
+    if (result != MA_SUCCESS) {
+        return ma_result_to_pv_recorder_status(result);
     }
 
     object->is_started = true;
@@ -200,21 +208,20 @@ PV_API pv_recorder_status_t pv_recorder_stop(pv_recorder_t *object) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
 
+    ma_mutex_lock(&object->mutex);
+    pv_circular_buffer_reset(object->buffer);
+    ma_mutex_unlock(&object->mutex);
+
+    if (!ma_device_is_started(&(object->device))) {
+        return PV_RECORDER_STATUS_SUCCESS;
+    }
 
     ma_result result = ma_device_stop(&(object->device));
     if (result != MA_SUCCESS) {
-        if (result == MA_DEVICE_NOT_INITIALIZED) {
-            return PV_RECORDER_STATUS_DEVICE_NOT_INITIALIZED;
-        } else {
-            // device already stopped
-            return PV_RECORDER_STATUS_INVALID_STATE;
-        }
+        return ma_result_to_pv_recorder_status(result);
     }
 
-    ma_mutex_lock(&object->mutex);
-    pv_circular_buffer_reset(object->buffer);
     object->is_started = false;
-    ma_mutex_unlock(&object->mutex);
 
     return PV_RECORDER_STATUS_SUCCESS;
 }
@@ -226,7 +233,7 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *fra
     if (!frame) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
-    if (!(object->is_started)) {
+    if (!ma_device_is_started(&object->device)) {
         return PV_RECORDER_STATUS_INVALID_STATE;
     }
 
@@ -237,7 +244,7 @@ PV_API pv_recorder_status_t pv_recorder_read(pv_recorder_t *object, int16_t *fra
     for (int32_t i = 0; i < READ_RETRY_COUNT; i++) {
         ma_mutex_lock(&object->mutex);
 
-        if (!(object->is_started)) {
+        if (!ma_device_is_started(&object->device)) {
             ma_mutex_unlock(&object->mutex);
             return PV_RECORDER_STATUS_SUCCESS;
         }
@@ -290,7 +297,7 @@ PV_API bool pv_recorder_get_is_recording(pv_recorder_t *object) {
     if (!object) {
         return false;
     }
-    return object->is_started;
+    return ma_device_is_started(&object->device);
 }
 
 PV_API const char *pv_recorder_get_selected_device(pv_recorder_t *object) {
@@ -313,13 +320,7 @@ PV_API pv_recorder_status_t pv_recorder_get_available_devices(
     ma_context context;
     ma_result result = ma_context_init(NULL, 0, NULL, &context);
     if (result != MA_SUCCESS) {
-        if ((result == MA_NO_BACKEND) || (result == MA_FAILED_TO_INIT_BACKEND)) {
-            return PV_RECORDER_STATUS_BACKEND_ERROR;
-        } else if (result == MA_OUT_OF_MEMORY) {
-            return PV_RECORDER_STATUS_OUT_OF_MEMORY;
-        } else {
-            return PV_RECORDER_STATUS_INVALID_STATE;
-        }
+        return ma_result_to_pv_recorder_status(result);
     }
 
     ma_device_info *capture_info;
