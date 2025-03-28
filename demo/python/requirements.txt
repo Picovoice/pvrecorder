@@ -1,1 +1,1 @@
-pvrecorder==1.2.6
+../../binding/python/dist/pvrecorder-1.2.7-py3-none-any.whl

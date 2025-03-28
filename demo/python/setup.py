@@ -26,7 +26,7 @@ with open(os.path.join(os.path.dirname(__file__), "requirements.txt"), "r") as f
 
 setuptools.setup(
     name="pvrecorderdemo",
-    version="1.2.7",
+    version="1.2.8",
     author="Picovoice",
     author_email="hello@picovoice.ai",
     description="Recorder library for Picovoice.",
