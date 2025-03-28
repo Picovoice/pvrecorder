@@ -38,7 +38,6 @@ struct pv_recorder {
     pv_circular_buffer_t *buffer;
     int32_t frame_length;
     int32_t current_silent_samples;
-    bool is_started;
     bool is_debug_logging_enabled;
     ma_mutex mutex;
 };
@@ -176,29 +175,24 @@ PV_API pv_recorder_status_t pv_recorder_start(pv_recorder_t *object) {
         return PV_RECORDER_STATUS_INVALID_ARGUMENT;
     }
 
-    ma_result result = MA_SUCCESS;
-    if (object->is_started) {
-        if (ma_device_is_started(&(object->device))) {
-            return PV_RECORDER_STATUS_SUCCESS;
-        } else {
-            ma_device_uninit(&(object->device));
-            object->is_started = false;
-        }
+    if (ma_device_is_started(&(object->device))) {
+        return PV_RECORDER_STATUS_SUCCESS;
     }
 
-    if (ma_device_get_state(&(object->device)) == ma_device_state_uninitialized) {
+    ma_result result = ma_device_start(&(object->device));
+    if (result != MA_SUCCESS) {
+        ma_device_uninit(&(object->device));
+
         result = ma_device_init(&(object->context), &(object->device_config), &(object->device));
         if (result != MA_SUCCESS) {
             return ma_result_to_pv_recorder_status(result);
         }
-    }
 
-    result = ma_device_start(&(object->device));
-    if (result != MA_SUCCESS) {
-        return ma_result_to_pv_recorder_status(result);
+        result = ma_device_start(&(object->device));
+        if (result != MA_SUCCESS) {
+            return ma_result_to_pv_recorder_status(result);
+        }
     }
-
-    object->is_started = true;
 
     return PV_RECORDER_STATUS_SUCCESS;
 }
@@ -220,8 +214,6 @@ PV_API pv_recorder_status_t pv_recorder_stop(pv_recorder_t *object) {
     if (result != MA_SUCCESS) {
         return ma_result_to_pv_recorder_status(result);
     }
-
-    object->is_started = false;
 
     return PV_RECORDER_STATUS_SUCCESS;
 }
