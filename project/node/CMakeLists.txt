@@ -11,7 +11,7 @@ endif ()
 
 set(NODE_VERSION 18.16.1)
 if (PV_WINDOWS_NODE_ARCH STREQUAL "win-arm64")
-  set(NODE_VERSION 22.11.0)
+  set(NODE_VERSION 22.14.0)
 endif ()
 
 ExternalProject_Add(
