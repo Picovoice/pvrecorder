@@ -16,11 +16,11 @@ endif ()
 
 ExternalProject_Add(
   node_headers
+  DOWNLOAD_EXTRACT_TIMESTAMP ON
   URL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-headers.tar.xz
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
-  DOWNLOAD_EXTRACT_TIMESTAMP true
 )
 ExternalProject_Get_Property(node_headers SOURCE_DIR)
 set(NODE_INCLUDE_DIR ${SOURCE_DIR}/include/node/)
