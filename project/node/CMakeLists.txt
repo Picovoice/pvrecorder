@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.10)
 project(pv_recorder_napi)
 
 include(ExternalProject)
@@ -16,6 +16,7 @@ endif ()
 
 ExternalProject_Add(
   node_headers
+  DOWNLOAD_EXTRACT_TIMESTAMP ON
   URL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-headers.tar.xz
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
