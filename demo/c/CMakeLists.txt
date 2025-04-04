@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.10)
 project(pv_recorder_demo VERSION 1.2.0 DESCRIPTION "Picovoice audio recorder library demo.")
 
 if(NOT PV_RECORDER_PLATFORM)
