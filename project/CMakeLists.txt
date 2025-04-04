@@ -12,8 +12,13 @@ option(PV_BUILD_NODE "Build Node.js libraries" ON)
 
 if(NOT PV_RECORDER_PLATFORM)
     message(FATAL_ERROR "No `PV_RECORDER_PLATFORM` value was given. Valid platforms are: \n"
-            "linux, mac-arm64, mac-x86_64, windows-amd64, windows-arm64, "
-            "raspberry-pi, raspberry-pi3-32, raspberry-pi3-64, raspberry-pi4-32, raspberry-pi4-64, ")
+            "linux, "
+            "mac-arm64, mac-x86_64, "
+            "windows-amd64, windows-arm64, "
+            "raspberry-pi, "
+            "raspberry-pi3, raspberry-pi3-64, "
+            "raspberry-pi4, raspberry-pi4-64, "
+            "raspberry-pi5, raspberry-pi5-64, ")
 endif()
 
 set(UNIX_DEPENDENCIES pthread dl m)
