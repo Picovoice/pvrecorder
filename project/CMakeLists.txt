@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.4)
+cmake_policy(VERSION 3.10)
+
 project(pv_recorder VERSION 1.2.0 DESCRIPTION "Picovoice audio recorder library.")
 
 set(CMAKE_C_STANDARD 99)
