@@ -20,6 +20,7 @@ ExternalProject_Add(
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
+  DOWNLOAD_EXTRACT_TIMESTAMP true
 )
 ExternalProject_Get_Property(node_headers SOURCE_DIR)
 set(NODE_INCLUDE_DIR ${SOURCE_DIR}/include/node/)
