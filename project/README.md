@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- CMake 3.4+.
+- CMake 3.10+.
 - C99 compatible compiler.
 - **Windows**: MinGW.
 
