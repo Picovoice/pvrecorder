@@ -165,7 +165,6 @@ namespace Pv
 
             FrameLength = frameLength;
             SampleRate = pv_recorder_sample_rate();
-            SelectedDevice = Marshal.PtrToStringAnsi(pv_recorder_get_selected_device(_libraryPointer));
             Version = Marshal.PtrToStringAnsi(pv_recorder_version());
         }
 
@@ -251,7 +250,10 @@ namespace Pv
         /// </summary>
         public string SelectedDevice
         {
-            get; private set;
+            get
+            {
+                return Marshal.PtrToStringAnsi(pv_recorder_get_selected_device(_libraryPointer));
+            }
         }
 
         /// <summary>
