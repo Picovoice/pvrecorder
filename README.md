@@ -27,13 +27,11 @@ PvRecorder is an easy-to-use, cross-platform audio recorder designed for real-ti
     - [Python](#python-demo)
     - [.NET](#net-demo)
     - [Node.js](#nodejs-demo)
-    - [Rust](#rust-demo)
     - [C](#c-demo)
   - [SDKs](#sdks)
     - [Python](#python)
     - [.NET](#net)
     - [Node.js](#nodejs)
-    - [Rust](#rust)
 
 ## Source Code
 
@@ -114,16 +112,6 @@ pvrecorder-node-demo --output_wav_path ${OUTPUT_WAV_PATH}
 Replace `{OUTPUT_WAV_PATH}` with the file path to save the audio data in `wav` format.
 
 For more information about NodeJS demo, go to [demo/nodejs](demo/nodejs/).
-
-### Rust Demo
-
-Make sure there is a working microphone connected to your device. From [demo/rust/](demo/rust) run the following in the terminal to build and run the demo:
-
-```console
-cargo run --release -- --output_wav_path ${OUTPUT_WAV_PATH}
-```
-
-For more information about the Rust demo, go to [demo/rust](demo/rust).
 
 ### C Demo
 
@@ -266,42 +254,6 @@ recorder.release();
 ```
 
 For more information about the PvRecorder Node.js SDK, go to [binding/nodejs](binding/nodejs).
-
-### Rust
-
-Add `pv_recorder` to your app's `Cargo.toml` manifest:
-
-```toml
-[dependencies]
-pv_recorder = "*"
-```
-
-To start recording, initialize the instance and run `start()`:
-
-```rust
-use pv_recorder::PvRecorderBuilder
-
-let frame_length = 512;
-let recorder = PvRecorderBuilder::new(frame_length).init()?;
-recorder.start()?;
-```
-
-Read frames of audio:
-
-```rust
-while recorder.is_recording() {
-    let frame = recorder.read()?;
-    // process audio frame
-}
-```
-
-To stop recording, run `stop()` on the instance:
-
-```rust
-recorder.stop()?;
-```
-
-For more information about the PvRecorder Rust SDK, go to [binding/rust](binding/rust).
 
 ## Releases
 
