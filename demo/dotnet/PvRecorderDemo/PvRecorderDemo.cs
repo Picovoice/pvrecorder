@@ -119,7 +119,7 @@ namespace PvRecorderDemo
 
             try
             {
-                using (PvRecorder recorder = PvRecorder.Create(FRAME_LENGTH))
+                using (PvRecorder recorder = PvRecorder.Create(FRAME_LENGTH, audioDeviceIndex))
                 {
                     int totalSamplesWritten = 0;
                     BinaryWriter outputFileWriter = null;
