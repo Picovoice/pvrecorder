@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0;net6.0;netcoreapp3.0;netstandard2.0</TargetFrameworks>
+        <TargetFrameworks>net8.0;net6.0;netcoreapp3.0;netstandard2.0;net10.0</TargetFrameworks>
         <Version>1.2.13</Version>
         <Authors>Picovoice</Authors>
         <Company />
@@ -32,6 +32,7 @@
                 buildTransitive/netcoreapp3.0/PvRecorder.targets;
                 buildTransitive/net6.0/PvRecorder.targets;
                 buildTransitive/net8.0/PvRecorder.targets;
+                buildTransitive/net10.0/PvRecorder.targets;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
@@ -45,6 +46,7 @@
                 buildTransitive/netcoreapp3.0/lib/windows/amd64/libpv_recorder.dll;
                 buildTransitive/net6.0/lib/windows/amd64/libpv_recorder.dll;
                 buildTransitive/net8.0/lib/windows/amd64/libpv_recorder.dll;
+                buildTransitive/net10.0/lib/windows/amd64/libpv_recorder.dll;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\windows\amd64\libpv_recorder.dll</Link>
@@ -56,6 +58,7 @@
                 buildTransitive/netcoreapp3.0/lib/mac/x86_64/libpv_recorder.dylib;
                 buildTransitive/net6.0/lib/mac/x86_64/libpv_recorder.dylib;
                 buildTransitive/net8.0/lib/mac/x86_64/libpv_recorder.dylib;
+                buildTransitive/net10.0/lib/mac/x86_64/libpv_recorder.dylib;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\mac\x86_64\libpv_recorder.dylib</Link>
@@ -69,6 +72,7 @@
             <PackagePath>
                 buildTransitive/net6.0/lib/windows/arm64/libpv_recorder.dll;
                 buildTransitive/net8.0/lib/windows/arm64/libpv_recorder.dll;
+                buildTransitive/net10.0/lib/windows/arm64/libpv_recorder.dll;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\windows\arm64\libpv_recorder.dll</Link>
@@ -78,6 +82,7 @@
             <PackagePath>
                 buildTransitive/net6.0/lib/linux/x86_64/libpv_recorder.so;
                 buildTransitive/net8.0/lib/linux/x86_64/libpv_recorder.so;
+                buildTransitive/net10.0/lib/linux/x86_64/libpv_recorder.so;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\linux\x86_64\libpv_recorder.so</Link>
@@ -87,6 +92,7 @@
             <PackagePath>
                 buildTransitive/net6.0/lib/mac/arm64/libpv_recorder.dylib;
                 buildTransitive/net8.0/lib/mac/arm64/libpv_recorder.dylib;
+                buildTransitive/net10.0/lib/mac/arm64/libpv_recorder.dylib;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\mac\arm64\libpv_recorder.dylib</Link>
@@ -96,6 +102,7 @@
             <PackagePath>
                 buildTransitive/net6.0/lib/raspberry-pi;
                 buildTransitive/net8.0/lib/raspberry-pi;
+                buildTransitive/net10.0/lib/raspberry-pi;
             </PackagePath>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>lib\raspberry-pi\%(RecursiveDir)%(Filename)%(Extension)</Link>
