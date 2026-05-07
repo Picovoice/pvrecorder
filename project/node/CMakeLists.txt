@@ -59,6 +59,12 @@ if (${PV_RECORDER_PLATFORM} STREQUAL "windows-amd64" OR ${PV_RECORDER_PLATFORM} 
     target_sources(pv_recorder_napi PRIVATE delayhook.c)
 endif()
 
+# Delay-load node.exe so that Node API calls resolve to the host process,
+# even when it isn't named node.exe (e.g., SEA builds, Electron, embedders).
+if (${PV_RECORDER_PLATFORM} STREQUAL "windows-arm64")
+    target_link_options(pv_recorder_napi PRIVATE "LINKER:--delayload=node.exe")
+endif()
+
 target_include_directories(pv_recorder_napi PUBLIC ${PROJECT_SOURCE_DIR}/../include)
 target_include_directories(pv_recorder_napi PRIVATE ${NODE_INCLUDE_DIR})
 
