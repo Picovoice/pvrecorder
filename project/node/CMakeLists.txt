@@ -27,11 +27,8 @@ set(NODE_INCLUDE_DIR ${SOURCE_DIR}/include/node/)
 
 if (${PV_RECORDER_PLATFORM} STREQUAL "windows-amd64" OR ${PV_RECORDER_PLATFORM} STREQUAL "windows-arm64")
   set(NODE_WIN_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/node_win_lib)
-
-  set(dlltool_param "-y")
-  if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    set(dlltool_param "-l")
-  endif ()
+  
+  set(dlltool_param "-l")
 
   ExternalProject_Add(
     node_win_lib
@@ -57,6 +54,7 @@ add_dependencies(pv_recorder_napi node_headers)
 if (${PV_RECORDER_PLATFORM} STREQUAL "windows-amd64" OR ${PV_RECORDER_PLATFORM} STREQUAL "windows-arm64")
     add_dependencies(pv_recorder_napi node_win_lib)
     target_sources(pv_recorder_napi PRIVATE delayhook.c)
+    target_link_options(pv_recorder_napi PRIVATE "-Wl,--delayload=node.exe")    
 endif()
 
 target_include_directories(pv_recorder_napi PUBLIC ${PROJECT_SOURCE_DIR}/../include)
