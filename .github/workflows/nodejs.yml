@@ -81,7 +81,9 @@ jobs:
 
   node-sea-win-arm64:
     runs-on: ${{ matrix.machine }}
-    working-directory: .github/actions/node-sea
+    defaults:
+      run:
+        working-directory: .github/actions/node-sea
 
     strategy:
       matrix:
