@@ -78,3 +78,28 @@ jobs:
 
     - name: Test
       run: yarn test
+
+  node-sea-win-arm64:
+    runs-on: ${{ matrix.machine }}
+    defaults:
+      run:
+        working-directory: .github/actions/node-sea
+
+    strategy:
+      matrix:
+        machine: [pv-windows-arm64]
+
+    steps:
+    - uses: actions/checkout@v3      
+
+    - name: Generate SEA blob
+      run: node --experimental-sea-config sea-config.json
+
+    - name: Generate SEA exe
+      run: node -e "require('fs').copyFileSync(process.execPath, 'sea.exe')"
+
+    - name: Inject SEA
+      run: npx --yes postject sea.exe NODE_SEA_BLOB sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
+
+    - name: Run SEA
+      run: ./sea.exe
