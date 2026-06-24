@@ -11,6 +11,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+#if NETCOREAPP3_0_OR_GREATER
+using System;
+#endif
 using Pv;
 
 namespace PvRecorderTest
@@ -41,11 +44,15 @@ namespace PvRecorderTest
                 Assert.IsFalse(recorder.IsRecording);
                 recorder.Start();
                 Assert.IsTrue(recorder.IsRecording);
-
+#if NETCOREAPP3_0_OR_GREATER
+                var frame = new Span<short>(new short[FRAME_LENGTH]);
+                recorder.Read(frame);
+                Assert.AreEqual(FRAME_LENGTH, frame.Length);
+#else
                 short[] frame = recorder.Read();
                 Assert.IsNotNull(frame);
                 Assert.AreEqual(FRAME_LENGTH, frame.Length);
-
+#endif
                 recorder.Stop();
                 Assert.IsFalse(recorder.IsRecording);
             }

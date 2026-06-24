@@ -83,6 +83,9 @@ namespace Pv
         private static extern PvRecorderStatus pv_recorder_stop(IntPtr handle);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
+        private static extern PvRecorderStatus pv_recorder_read(IntPtr handle, ref short frame);
+
+        [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         private static extern PvRecorderStatus pv_recorder_read(IntPtr handle, short[] frame);
 
         [DllImport(LIBRARY, CallingConvention = CallingConvention.Cdecl)]
@@ -191,6 +194,20 @@ namespace Pv
                 throw PvRecorderStatusToException(status);
             }
         }
+
+        /// <summary>
+        /// Synchronously reads a frame of audio samples. Call between `Start()` and `Stop()`.
+        /// </summary>
+#if NETCOREAPP3_0_OR_GREATER
+        public void Read(Span<short> frame)
+        {
+            PvRecorderStatus status = pv_recorder_read(_libraryPointer, ref MemoryMarshal.GetReference(frame));
+            if (status != PvRecorderStatus.SUCCESS)
+            {
+                throw PvRecorderStatusToException(status);
+            }
+        }
+#endif
 
         /// <summary>
         /// Synchronously reads a frame of audio samples. Call between `Start()` and `Stop()`.
