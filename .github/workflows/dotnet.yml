@@ -69,7 +69,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64, pv-windows, pv-ios, pv-windows-arm64]
+        machine: [rpi3-64, rpi4-64, rpi5-64, pv-windows, pv-ios, pv-windows-arm64]
         dotnet-version: [6.0.x, 8.0.x]
         include:
           - dotnet-version: 6.0.x
