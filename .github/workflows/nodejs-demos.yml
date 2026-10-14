@@ -38,14 +38,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    # ************ REMOVE AFTER RELEASE ***************
-    - name: build local binding
-      run: |
-        yarn install
-        yarn build
-      working-directory: binding/nodejs
-    # ************ REMOVE AFTER RELEASE ***************
-
     - name: Install dependencies
       run: yarn install
 
@@ -57,20 +49,12 @@ jobs:
 
     strategy:
       matrix:
-        machine: [rpi3-32, rpi3-64, rpi4-32, rpi4-64, rpi5-32, rpi5-64, pv-ios, pv-windows, pv-windows-arm64]
+        machine: [rpi3-64, rpi4-64, rpi5-64, pv-ios, pv-windows, pv-windows-arm64]
 
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
-
-    # ************ REMOVE AFTER RELEASE ***************
-    - name: build local binding
-      run: |
-        yarn install
-        yarn build
-      working-directory: binding/nodejs
-    # ************ REMOVE AFTER RELEASE ***************
 
     - name: Install dependencies
       run: yarn install

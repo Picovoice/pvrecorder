@@ -48,33 +48,17 @@ jobs:
     strategy:
       matrix:
         pv_recorder_platform: [
-          raspberry-pi,
-          raspberry-pi3,
           raspberry-pi3-64,
-          raspberry-pi4,
           raspberry-pi4-64,
-          raspberry-pi5,
           raspberry-pi5-64
         ]
         include:
-          - pv_recorder_platform: raspberry-pi
-            machine: rpi3-32
-            output_dir: raspberry-pi/arm11
-          - pv_recorder_platform: raspberry-pi3
-            machine: rpi3-32
-            output_dir: raspberry-pi/cortex-a53
           - pv_recorder_platform: raspberry-pi3-64
             machine: rpi3-64
             output_dir: raspberry-pi/cortex-a53-aarch64
-          - pv_recorder_platform: raspberry-pi4
-            machine: rpi4-32
-            output_dir: raspberry-pi/cortex-a72
           - pv_recorder_platform: raspberry-pi4-64
             machine: rpi4-64
             output_dir: raspberry-pi/cortex-a72-aarch64
-          - pv_recorder_platform: raspberry-pi5
-            machine: rpi5-32
-            output_dir: raspberry-pi/cortex-a76
           - pv_recorder_platform: raspberry-pi5-64
             machine: rpi5-64
             output_dir: raspberry-pi/cortex-a76-aarch64
